@@ -3,6 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Database } from "../db/index.js";
 import { agents, executionHistory } from "../db/schema.js";
+import { enrichAgent } from "../helpers/enrich-agent.js";
 import { createAgentSchema, updateAgentSchema } from "../schemas/agent-input.js";
 import { executeAgent } from "../services/executor.js";
 import { removeAgent, scheduleAgent } from "../services/scheduler.js";
@@ -50,6 +51,7 @@ export function createAgentRoutes(db: Database): Hono {
 			cronSchedule: string;
 			systemPrompt?: string;
 			model?: string;
+			enabled?: boolean;
 		};
 		const now = new Date().toISOString();
 
@@ -62,15 +64,18 @@ export function createAgentRoutes(db: Database): Hono {
 					cronSchedule: data.cronSchedule,
 					systemPrompt: data.systemPrompt ?? null,
 					model: data.model ?? null,
+					enabled: data.enabled === false ? 0 : 1,
 					createdAt: now,
 					updatedAt: now,
 				})
 				.returning()
 				.get();
 
-			scheduleAgent(created, db);
+			if (created.enabled === 1) {
+				scheduleAgent(created, db);
+			}
 
-			return c.json(created, 201);
+			return c.json(enrichAgent(created, db), 201);
 		} catch (err) {
 			// Handle UNIQUE constraint violation for duplicate name
 			if (err instanceof Error && err.message.includes("UNIQUE constraint failed")) {
@@ -80,10 +85,18 @@ export function createAgentRoutes(db: Database): Hono {
 		}
 	});
 
-	// GET / - List all agents
+	// GET / - List all agents (supports ?enabled=true/false filtering)
 	app.get("/", (c) => {
-		const list = db.select().from(agents).all();
-		return c.json(list);
+		const enabledParam = c.req.query("enabled");
+		let list;
+		if (enabledParam === "true") {
+			list = db.select().from(agents).where(eq(agents.enabled, 1)).all();
+		} else if (enabledParam === "false") {
+			list = db.select().from(agents).where(eq(agents.enabled, 0)).all();
+		} else {
+			list = db.select().from(agents).all();
+		}
+		return c.json(list.map((a) => enrichAgent(a, db)));
 	});
 
 	// GET /:id - Get single agent
@@ -99,7 +112,7 @@ export function createAgentRoutes(db: Database): Hono {
 			return c.json({ error: "Agent not found" }, 404);
 		}
 
-		return c.json(agent);
+		return c.json(enrichAgent(agent, db));
 	});
 
 	// PATCH /:id - Update agent (partial)
@@ -122,24 +135,35 @@ export function createAgentRoutes(db: Database): Hono {
 			cronSchedule?: string;
 			systemPrompt?: string;
 			model?: string;
+			enabled?: boolean;
 		};
+
+		// Build the update set, converting boolean enabled to integer for DB
+		const updateSet: Record<string, unknown> = {
+			...data,
+			updatedAt: new Date().toISOString(),
+		};
+		if (data.enabled !== undefined) {
+			updateSet.enabled = data.enabled ? 1 : 0;
+		}
 
 		const updated = db
 			.update(agents)
-			.set({
-				...data,
-				updatedAt: new Date().toISOString(),
-			})
+			.set(updateSet)
 			.where(eq(agents.id, id))
 			.returning()
 			.get();
 
-		// Reschedule if cron changed
-		if (data.cronSchedule !== undefined) {
-			scheduleAgent(updated, db);
+		// Reschedule/remove if enabled or cronSchedule changed
+		if (data.enabled !== undefined || data.cronSchedule !== undefined) {
+			if (updated.enabled === 1) {
+				scheduleAgent(updated, db);
+			} else {
+				removeAgent(updated.id);
+			}
 		}
 
-		return c.json(updated);
+		return c.json(enrichAgent(updated, db));
 	});
 
 	// DELETE /:id - Delete agent
