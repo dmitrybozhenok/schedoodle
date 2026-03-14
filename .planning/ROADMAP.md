@@ -57,7 +57,10 @@ Plans:
   3. An agent with a cron schedule executes automatically at the scheduled time without manual intervention
   4. Multiple agents with different cron schedules run concurrently without conflicts or missed executions
   5. System prompt shapes the LLM's behavior and tone when the agent executes
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Install deps, update env/schema, create input schemas and scheduler service with tests
+- [ ] 03-02-PLAN.md — Build Hono CRUD routes, execution history endpoint, and wire index.ts with server + scheduler
 
 ### Phase 4: Resilience and Observability
 **Goal**: The system handles LLM provider failures gracefully and provides visibility into execution costs and service health
@@ -89,6 +92,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
 | 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
-| 3. Management API and Scheduling | 0/? | Not started | - |
+| 3. Management API and Scheduling | 0/2 | Not started | - |
 | 4. Resilience and Observability | 0/? | Not started | - |
 | 5. Notification | 0/? | Not started | - |
