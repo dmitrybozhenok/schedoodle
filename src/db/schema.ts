@@ -9,12 +9,8 @@ export const agents = sqliteTable(
 		taskDescription: text("task_description").notNull(),
 		cronSchedule: text("cron_schedule").notNull(),
 		systemPrompt: text("system_prompt"),
-		createdAt: text("created_at")
-			.notNull()
-			.default(sql`(CURRENT_TIMESTAMP)`),
-		updatedAt: text("updated_at")
-			.notNull()
-			.default(sql`(CURRENT_TIMESTAMP)`),
+		createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+		updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 	},
 	(table) => [uniqueIndex("agents_name_nocase").on(sql`${table.name} COLLATE NOCASE`)],
 );
@@ -31,8 +27,6 @@ export const executionHistory = sqliteTable("execution_history", {
 	result: text("result", { mode: "json" }),
 	error: text("error"),
 	deliveryStatus: text("delivery_status"),
-	startedAt: text("started_at")
-		.notNull()
-		.default(sql`(CURRENT_TIMESTAMP)`),
+	startedAt: text("started_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 	completedAt: text("completed_at"),
 });

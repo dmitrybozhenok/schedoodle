@@ -1,5 +1,4 @@
 import Database from "better-sqlite3";
-import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../src/db/schema.js";
