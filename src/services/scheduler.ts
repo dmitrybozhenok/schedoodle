@@ -60,13 +60,22 @@ export function removeAgent(agentId: number): void {
 }
 
 /**
- * Schedule cron jobs for all provided agents.
+ * Schedule cron jobs for all enabled agents. Disabled agents are silently skipped.
+ * Logs the count of scheduled and disabled agents.
  */
 export function startAll(agentList: Agent[], db: Database): void {
-	for (const agent of agentList) {
+	const enabledAgents = agentList.filter((a) => a.enabled === 1);
+	const disabledCount = agentList.length - enabledAgents.length;
+
+	for (const agent of enabledAgents) {
 		scheduleAgent(agent, db);
 	}
-	console.log(`[cron] Scheduled ${agentList.length} agent(s)`);
+
+	if (disabledCount > 0) {
+		console.log(`[cron] Scheduled ${enabledAgents.length} agent(s), ${disabledCount} disabled`);
+	} else {
+		console.log(`[cron] Scheduled ${enabledAgents.length} agent(s)`);
+	}
 }
 
 /**

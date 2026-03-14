@@ -11,6 +11,7 @@ CREATE TABLE agents (
   cron_schedule TEXT NOT NULL,
   system_prompt TEXT,
   model TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
