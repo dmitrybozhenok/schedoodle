@@ -18,11 +18,11 @@ describe("agentOutputSchema", () => {
 		const result = agentOutputSchema.safeParse({
 			summary: "x",
 			details: "y",
-			data: { foo: 1 },
+			data: '{"foo":1}',
 		});
 		expect(result.success).toBe(true);
 		if (result.success) {
-			expect(result.data.data).toEqual({ foo: 1 });
+			expect(result.data.data).toBe('{"foo":1}');
 		}
 	});
 
