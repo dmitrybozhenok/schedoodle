@@ -1,0 +1,120 @@
+# Requirements: Schedoodle
+
+**Defined:** 2026-03-14
+**Core Value:** Agents run reliably on schedule, process tasks through an LLM, and deliver structured results — without manual intervention.
+
+## v1 Requirements
+
+Requirements for initial release. Each maps to roadmap phases.
+
+### Agent Management
+
+- [ ] **AGNT-01**: User can create an agent with a name, task description, and cron schedule via API
+- [ ] **AGNT-02**: User can read, update, and delete agents via API
+- [ ] **AGNT-03**: Each agent can have an optional system prompt that shapes its behavior and tone
+- [ ] **AGNT-04**: Agent definitions are persisted in the database
+
+### LLM Execution
+
+- [ ] **EXEC-01**: Agent executes its task by sending the task description to an LLM and receiving a structured response
+- [ ] **EXEC-02**: LLM responses are validated against Zod schemas and returned as typed, structured output
+- [ ] **EXEC-03**: A single agent failure never crashes the service or blocks other agents from running
+- [ ] **EXEC-04**: Agents can fetch data from external URLs/APIs before the LLM call, passing fetched data as context
+
+### Scheduling
+
+- [ ] **SCHD-01**: Agents run automatically according to their cron schedule
+- [ ] **SCHD-02**: Multiple agents can be scheduled concurrently without conflicts
+
+### Resilience
+
+- [ ] **RSLN-01**: A circuit breaker per LLM provider prevents hammering a downed API
+- [ ] **RSLN-02**: Circuit breaker auto-recovers when the provider comes back online
+
+### Notification
+
+- [ ] **NOTF-01**: Agent results are delivered via email after each successful execution
+- [ ] **NOTF-02**: Emails include the agent name, execution timestamp, and formatted results
+
+### Observability
+
+- [ ] **OBSV-01**: Token usage and estimated cost are tracked per agent per execution
+- [ ] **OBSV-02**: A health check endpoint reports service status and basic operational info
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Agent Management
+
+- **AGNT-05**: User can enable/disable an agent without deleting it
+- **AGNT-06**: Agent creation validates cron expressions and required fields at create time
+
+### LLM Execution
+
+- **EXEC-05**: User can trigger any agent manually via API without waiting for schedule
+- **EXEC-06**: Each agent can define its own Zod output schema for typed results
+- **EXEC-07**: Dry-run mode validates data fetching and schema without calling LLM or sending email
+
+### Scheduling
+
+- **SCHD-03**: Missed runs are detected and executed when the service restarts (catch-up on startup)
+- **SCHD-04**: Cron schedules are interpreted in the user's timezone, including DST transitions
+
+### Resilience
+
+- **RSLN-03**: Failed LLM calls are retried with exponential backoff and jitter (configurable max retries)
+
+### Notification
+
+- **NOTF-03**: Different agents can use different email templates matched to their output format
+
+### Observability
+
+- **OBSV-03**: Full execution history is stored and queryable (status, timestamp, duration, result, error)
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Web dashboard / UI | API-first for v1; curl + future CLI cover the use case |
+| Multi-user / authentication | Personal tool; run on localhost or behind VPN |
+| Agent chaining / workflows | Independent agents only; workflow orchestration is an entire product category |
+| Real-time streaming | Agents are batch jobs; streaming adds complexity for zero value |
+| Multiple notification channels | Email only; design notifier as pluggable for future channels |
+| LLM tool-use / function-calling loops | Pre-fetch pattern is cheaper, more reliable, and deterministic |
+| Plugin / extension system | Premature abstraction; extract extension points after patterns emerge |
+| Natural language schedule input | Use cron expressions; link to crontab.guru in docs |
+| Agent marketplace / sharing | No users to share with; copy-paste JSON configs instead |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AGNT-01 | — | Pending |
+| AGNT-02 | — | Pending |
+| AGNT-03 | — | Pending |
+| AGNT-04 | — | Pending |
+| EXEC-01 | — | Pending |
+| EXEC-02 | — | Pending |
+| EXEC-03 | — | Pending |
+| EXEC-04 | — | Pending |
+| SCHD-01 | — | Pending |
+| SCHD-02 | — | Pending |
+| RSLN-01 | — | Pending |
+| RSLN-02 | — | Pending |
+| NOTF-01 | — | Pending |
+| NOTF-02 | — | Pending |
+| OBSV-01 | — | Pending |
+| OBSV-02 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 16 total
+- Mapped to phases: 0
+- Unmapped: 16
+
+---
+*Requirements defined: 2026-03-14*
+*Last updated: 2026-03-14 after initial definition*
