@@ -10,6 +10,7 @@ CREATE TABLE agents (
   task_description TEXT NOT NULL,
   cron_schedule TEXT NOT NULL,
   system_prompt TEXT,
+  model TEXT,
   created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -171,6 +172,7 @@ describe("database schema", () => {
 		expect(names).toContain("task_description");
 		expect(names).toContain("cron_schedule");
 		expect(names).toContain("system_prompt");
+		expect(names).toContain("model");
 		expect(names).toContain("created_at");
 		expect(names).toContain("updated_at");
 	});
