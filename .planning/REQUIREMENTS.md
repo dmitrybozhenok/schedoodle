@@ -16,9 +16,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### LLM Execution
 
-- [ ] **EXEC-01**: Agent executes its task by sending the task description to an LLM and receiving a structured response
+- [x] **EXEC-01**: Agent executes its task by sending the task description to an LLM and receiving a structured response
 - [x] **EXEC-02**: LLM responses are validated against Zod schemas and returned as typed, structured output
-- [ ] **EXEC-03**: A single agent failure never crashes the service or blocks other agents from running
+- [x] **EXEC-03**: A single agent failure never crashes the service or blocks other agents from running
 - [x] **EXEC-04**: Agents can fetch data from external URLs/APIs before the LLM call, passing fetched data as context
 
 ### Scheduling
@@ -97,9 +97,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGNT-02 | Phase 3 | Pending |
 | AGNT-03 | Phase 3 | Pending |
 | AGNT-04 | Phase 1 | Complete |
-| EXEC-01 | Phase 2 | Pending |
+| EXEC-01 | Phase 2 | Complete |
 | EXEC-02 | Phase 2 | Complete |
-| EXEC-03 | Phase 2 | Pending |
+| EXEC-03 | Phase 2 | Complete |
 | EXEC-04 | Phase 2 | Complete |
 | SCHD-01 | Phase 3 | Pending |
 | SCHD-02 | Phase 3 | Pending |
