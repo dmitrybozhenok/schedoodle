@@ -1,8 +1,8 @@
+import { count, gte } from "drizzle-orm";
 import { Hono } from "hono";
-import { gte, count } from "drizzle-orm";
+import type { Database } from "../db/index.js";
 import { agents, executionHistory } from "../db/schema.js";
 import type { CircuitBreakerStatus } from "../services/circuit-breaker.js";
-import type { Database } from "../db/index.js";
 
 /**
  * Factory function to create the health check route.

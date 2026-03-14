@@ -1,12 +1,16 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { logger } from "hono/logger";
 import { HTTPException } from "hono/http-exception";
+import { logger } from "hono/logger";
 import { env } from "./config/env.js";
 import { db } from "./db/index.js";
 import { agents } from "./db/schema.js";
 import { createAgentRoutes } from "./routes/agents.js";
+import { createHealthRoute } from "./routes/health.js";
+import { getLlmCircuitStatus } from "./services/executor.js";
 import { startAll, stopAll } from "./services/scheduler.js";
+
+const startedAt = Date.now();
 
 // Create Hono app
 const app = new Hono();
@@ -30,17 +34,15 @@ app.notFound((c) => {
 
 // Mount routes
 app.route("/agents", createAgentRoutes(db));
+app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt));
 
 // Boot sequence
 const allAgents = db.select().from(agents).all();
 startAll(allAgents, db);
 
-const server = serve(
-	{ fetch: app.fetch, port: env.PORT },
-	(info) => {
-		console.log(`Schedoodle listening on port ${info.port}`);
-	},
-);
+const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
+	console.log(`Schedoodle listening on port ${info.port}`);
+});
 
 // Graceful shutdown
 function shutdown() {
