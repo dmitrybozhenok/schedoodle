@@ -13,6 +13,8 @@
  *   - Always request reasoning before the score
  *   - Use a stronger model as judge when possible
  *   - Set temperature to 0 for reproducibility
+ *
+ * Supports Gemini (default) and Anthropic as judge providers.
  */
 import type { JudgeCriterion } from "../lib/types.js";
 
@@ -28,6 +30,8 @@ export interface JudgeScore {
 	score: number;
 	reasoning: string;
 }
+
+export type JudgeProvider = "gemini" | "anthropic";
 
 function buildBinaryPrompt(criterion: JudgeCriterion, input: JudgeInput): string {
 	return `You are evaluating the quality of an AI agent's output.
@@ -94,19 +98,99 @@ function parseJudgeResponse(response: string): {
 	};
 }
 
-/**
- * Score an output using an AI judge.
- * Calls the Schedoodle server's execute endpoint with a specially crafted
- * "judge agent" to avoid importing AI SDK directly into the eval harness.
- *
- * Alternatively, can use a direct fetch to an LLM API if configured.
- */
+// ── Provider-specific API calls ──────────────────────────────────
+
+async function callGemini(
+	prompt: string,
+	apiKey: string,
+	model: string,
+): Promise<string> {
+	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+	const response = await fetch(apiUrl, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			contents: [{ parts: [{ text: prompt }] }],
+			generationConfig: {
+				temperature: 0,
+				maxOutputTokens: 1024,
+			},
+		}),
+	});
+
+	if (!response.ok) {
+		const body = await response.text();
+		throw new Error(`Gemini ${response.status}: ${body.slice(0, 200)}`);
+	}
+
+	const data = (await response.json()) as {
+		candidates: Array<{
+			content: { parts: Array<{ text: string }> };
+		}>;
+	};
+
+	return data.candidates?.[0]?.content?.parts
+		?.map((p) => p.text)
+		.join("") ?? "";
+}
+
+async function callAnthropic(
+	prompt: string,
+	apiKey: string,
+	model: string,
+): Promise<string> {
+	const response = await fetch("https://api.anthropic.com/v1/messages", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"x-api-key": apiKey,
+			"anthropic-version": "2023-06-01",
+		},
+		body: JSON.stringify({
+			model,
+			max_tokens: 1024,
+			temperature: 0,
+			messages: [{ role: "user", content: prompt }],
+		}),
+	});
+
+	if (!response.ok) {
+		const body = await response.text();
+		throw new Error(`Anthropic ${response.status}: ${body.slice(0, 200)}`);
+	}
+
+	const data = (await response.json()) as {
+		content: Array<{ type: string; text: string }>;
+	};
+
+	return data.content
+		.filter((c) => c.type === "text")
+		.map((c) => c.text)
+		.join("");
+}
+
+// ── Defaults per provider ────────────────────────────────────────
+
+const PROVIDER_DEFAULTS: Record<JudgeProvider, { envKey: string; model: string }> = {
+	gemini: { envKey: "GEMINI_API_KEY", model: "gemini-3.1-flash-lite-preview" },
+	anthropic: { envKey: "ANTHROPIC_API_KEY", model: "claude-sonnet-4-20250514" },
+};
+
+function resolveProvider(): JudgeProvider {
+	// Prefer Gemini if key is available, fall back to Anthropic
+	if (process.env.GEMINI_API_KEY) return "gemini";
+	if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+	return "gemini"; // default, will show SKIPPED if no key
+}
+
+// ── Public API ───────────────────────────────────────────────────
+
 export async function scoreWithJudge(
 	criterion: JudgeCriterion,
 	input: JudgeInput,
 	options: {
-		/** Base URL for the LLM API (e.g., Anthropic, Ollama). Defaults to Anthropic. */
-		judgeApiUrl?: string;
+		judgeProvider?: JudgeProvider;
 		judgeApiKey?: string;
 		judgeModel?: string;
 	} = {},
@@ -116,50 +200,24 @@ export async function scoreWithJudge(
 			? buildBinaryPrompt(criterion, input)
 			: buildLikertPrompt(criterion, input);
 
-	const apiKey = options.judgeApiKey ?? process.env.ANTHROPIC_API_KEY;
-	const model = options.judgeModel ?? "claude-sonnet-4-20250514";
-	const apiUrl = options.judgeApiUrl ?? "https://api.anthropic.com/v1/messages";
+	const provider = options.judgeProvider ?? resolveProvider();
+	const defaults = PROVIDER_DEFAULTS[provider];
+	const apiKey = options.judgeApiKey ?? process.env[defaults.envKey];
+	const model = options.judgeModel ?? defaults.model;
 
 	if (!apiKey) {
 		return {
 			criterion: criterion.name,
 			score: 0,
-			reasoning: "SKIPPED: No API key available for AI judge",
+			reasoning: `SKIPPED: No ${defaults.envKey} available for AI judge`,
 		};
 	}
 
 	try {
-		const response = await fetch(apiUrl, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"x-api-key": apiKey,
-				"anthropic-version": "2023-06-01",
-			},
-			body: JSON.stringify({
-				model,
-				max_tokens: 1024,
-				temperature: 0,
-				messages: [{ role: "user", content: prompt }],
-			}),
-		});
-
-		if (!response.ok) {
-			const body = await response.text();
-			return {
-				criterion: criterion.name,
-				score: 0,
-				reasoning: `JUDGE ERROR: ${response.status} ${body.slice(0, 200)}`,
-			};
-		}
-
-		const data = (await response.json()) as {
-			content: Array<{ type: string; text: string }>;
-		};
-		const text = data.content
-			.filter((c) => c.type === "text")
-			.map((c) => c.text)
-			.join("");
+		const text =
+			provider === "gemini"
+				? await callGemini(prompt, apiKey, model)
+				: await callAnthropic(prompt, apiKey, model);
 
 		const parsed = parseJudgeResponse(text);
 		return {

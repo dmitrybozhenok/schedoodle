@@ -5,7 +5,7 @@ let createAnthropicModel: ((modelId: string) => LanguageModel) | null = null;
 let createOllamaModel: ((modelId: string) => LanguageModel) | null = null;
 
 export const DEFAULT_MODEL =
-	env.LLM_PROVIDER === "ollama" ? "gemma3:4b" : "claude-sonnet-4-20250514";
+	env.LLM_PROVIDER === "ollama" ? "gemma3:4b" : "claude-haiku-4-5-20250514";
 
 /**
  * Resolve a model instance from the configured provider.

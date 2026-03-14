@@ -7,7 +7,7 @@
  *   Layer 3: Threshold regression detection (cost, latency, tokens)
  */
 
-import { scoreAllCriteria } from "../scorers/ai-judge.js";
+import { type JudgeProvider, scoreAllCriteria } from "../scorers/ai-judge.js";
 import { evaluateCheck } from "./checks.js";
 import type { EvalCase, EvalOutput, EvalResult, EvalRunSummary } from "./types.js";
 
@@ -88,7 +88,7 @@ async function executeCase(evalCase: EvalCase, agentId: number): Promise<EvalOut
 export async function evaluateCase(
 	evalCase: EvalCase,
 	agentId: number,
-	options: { enableJudge?: boolean; judgeModel?: string } = {},
+	options: { enableJudge?: boolean; judgeModel?: string; judgeProvider?: JudgeProvider } = {},
 ): Promise<EvalResult> {
 	try {
 		const output = await executeCase(evalCase, agentId);
@@ -114,7 +114,7 @@ export async function evaluateCase(
 					},
 					referenceOutput: evalCase.referenceOutput,
 				},
-				{ judgeModel: options.judgeModel },
+				{ judgeModel: options.judgeModel, judgeProvider: options.judgeProvider },
 			);
 		}
 
@@ -188,6 +188,7 @@ export async function runEvalSuite(
 		model?: string;
 		enableJudge?: boolean;
 		judgeModel?: string;
+		judgeProvider?: JudgeProvider;
 	} = {},
 ): Promise<EvalRunSummary> {
 	const runId = `eval-${Date.now()}`;
@@ -236,6 +237,7 @@ export async function runEvalSuite(
 		const result = await evaluateCase(evalCase, agentId, {
 			enableJudge: options.enableJudge,
 			judgeModel: options.judgeModel,
+			judgeProvider: options.judgeProvider,
 		});
 		result.model = model;
 		results.push(result);

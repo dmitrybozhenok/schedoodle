@@ -1,0 +1,90 @@
+
+> schedoodle@1.0.0 eval C:\Users\dmitr\Dev\Schedoodle
+> tsx evals/eval.ts "--" "--judge"
+
+
+══════════════════════════════════════════════════════════════════════
+  SCHEDOODLE EVAL FRAMEWORK
+══════════════════════════════════════════════════════════════════════
+  Model:   server default
+  Cases:   9
+  Judge:   enabled (gemini-3.1-flash-lite-preview)
+══════════════════════════════════════════════════════════════════════
+
+  Running 9 cases...
+  Completed 9 cases in 430.8s
+
+
+══════════════════════════════════════════════════════════════════════
+  SCHEDOODLE EVAL REPORT
+══════════════════════════════════════════════════════════════════════
+  Run:    eval-1773529020323
+  Model:  default
+  Time:   2026-03-14T23:04:11.073Z
+  Cases:  9
+
+──────────────────────────────────────────────────────────────────────
+  OVERALL
+──────────────────────────────────────────────────────────────────────
+  Pass rate:  ████████████████░░░░ 78% (7/9)
+  Schema:     56%
+  Avg judge:  3.10/5
+
+──────────────────────────────────────────────────────────────────────
+  METRICS
+──────────────────────────────────────────────────────────────────────
+  Latency (avg):    12.1s
+  Latency (p95):    64.3s
+  Avg tokens (out): 457
+  Total cost:       $0.0000
+
+──────────────────────────────────────────────────────────────────────
+  DATA SLICES
+──────────────────────────────────────────────────────────────────────
+  Tag                     Pass Rate     Count     
+  ────────────────────────────────────────────────
+  ambiguous               100% (1/1)    1         
+  conciseness             0% (0/1)      1         
+  count-constraint        100% (1/1)    1         
+  edge-case               100% (2/2)    2         
+  error-handling          100% (3/3)    3         
+  hallucination           100% (1/1)    1         
+  impossible              100% (1/1)    1         
+  instruction-following   67% (2/3)     3         
+  minimal                 100% (1/1)    1         
+  no-urls                 100% (2/2)    2         
+  persona                 100% (1/1)    1         
+  simple                  67% (2/3)     3         
+  structured              100% (1/1)    1         
+  summarisation           67% (2/3)     3         
+  system-prompt           50% (1/2)     2         
+  tone                    0% (0/1)      1         
+
+──────────────────────────────────────────────────────────────────────
+  FAILURES (2)
+──────────────────────────────────────────────────────────────────────
+
+  ✗ Formal business tone [inst-02]
+    ERROR: fetch failed
+
+  ✗ REST API explanation [sum-03]
+    Judge [Conciseness]: 3 — The system prompt explicitly instructed the agent to use no more than two sentences total across the summary and details
+
+──────────────────────────────────────────────────────────────────────
+  CASE DETAILS
+──────────────────────────────────────────────────────────────────────
+  Case                            Checks      Judge     Time    Tokens  
+  ──────────────────────────────────────────────────────────────────────
+  ✓ Impossible prediction task    4/4         3.0       64.3s   374     
+  ✓ Ambiguous vague task          2/2         5.0       6.5s    135     
+  ✓ Empty task resilience         1/1         —         1.7s    123     
+  ✓ Pirate persona compliance     4/4         3.0       5.6s    502     
+  ✗ Formal business tone          0/3         —         0.0s    0       
+  ✓ Structured list output        4/4         1.0       3.8s    376     
+  ✓ TDD benefits summary          5/5         4.5       8.6s    679     
+  ✓ Climate change overview       4/4         1.0       16.9s   1851    
+  ✗ REST API explanation          4/4         3.0       1.2s    77      
+
+══════════════════════════════════════════════════════════════════════
+
+ ELIFECYCLE  Command failed with exit code 1.

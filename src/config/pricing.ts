@@ -8,6 +8,7 @@ const LOCAL_MODEL_PRICING: ModelPricing = { inputPerMTok: 0, outputPerMTok: 0 };
 const MODEL_PRICING: Record<string, ModelPricing> = {
 	"claude-sonnet-4-20250514": { inputPerMTok: 3, outputPerMTok: 15 },
 	"claude-sonnet-4.5-20250514": { inputPerMTok: 3, outputPerMTok: 15 },
+	"claude-haiku-4-5-20250514": { inputPerMTok: 1, outputPerMTok: 5 },
 	"claude-haiku-4.5-20250514": { inputPerMTok: 1, outputPerMTok: 5 },
 	"claude-opus-4.5-20250514": { inputPerMTok: 5, outputPerMTok: 25 },
 };

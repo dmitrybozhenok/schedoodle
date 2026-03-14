@@ -12,14 +12,15 @@
  *   npx tsx evals/eval.ts --judge                   # Run with AI-as-judge (Layer 2)
  *   npx tsx evals/eval.ts --model gemma3:4b         # Run against a specific model
  *   npx tsx evals/eval.ts --tags simple             # Filter by tag
- *   npx tsx evals/eval.ts --tags summarisation,instruction-following
  *   npx tsx evals/eval.ts --judge --model gemma3:4b --output results.json
  *
  * Requires: Schedoodle server running on localhost:3000
  *
  * Eval dataset: evals/fixtures/*.jsonl (one EvalCase per line)
  */
+import "dotenv/config";
 import { writeFileSync } from "node:fs";
+import type { JudgeProvider } from "./scorers/ai-judge.js";
 import { loadAllFixtures, loadFixturesByTags } from "./lib/fixtures.js";
 import { printReport, toJson } from "./lib/reporter.js";
 import { runEvalSuite } from "./lib/runner.js";
@@ -29,6 +30,7 @@ function parseArgs(): {
 	tags: string[];
 	enableJudge: boolean;
 	judgeModel?: string;
+	judgeProvider?: JudgeProvider;
 	output?: string;
 } {
 	const args = process.argv.slice(2);
@@ -36,6 +38,7 @@ function parseArgs(): {
 	let tags: string[] = [];
 	let enableJudge = false;
 	let judgeModel: string | undefined;
+	let judgeProvider: JudgeProvider | undefined;
 	let output: string | undefined;
 
 	for (let i = 0; i < args.length; i++) {
@@ -52,6 +55,9 @@ function parseArgs(): {
 			case "--judge-model":
 				judgeModel = args[++i];
 				break;
+			case "--judge-provider":
+				judgeProvider = args[++i] as JudgeProvider;
+				break;
 			case "--output":
 				output = args[++i];
 				break;
@@ -62,12 +68,17 @@ Schedoodle Eval Framework
 Usage: npx tsx evals/eval.ts [options]
 
 Options:
-  --model <name>        Model to evaluate (e.g., gemma3:4b, claude-sonnet-4-20250514)
-  --tags <tag1,tag2>    Filter cases by tags (comma-separated)
-  --judge               Enable AI-as-judge scoring (Layer 2) — uses ANTHROPIC_API_KEY
-  --judge-model <name>  Model for AI judge (default: claude-sonnet-4-20250514)
-  --output <file>       Write JSON results to file
-  --help                Show this help
+  --model <name>            Model to evaluate (e.g., gemma3:4b, claude-sonnet-4-20250514)
+  --tags <tag1,tag2>        Filter cases by tags (comma-separated)
+  --judge                   Enable AI-as-judge scoring (Layer 2)
+  --judge-provider <name>   Judge provider: gemini (default) or anthropic
+  --judge-model <name>      Judge model (default: gemini-3.1-flash-lite-preview or claude-sonnet-4-20250514)
+  --output <file>           Write JSON results to file
+  --help                    Show this help
+
+Environment variables:
+  GEMINI_API_KEY            API key for Gemini judge (preferred)
+  ANTHROPIC_API_KEY         API key for Anthropic judge (fallback)
 
 Available tags:
   simple, summarisation, conciseness, no-urls,
@@ -76,16 +87,25 @@ Available tags:
 
 Examples:
   npx tsx evals/eval.ts                                    # All cases, deterministic only
-  npx tsx evals/eval.ts --judge                            # All cases + AI judge
-  npx tsx evals/eval.ts --model gemma3:4b                  # Test Ollama model
-  npx tsx evals/eval.ts --tags error-handling --judge      # Error cases with judge
+  npx tsx evals/eval.ts --judge                            # All cases + AI judge (Gemini)
+  npx tsx evals/eval.ts --judge --judge-provider anthropic # Use Anthropic as judge
+  npx tsx evals/eval.ts --model gemma3:4b --judge          # Test Ollama model, Gemini judges
   npx tsx evals/eval.ts --output results.json              # Save results to file
 `);
 				process.exit(0);
 		}
 	}
 
-	return { model, tags, enableJudge, judgeModel, output };
+	return { model, tags, enableJudge, judgeModel, judgeProvider, output };
+}
+
+function resolveJudgeLabel(provider?: JudgeProvider, model?: string): string {
+	if (provider === "anthropic") return model ?? "claude-sonnet-4-20250514";
+	if (provider === "gemini") return model ?? "gemini-3.1-flash-lite-preview";
+	// Auto-detect
+	if (process.env.GEMINI_API_KEY) return model ?? "gemini-3.1-flash-lite-preview";
+	if (process.env.ANTHROPIC_API_KEY) return model ?? "claude-sonnet-4-20250514";
+	return "no API key found";
 }
 
 async function main() {
@@ -102,14 +122,14 @@ async function main() {
 		process.exit(1);
 	}
 
+	const judgeLabel = resolveJudgeLabel(opts.judgeProvider, opts.judgeModel);
+
 	console.log(`\n${"═".repeat(70)}`);
 	console.log("  SCHEDOODLE EVAL FRAMEWORK");
 	console.log(`${"═".repeat(70)}`);
 	console.log(`  Model:   ${opts.model ?? "server default"}`);
 	console.log(`  Cases:   ${cases.length}`);
-	console.log(
-		`  Judge:   ${opts.enableJudge ? `enabled (${opts.judgeModel ?? "claude-sonnet-4-20250514"})` : "disabled"}`,
-	);
+	console.log(`  Judge:   ${opts.enableJudge ? `enabled (${judgeLabel})` : "disabled"}`);
 	if (opts.tags.length > 0) {
 		console.log(`  Tags:    ${opts.tags.join(", ")}`);
 	}
@@ -123,6 +143,7 @@ async function main() {
 		model: opts.model,
 		enableJudge: opts.enableJudge,
 		judgeModel: opts.judgeModel,
+		judgeProvider: opts.judgeProvider,
 	});
 
 	const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
