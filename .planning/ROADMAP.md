@@ -42,7 +42,10 @@ Plans:
   2. An agent can fetch data from external URLs before the LLM call, and that data is included as context in the prompt
   3. A failing agent (bad prompt, unreachable URL, LLM error) returns a structured error result without crashing the process
   4. Multiple agents can execute concurrently without interfering with each other
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Install AI SDK deps, add model column, create output schema and URL pre-fetch service with tests
+- [ ] 02-02-PLAN.md — Build core executor function with LLM call, validation retry, DB recording, and concurrent execution
 
 ### Phase 3: Management API and Scheduling
 **Goal**: Users can manage agents via REST API and agents run automatically on their cron schedules
@@ -85,7 +88,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
-| 2. Execution Engine | 0/? | Not started | - |
+| 2. Execution Engine | 0/2 | Not started | - |
 | 3. Management API and Scheduling | 0/? | Not started | - |
 | 4. Resilience and Observability | 0/? | Not started | - |
 | 5. Notification | 0/? | Not started | - |
