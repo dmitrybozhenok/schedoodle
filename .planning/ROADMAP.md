@@ -29,7 +29,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Agent definitions (name, task description, cron schedule, system prompt) are stored in and retrieved from SQLite
   3. Environment configuration (LLM API keys, database path) is validated at startup with clear error messages on misconfiguration
   4. Database schema includes tables for agents and execution history with all observability fields (status, tokens, duration, delivery status)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold project, create DB schema with agents and execution_history tables, config validation, and integration tests
 
 ### Phase 2: Execution Engine
 **Goal**: Agents can execute their tasks through an LLM and return validated, structured results
@@ -82,7 +84,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Schema | 0/? | Not started | - |
+| 1. Foundation and Schema | 0/1 | Planning | - |
 | 2. Execution Engine | 0/? | Not started | - |
 | 3. Management API and Scheduling | 0/? | Not started | - |
 | 4. Resilience and Observability | 0/? | Not started | - |
