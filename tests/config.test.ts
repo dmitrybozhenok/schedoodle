@@ -96,9 +96,7 @@ describe("config validation", () => {
 		});
 		expect(result.success).toBe(true);
 		if (result.success) {
-			expect(result.data.NOTIFICATION_FROM).toBe(
-				"Schedoodle <noreply@example.com>",
-			);
+			expect(result.data.NOTIFICATION_FROM).toBe("Schedoodle <noreply@example.com>");
 		}
 	});
 

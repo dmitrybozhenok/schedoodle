@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	estimateCost,
-	getModelPricing,
-	type ModelPricing,
-} from "../src/config/pricing.js";
+import { estimateCost, getModelPricing, type ModelPricing } from "../src/config/pricing.js";
 
 describe("getModelPricing", () => {
 	it("returns correct pricing for claude-sonnet-4-20250514", () => {

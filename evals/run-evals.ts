@@ -67,9 +67,7 @@ const TEST_CASES: TestCase[] = [
 			{
 				name: "Mentions TDD or test-driven",
 				field: "summary",
-				fn: (o) =>
-					/tdd|test.driven/i.test(o.summary) ||
-					/tdd|test.driven/i.test(o.details),
+				fn: (o) => /tdd|test.driven/i.test(o.summary) || /tdd|test.driven/i.test(o.details),
 			},
 			{
 				name: "Mentions at least 2 benefits",
@@ -121,9 +119,7 @@ const TEST_CASES: TestCase[] = [
 				field: "details",
 				fn: (o) => {
 					const text = `${o.summary} ${o.details}`.toLowerCase();
-					return /sail|sea|ship|voyage|captain|crew|island|anchor|storm/.test(
-						text,
-					);
+					return /sail|sea|ship|voyage|captain|crew|island|anchor|storm/.test(text);
 				},
 			},
 			{
@@ -155,9 +151,7 @@ const TEST_CASES: TestCase[] = [
 				field: "summary",
 				fn: (o) => {
 					const text = `${o.summary} ${o.details}`.toLowerCase();
-					return /cannot|can't|impossible|unable|predict|uncertain|no way|don't have/.test(
-						text,
-					);
+					return /cannot|can't|impossible|unable|predict|uncertain|no way|don't have/.test(text);
 				},
 			},
 			{
@@ -167,9 +161,7 @@ const TEST_CASES: TestCase[] = [
 					const text = `${o.summary} ${o.details}`;
 					// Should not contain something like "Bitcoin will be $XX,XXX" without disclaimer
 					const hasFakePrice = /bitcoin will be \$[\d,]+/i.test(text);
-					const hasLotteryNums = /winning numbers.*(are|will be).*\d+/i.test(
-						text,
-					);
+					const hasLotteryNums = /winning numbers.*(are|will be).*\d+/i.test(text);
 					return !hasFakePrice && !hasLotteryNums;
 				},
 			},
@@ -214,16 +206,7 @@ const TEST_CASES: TestCase[] = [
 				field: "summary",
 				fn: (o) => {
 					const text = `${o.summary} ${o.details}`.toLowerCase();
-					const langs = [
-						"python",
-						"javascript",
-						"typescript",
-						"java",
-						"go",
-						"rust",
-						"c++",
-						"c#",
-					];
+					const langs = ["python", "javascript", "typescript", "java", "go", "rust", "c++", "c#"];
 					return langs.filter((l) => text.includes(l)).length >= 2;
 				},
 			},
@@ -233,10 +216,10 @@ const TEST_CASES: TestCase[] = [
 		name: "Conciseness (Short Output)",
 		agent: {
 			name: "__eval_concise",
-			taskDescription:
-				"In exactly one sentence, explain what a REST API is.",
+			taskDescription: "In exactly one sentence, explain what a REST API is.",
 			cronSchedule: "0 0 * * *",
-			systemPrompt: "Be extremely concise. Never use more than 2 sentences total across summary and details.",
+			systemPrompt:
+				"Be extremely concise. Never use more than 2 sentences total across summary and details.",
 		},
 		checks: [
 			{
@@ -304,11 +287,7 @@ interface TestResult {
 	error?: string;
 }
 
-async function runTestCase(
-	tc: TestCase,
-	agentId: number,
-	model: string,
-): Promise<TestResult> {
+async function runTestCase(tc: TestCase, agentId: number, model: string): Promise<TestResult> {
 	const start = Date.now();
 
 	try {
@@ -325,9 +304,7 @@ async function runTestCase(
 		let outputTokens = 0;
 
 		if (execResult.executionId) {
-			const executions = (await apiGet(
-				`/agents/${agentId}/executions?limit=1`,
-			)) as Array<{
+			const executions = (await apiGet(`/agents/${agentId}/executions?limit=1`)) as Array<{
 				durationMs: number;
 				inputTokens: number;
 				outputTokens: number;
@@ -382,9 +359,7 @@ async function runTestCase(
 async function main() {
 	const models = process.argv.slice(2);
 	if (models.length === 0) {
-		console.log(
-			"Usage: npx tsx evals/run-evals.ts <model1> [model2] [model3] ...",
-		);
+		console.log("Usage: npx tsx evals/run-evals.ts <model1> [model2] [model3] ...");
 		console.log("Example: npx tsx evals/run-evals.ts gemma3:12b gemma3:4b qwen2.5:7b");
 		process.exit(1);
 	}
@@ -471,45 +446,30 @@ async function main() {
 	// Header
 	const colWidth = 18;
 	const testCol = 28;
-	const header = [
-		"Test".padEnd(testCol),
-		...models.map((m) => m.padEnd(colWidth)),
-	].join("│ ");
+	const header = ["Test".padEnd(testCol), ...models.map((m) => m.padEnd(colWidth))].join("│ ");
 	console.log(header);
-	console.log(
-		"─".repeat(testCol) +
-			("┼" + "─".repeat(colWidth + 1)).repeat(models.length),
-	);
+	console.log("─".repeat(testCol) + ("┼" + "─".repeat(colWidth + 1)).repeat(models.length));
 
 	// Rows per test
 	for (const tc of TEST_CASES) {
 		const cols = models.map((model) => {
-			const r = allResults.find(
-				(x) => x.testName === tc.name && x.model === model,
-			);
+			const r = allResults.find((x) => x.testName === tc.name && x.model === model);
 			if (!r) return "—".padEnd(colWidth);
 			const secs = (r.durationMs / 1000).toFixed(1);
-			return `${r.passed}/${r.total}  ${secs}s  ${r.outputTokens}t`.padEnd(
-				colWidth,
-			);
+			return `${r.passed}/${r.total}  ${secs}s  ${r.outputTokens}t`.padEnd(colWidth);
 		});
 		console.log(`${tc.name.padEnd(testCol)}│ ${cols.join("│ ")}`);
 	}
 
 	// Totals row
-	console.log(
-		"─".repeat(testCol) +
-			("┼" + "─".repeat(colWidth + 1)).repeat(models.length),
-	);
+	console.log("─".repeat(testCol) + ("┼" + "─".repeat(colWidth + 1)).repeat(models.length));
 	const totalCols = models.map((model) => {
 		const modelResults = allResults.filter((r) => r.model === model);
 		const passed = modelResults.reduce((s, r) => s + r.passed, 0);
 		const total = modelResults.reduce((s, r) => s + r.total, 0);
 		const totalTime = modelResults.reduce((s, r) => s + r.durationMs, 0);
 		const totalTok = modelResults.reduce((s, r) => s + r.outputTokens, 0);
-		return `${passed}/${total}  ${(totalTime / 1000).toFixed(0)}s  ${totalTok}t`.padEnd(
-			colWidth,
-		);
+		return `${passed}/${total}  ${(totalTime / 1000).toFixed(0)}s  ${totalTok}t`.padEnd(colWidth);
 	});
 	console.log(`${"TOTAL".padEnd(testCol)}│ ${totalCols.join("│ ")}`);
 

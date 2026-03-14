@@ -1,9 +1,9 @@
 import { Cron } from "croner";
 import { eq } from "drizzle-orm";
+import type { Database } from "../db/index.js";
 import { agents } from "../db/schema.js";
 import { executeAgent } from "../services/executor.js";
 import type { Agent } from "../types/index.js";
-import type { Database } from "../db/index.js";
 
 const jobs = new Map<number, Cron>();
 
@@ -24,11 +24,7 @@ export function scheduleAgent(agent: Agent, db: Database): void {
 
 	const job = new Cron(agent.cronSchedule, { name: `agent-${agentId}` }, async () => {
 		// Re-read agent from DB to get fresh data
-		const freshAgent = db
-			.select()
-			.from(agents)
-			.where(eq(agents.id, agentId))
-			.get();
+		const freshAgent = db.select().from(agents).where(eq(agents.id, agentId)).get();
 
 		if (!freshAgent) {
 			console.warn(`[cron] Agent ${agentName} (id=${agentId}) not found in DB, skipping execution`);

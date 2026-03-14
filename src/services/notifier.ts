@@ -15,11 +15,7 @@ function escapeHtml(str: string): string {
 		.replace(/"/g, "&quot;");
 }
 
-function buildEmailHtml(
-	agentName: string,
-	executedAt: string,
-	output: AgentOutput,
-): string {
+function buildEmailHtml(agentName: string, executedAt: string, output: AgentOutput): string {
 	const timestamp = new Date(executedAt).toLocaleString();
 	const dataSection = output.data
 		? `<h2 style="font-size:16px;margin:0 0 8px;">Data</h2><pre style="background:#f4f4f4;padding:12px;border-radius:4px;overflow-x:auto;">${escapeHtml(JSON.stringify(output.data, null, 2))}</pre>`
@@ -51,11 +47,7 @@ export async function sendNotification(
 	executedAt: string,
 	output: AgentOutput,
 ): Promise<NotifyResult> {
-	if (
-		!env.RESEND_API_KEY ||
-		!env.NOTIFICATION_EMAIL ||
-		!env.NOTIFICATION_FROM
-	) {
+	if (!env.RESEND_API_KEY || !env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) {
 		return { status: "skipped" };
 	}
 
@@ -64,9 +56,7 @@ export async function sendNotification(
 		const html = buildEmailHtml(agentName, executedAt, output);
 
 		const truncatedSummary =
-			output.summary.length > 80
-				? `${output.summary.slice(0, 80)}...`
-				: output.summary;
+			output.summary.length > 80 ? `${output.summary.slice(0, 80)}...` : output.summary;
 		const subject = `[Schedoodle] ${agentName} \u2014 ${truncatedSummary}`;
 
 		const { error } = await resend.emails.send({
@@ -77,9 +67,7 @@ export async function sendNotification(
 		});
 
 		if (error) {
-			console.error(
-				`[notify] Failed to send email for ${agentName}: ${error.message}`,
-			);
+			console.error(`[notify] Failed to send email for ${agentName}: ${error.message}`);
 			return { status: "failed", error: error.message };
 		}
 

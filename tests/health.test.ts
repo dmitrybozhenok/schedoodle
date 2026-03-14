@@ -1,9 +1,9 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { describe, expect, it, vi } from "vitest";
-import type { CircuitBreakerStatus } from "../src/services/circuit-breaker.js";
 import * as schema from "../src/db/schema.js";
 import { createHealthRoute } from "../src/routes/health.js";
+import type { CircuitBreakerStatus } from "../src/services/circuit-breaker.js";
 
 const CREATE_AGENTS_SQL = `
 CREATE TABLE agents (
@@ -82,10 +82,22 @@ describe("GET /health", () => {
 		// Insert 2 agents
 		const now = new Date().toISOString();
 		db.insert(schema.agents)
-			.values({ name: "Agent1", taskDescription: "task1", cronSchedule: "0 * * * *", createdAt: now, updatedAt: now })
+			.values({
+				name: "Agent1",
+				taskDescription: "task1",
+				cronSchedule: "0 * * * *",
+				createdAt: now,
+				updatedAt: now,
+			})
 			.run();
 		db.insert(schema.agents)
-			.values({ name: "Agent2", taskDescription: "task2", cronSchedule: "0 * * * *", createdAt: now, updatedAt: now })
+			.values({
+				name: "Agent2",
+				taskDescription: "task2",
+				cronSchedule: "0 * * * *",
+				createdAt: now,
+				updatedAt: now,
+			})
 			.run();
 
 		const res = await app.request("/");
@@ -103,15 +115,27 @@ describe("GET /health", () => {
 		const now = new Date().toISOString();
 		const agent = db
 			.insert(schema.agents)
-			.values({ name: "Agent1", taskDescription: "task1", cronSchedule: "0 * * * *", createdAt: now, updatedAt: now })
+			.values({
+				name: "Agent1",
+				taskDescription: "task1",
+				cronSchedule: "0 * * * *",
+				createdAt: now,
+				updatedAt: now,
+			})
 			.returning()
 			.get();
 
 		// Insert executions within last 24 hours
 		const recentTime = new Date().toISOString();
-		db.insert(schema.executionHistory).values({ agentId: agent.id, status: "success", startedAt: recentTime }).run();
-		db.insert(schema.executionHistory).values({ agentId: agent.id, status: "success", startedAt: recentTime }).run();
-		db.insert(schema.executionHistory).values({ agentId: agent.id, status: "failure", startedAt: recentTime }).run();
+		db.insert(schema.executionHistory)
+			.values({ agentId: agent.id, status: "success", startedAt: recentTime })
+			.run();
+		db.insert(schema.executionHistory)
+			.values({ agentId: agent.id, status: "success", startedAt: recentTime })
+			.run();
+		db.insert(schema.executionHistory)
+			.values({ agentId: agent.id, status: "failure", startedAt: recentTime })
+			.run();
 
 		const res = await app.request("/");
 		const body = await res.json();
@@ -127,15 +151,25 @@ describe("GET /health", () => {
 		const now = new Date().toISOString();
 		const agent = db
 			.insert(schema.agents)
-			.values({ name: "Agent1", taskDescription: "task1", cronSchedule: "0 * * * *", createdAt: now, updatedAt: now })
+			.values({
+				name: "Agent1",
+				taskDescription: "task1",
+				cronSchedule: "0 * * * *",
+				createdAt: now,
+				updatedAt: now,
+			})
 			.returning()
 			.get();
 
 		// Insert one recent and one old execution
 		const recentTime = new Date().toISOString();
 		const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(); // 25 hours ago
-		db.insert(schema.executionHistory).values({ agentId: agent.id, status: "success", startedAt: recentTime }).run();
-		db.insert(schema.executionHistory).values({ agentId: agent.id, status: "success", startedAt: oldTime }).run();
+		db.insert(schema.executionHistory)
+			.values({ agentId: agent.id, status: "success", startedAt: recentTime })
+			.run();
+		db.insert(schema.executionHistory)
+			.values({ agentId: agent.id, status: "success", startedAt: oldTime })
+			.run();
 
 		const res = await app.request("/");
 		const body = await res.json();

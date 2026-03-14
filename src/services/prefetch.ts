@@ -17,9 +17,7 @@ export function extractUrls(text: string): string[] {
  * HTML is converted to plain text; JSON is passed through raw.
  * Each fetch has a 10-second timeout. Failures are captured, not thrown.
  */
-export async function prefetchUrls(
-	taskDescription: string,
-): Promise<Map<string, string>> {
+export async function prefetchUrls(taskDescription: string): Promise<Map<string, string>> {
 	const urls = extractUrls(taskDescription);
 	const results = new Map<string, string>();
 
@@ -45,10 +43,7 @@ export async function prefetchUrls(
 			results.set(result.value.url, result.value.content);
 		} else {
 			// Extract URL from the rejected promise - match against our urls list
-			const reason =
-				result.reason instanceof Error
-					? result.reason.message
-					: String(result.reason);
+			const reason = result.reason instanceof Error ? result.reason.message : String(result.reason);
 			// We need to find which URL this corresponds to
 			// Since Promise.allSettled preserves order, use index
 			const index = settled.indexOf(result);
@@ -64,17 +59,12 @@ export async function prefetchUrls(
  * Build a prompt by appending pre-fetched context data to the task description.
  * If contextData is empty, returns the task description unchanged.
  */
-export function buildPrompt(
-	taskDescription: string,
-	contextData: Map<string, string>,
-): string {
+export function buildPrompt(taskDescription: string, contextData: Map<string, string>): string {
 	if (contextData.size === 0) return taskDescription;
 
 	const sections: string[] = [];
 	for (const [url, content] of contextData) {
-		sections.push(
-			`--- Content from ${url} ---\n${content}\n--- End ---`,
-		);
+		sections.push(`--- Content from ${url} ---\n${content}\n--- End ---`);
 	}
 
 	return `${taskDescription}\n\nPre-fetched reference data:\n\n${sections.join("\n\n")}`;

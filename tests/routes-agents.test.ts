@@ -1,14 +1,7 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { Hono } from "hono";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as schema from "../src/db/schema.js";
 
 // Mock scheduler to avoid real cron jobs
@@ -428,9 +421,7 @@ describe("Agent CRUD routes", () => {
 					.run();
 			}
 
-			const res = await app.request(
-				`/agents/${agent.id}/executions?limit=2`,
-			);
+			const res = await app.request(`/agents/${agent.id}/executions?limit=2`);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body).toHaveLength(2);
@@ -439,9 +430,7 @@ describe("Agent CRUD routes", () => {
 		it("caps limit at 200", async () => {
 			const agent = makeAgent(db, { name: "MaxLimitAgent" });
 
-			const res = await app.request(
-				`/agents/${agent.id}/executions?limit=500`,
-			);
+			const res = await app.request(`/agents/${agent.id}/executions?limit=500`);
 			expect(res.status).toBe(200);
 			// Just verify it doesn't error; actual cap tested by behavior
 		});

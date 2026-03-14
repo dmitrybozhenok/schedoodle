@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AgentOutput } from "../src/schemas/agent-output.js";
 
 const mockSend = vi.fn();
@@ -52,11 +52,7 @@ describe("sendNotification", () => {
 			NOTIFICATION_FROM: "Schedoodle <noreply@example.com>",
 		});
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Test Agent",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendNotification("Test Agent", "2026-03-14T10:00:00Z", baseOutput);
 		expect(result.status).toBe("skipped");
 		expect(mockSend).not.toHaveBeenCalled();
 	});
@@ -67,11 +63,7 @@ describe("sendNotification", () => {
 			NOTIFICATION_FROM: "Schedoodle <noreply@example.com>",
 		});
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Test Agent",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendNotification("Test Agent", "2026-03-14T10:00:00Z", baseOutput);
 		expect(result.status).toBe("skipped");
 		expect(mockSend).not.toHaveBeenCalled();
 	});
@@ -82,11 +74,7 @@ describe("sendNotification", () => {
 			NOTIFICATION_EMAIL: "user@example.com",
 		});
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Test Agent",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendNotification("Test Agent", "2026-03-14T10:00:00Z", baseOutput);
 		expect(result.status).toBe("skipped");
 		expect(mockSend).not.toHaveBeenCalled();
 	});
@@ -95,11 +83,7 @@ describe("sendNotification", () => {
 		setEnv(fullEnv);
 		mockSend.mockResolvedValue({ data: { id: "msg_1" }, error: null });
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Morning Briefing",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendNotification("Morning Briefing", "2026-03-14T10:00:00Z", baseOutput);
 		expect(result.status).toBe("sent");
 		expect(mockSend).toHaveBeenCalledOnce();
 		const callArgs = mockSend.mock.calls[0][0];
@@ -117,11 +101,7 @@ describe("sendNotification", () => {
 			error: { message: "domain not verified", name: "validation_error" },
 		});
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Test Agent",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendNotification("Test Agent", "2026-03-14T10:00:00Z", baseOutput);
 		expect(result.status).toBe("failed");
 		expect(result.error).toBe("domain not verified");
 	});
@@ -130,11 +110,7 @@ describe("sendNotification", () => {
 		setEnv(fullEnv);
 		mockSend.mockRejectedValue(new Error("network timeout"));
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Test Agent",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendNotification("Test Agent", "2026-03-14T10:00:00Z", baseOutput);
 		expect(result.status).toBe("failed");
 		expect(result.error).toBe("network timeout");
 	});
@@ -144,28 +120,21 @@ describe("sendNotification", () => {
 		mockSend.mockResolvedValue({ data: { id: "msg_2" }, error: null });
 		const longSummary = "A".repeat(100);
 		const { sendNotification } = await import("../src/services/notifier.js");
-		const result = await sendNotification(
-			"Test Agent",
-			"2026-03-14T10:00:00Z",
-			{ ...baseOutput, summary: longSummary },
-		);
+		const result = await sendNotification("Test Agent", "2026-03-14T10:00:00Z", {
+			...baseOutput,
+			summary: longSummary,
+		});
 		expect(result.status).toBe("sent");
 		const subject = mockSend.mock.calls[0][0].subject;
 		expect(subject).toContain("...");
-		expect(subject.length).toBeLessThan(
-			"[Schedoodle] Test Agent — ".length + 100,
-		);
+		expect(subject.length).toBeLessThan("[Schedoodle] Test Agent — ".length + 100);
 	});
 
 	it("HTML contains agent name and timestamp", async () => {
 		setEnv(fullEnv);
 		mockSend.mockResolvedValue({ data: { id: "msg_3" }, error: null });
 		const { sendNotification } = await import("../src/services/notifier.js");
-		await sendNotification(
-			"Morning Briefing",
-			"2026-03-14T10:00:00Z",
-			baseOutput,
-		);
+		await sendNotification("Morning Briefing", "2026-03-14T10:00:00Z", baseOutput);
 		const html = mockSend.mock.calls[0][0].html;
 		expect(html).toContain("Morning Briefing");
 		expect(html).toContain("2026");

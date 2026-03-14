@@ -80,7 +80,9 @@ describe("prefetchUrls", () => {
 	});
 
 	it("returns failure note on timeout", async () => {
-		vi.mocked(globalThis.fetch).mockRejectedValue(new DOMException("The operation was aborted", "AbortError"));
+		vi.mocked(globalThis.fetch).mockRejectedValue(
+			new DOMException("The operation was aborted", "AbortError"),
+		);
 
 		const results = await prefetchUrls("Check https://example.com for data");
 		expect(results.get("https://example.com")).toMatch(/\[Failed to fetch.*aborted\]/i);

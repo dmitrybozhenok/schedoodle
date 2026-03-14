@@ -1,13 +1,6 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as schema from "../src/db/schema.js";
 
 // Mock executeAgent from executor
@@ -17,11 +10,11 @@ vi.mock("../src/services/executor.js", () => ({
 }));
 
 import {
-	scheduleAgent,
+	getJobCount,
 	removeAgent,
+	scheduleAgent,
 	startAll,
 	stopAll,
-	getJobCount,
 } from "../src/services/scheduler.js";
 
 const CREATE_AGENTS_SQL = `

@@ -1,15 +1,7 @@
 import Database from "better-sqlite3";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-	type Mock,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import * as schema from "../src/db/schema.js";
 
 // Mock AI SDK modules before any imports that use them
@@ -45,8 +37,8 @@ vi.mock("../src/services/notifier.js", () => ({
 	sendNotification: (...args: unknown[]) => mockSendNotification(...args),
 }));
 
-import { prefetchUrls, buildPrompt } from "../src/services/prefetch.js";
-import { executeAgent, executeAgents, _resetLlmBreaker } from "../src/services/executor.js";
+import { _resetLlmBreaker, executeAgent, executeAgents } from "../src/services/executor.js";
+import { buildPrompt, prefetchUrls } from "../src/services/prefetch.js";
 
 const CREATE_AGENTS_SQL = `
 CREATE TABLE agents (
@@ -135,7 +127,10 @@ describe("executeAgent", () => {
 		// Make generateText hang so we can inspect the DB state
 		let resolveCall: (v: unknown) => void;
 		mockGenerateText.mockImplementation(
-			() => new Promise((r) => { resolveCall = r; }),
+			() =>
+				new Promise((r) => {
+					resolveCall = r;
+				}),
 		);
 
 		const agent = makeAgent(db);
@@ -291,12 +286,10 @@ describe("executeAgent", () => {
 	});
 
 	it("records durationMs covering prefetch + LLM call time", async () => {
-		vi.mocked(prefetchUrls).mockImplementation(
-			async () => {
-				await new Promise((r) => setTimeout(r, 30));
-				return new Map();
-			},
-		);
+		vi.mocked(prefetchUrls).mockImplementation(async () => {
+			await new Promise((r) => setTimeout(r, 30));
+			return new Map();
+		});
 
 		const agent = makeAgent(db);
 		await executeAgent(agent, db);
@@ -469,11 +462,10 @@ describe("notification integration", () => {
 		await executeAgent(agent, db);
 
 		expect(mockSendNotification).toHaveBeenCalledTimes(1);
-		expect(mockSendNotification).toHaveBeenCalledWith(
-			agent.name,
-			expect.any(String),
-			{ summary: "test summary", details: "test details" },
-		);
+		expect(mockSendNotification).toHaveBeenCalledWith(agent.name, expect.any(String), {
+			summary: "test summary",
+			details: "test details",
+		});
 	});
 
 	it("sets deliveryStatus to sent on successful notification", async () => {
