@@ -1,0 +1,43 @@
+{
+	"name": "schedoodle",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Scheduled agent orchestrator with LLM-powered task execution",
+	"main": "dist/index.js",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"start": "node dist/index.js",
+		"build": "tsc",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"better-sqlite3": "^12.8.0",
+		"dotenv": "^17.3.1",
+		"drizzle-orm": "^0.45.1",
+		"zod": "^4.3.6"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"better-sqlite3",
+			"esbuild"
+		]
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.7",
+		"@types/better-sqlite3": "^7.6.13",
+		"@types/node": "^25.5.0",
+		"drizzle-kit": "^0.31.9",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.0"
+	}
+}
