@@ -25,6 +25,7 @@ CREATE TABLE agents (
   cron_schedule TEXT NOT NULL,
   system_prompt TEXT,
   model TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -166,6 +167,48 @@ describe("scheduler", () => {
 			// Should not have double-fired from ghost job
 			// With every-second cron, we expect 1-2 calls total, not 2-4
 			expect(mockExecuteAgent.mock.calls.length).toBeLessThanOrEqual(2);
+		});
+	});
+
+	describe("enabled/disabled behavior", () => {
+		it("startAll only schedules enabled agents, skips disabled", () => {
+			const enabled1 = makeAgent(db, { name: "Enabled1", cronSchedule: "0 * * * *", enabled: 1 });
+			const enabled2 = makeAgent(db, { name: "Enabled2", cronSchedule: "0 * * * *", enabled: 1 });
+			const disabled1 = makeAgent(db, { name: "Disabled1", cronSchedule: "0 * * * *", enabled: 0 });
+
+			startAll([enabled1, enabled2, disabled1], db);
+			expect(getJobCount()).toBe(2);
+		});
+
+		it("startAll logs enabled count and disabled count when disabled agents exist", () => {
+			const spy = vi.spyOn(console, "log");
+			const enabled1 = makeAgent(db, { name: "E1", cronSchedule: "0 * * * *", enabled: 1 });
+			const disabled1 = makeAgent(db, { name: "D1", cronSchedule: "0 * * * *", enabled: 0 });
+			const disabled2 = makeAgent(db, { name: "D2", cronSchedule: "0 * * * *", enabled: 0 });
+
+			startAll([enabled1, disabled1, disabled2], db);
+			expect(spy).toHaveBeenCalledWith("[cron] Scheduled 1 agent(s), 2 disabled");
+			spy.mockRestore();
+		});
+
+		it("startAll with zero disabled agents logs without disabled suffix", () => {
+			const spy = vi.spyOn(console, "log");
+			const enabled1 = makeAgent(db, { name: "OnlyEnabled1", cronSchedule: "0 * * * *", enabled: 1 });
+			const enabled2 = makeAgent(db, { name: "OnlyEnabled2", cronSchedule: "0 * * * *", enabled: 1 });
+
+			startAll([enabled1, enabled2], db);
+			expect(spy).toHaveBeenCalledWith("[cron] Scheduled 2 agent(s)");
+			spy.mockRestore();
+		});
+
+		it("getJobCount reflects only enabled agents after startAll", () => {
+			const enabled1 = makeAgent(db, { name: "CountE1", cronSchedule: "0 * * * *", enabled: 1 });
+			const disabled1 = makeAgent(db, { name: "CountD1", cronSchedule: "0 * * * *", enabled: 0 });
+			const enabled2 = makeAgent(db, { name: "CountE2", cronSchedule: "0 * * * *", enabled: 1 });
+			const disabled2 = makeAgent(db, { name: "CountD2", cronSchedule: "0 * * * *", enabled: 0 });
+
+			startAll([enabled1, disabled1, enabled2, disabled2], db);
+			expect(getJobCount()).toBe(2);
 		});
 	});
 
