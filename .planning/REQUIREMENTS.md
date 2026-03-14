@@ -23,8 +23,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Scheduling
 
-- [ ] **SCHD-01**: Agents run automatically according to their cron schedule
-- [ ] **SCHD-02**: Multiple agents can be scheduled concurrently without conflicts
+- [x] **SCHD-01**: Agents run automatically according to their cron schedule
+- [x] **SCHD-02**: Multiple agents can be scheduled concurrently without conflicts
 
 ### Resilience
 
@@ -101,8 +101,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-02 | Phase 2 | Complete |
 | EXEC-03 | Phase 2 | Complete |
 | EXEC-04 | Phase 2 | Complete |
-| SCHD-01 | Phase 3 | Pending |
-| SCHD-02 | Phase 3 | Pending |
+| SCHD-01 | Phase 3 | Complete |
+| SCHD-02 | Phase 3 | Complete |
 | RSLN-01 | Phase 4 | Pending |
 | RSLN-02 | Phase 4 | Pending |
 | NOTF-01 | Phase 5 | Pending |
