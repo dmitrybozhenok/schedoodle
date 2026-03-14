@@ -84,7 +84,10 @@ Plans:
   1. After a successful agent execution, an email is sent containing the results without manual intervention
   2. The email includes the agent name, execution timestamp, and formatted results in a readable layout
   3. Email delivery failures do not cause the execution to be marked as failed (delivery is tracked independently)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 05-01-PLAN.md — Notifier service with Resend SDK, HTML email builder, env config, and unit tests
+- [ ] 05-02-PLAN.md — Wire notifier into executor with deliveryStatus tracking and integration tests
 
 ## Progress
 
@@ -97,4 +100,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
 | 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
 | 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
-| 5. Notification | 0/? | Not started | - |
+| 5. Notification | 0/2 | Not started | - |
