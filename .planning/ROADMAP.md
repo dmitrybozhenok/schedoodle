@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -101,3 +101,21 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
 | 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
 | 5. Notification | 0/2 | Not started | - |
+| 6. Agent Enabled Flag and Schedule Controls | 0/2 | Not started | - |
+
+### Phase 6: Agent Enabled Flag and Schedule Controls
+
+**Goal:** Agents can be enabled/disabled without deletion, and API responses include computed schedule metadata (nextRunAt, lastRunAt)
+**Requirements**: AGNT-05
+**Depends on:** Phase 5
+**Success Criteria** (what must be TRUE):
+  1. User can disable an agent via PATCH, which immediately removes its cron job
+  2. User can re-enable an agent via PATCH, which immediately registers its cron job
+  3. Disabled agents can still be manually executed via POST /:id/execute
+  4. All agent API responses include boolean enabled, nextRunAt (from croner), and lastRunAt (from execution history)
+  5. GET /agents supports ?enabled=true/false query param filtering
+  6. At startup, only enabled agents are loaded into the scheduler
+**Plans:** 2 plans
+Plans:
+- [ ] 06-01-PLAN.md — Schema enabled column, input schemas, enrichAgent helper, scheduler enable/disable logic, and tests
+- [ ] 06-02-PLAN.md — API routes with enabled toggle, filtering, enriched responses, startup filtering, and route tests
