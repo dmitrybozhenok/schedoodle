@@ -1,6 +1,7 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { generateText, NoObjectGeneratedError, Output } from "ai";
 import { eq } from "drizzle-orm";
+import { env } from "../config/env.js";
+import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
 import { estimateCost } from "../config/pricing.js";
 import type { Database } from "../db/index.js";
 import { executionHistory } from "../db/schema.js";
@@ -11,10 +12,10 @@ import type { Agent } from "../types/index.js";
 import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
 import { sendNotification } from "./notifier.js";
 
-const DEFAULT_MODEL = "claude-sonnet-4-20250514";
+const BREAKER_NAME = env.LLM_PROVIDER === "ollama" ? "ollama" : "anthropic";
 
 let llmBreaker = createCircuitBreaker({
-	name: "anthropic",
+	name: BREAKER_NAME,
 	failureThreshold: 3,
 	resetTimeoutMs: 30_000,
 });
@@ -24,7 +25,7 @@ let llmBreaker = createCircuitBreaker({
  */
 export function _resetLlmBreaker() {
 	llmBreaker = createCircuitBreaker({
-		name: "anthropic",
+		name: BREAKER_NAME,
 		failureThreshold: 3,
 		resetTimeoutMs: 30_000,
 	});
@@ -56,9 +57,10 @@ export function getLlmCircuitStatus() {
  * Call the LLM with structured output and one retry on validation failure.
  */
 async function callLlmWithRetry(modelId: string, systemPrompt: string | null, userMessage: string) {
+	const model = await resolveModel(modelId);
 	try {
 		const result = await generateText({
-			model: anthropic(modelId),
+			model,
 			system: systemPrompt ?? undefined,
 			output: Output.object({ schema: agentOutputSchema }),
 			prompt: userMessage,
@@ -71,7 +73,7 @@ async function callLlmWithRetry(modelId: string, systemPrompt: string | null, us
 			const retryPrompt = `${userMessage}\n\n[Previous attempt failed validation: ${errorMsg}]\nPlease provide a valid response matching the required schema.`;
 
 			const result = await generateText({
-				model: anthropic(modelId),
+				model,
 				system: systemPrompt ?? undefined,
 				output: Output.object({ schema: agentOutputSchema }),
 				prompt: retryPrompt,

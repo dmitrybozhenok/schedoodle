@@ -24,14 +24,39 @@ describe("config validation", () => {
 		}
 	});
 
-	it("rejects missing ANTHROPIC_API_KEY", () => {
-		const result = loadEnvFromRecord({});
+	it("rejects missing ANTHROPIC_API_KEY when provider is anthropic", () => {
+		const result = loadEnvFromRecord({ LLM_PROVIDER: "anthropic" });
 		expect(result.success).toBe(false);
 	});
 
-	it("rejects empty ANTHROPIC_API_KEY", () => {
-		const result = loadEnvFromRecord({ ANTHROPIC_API_KEY: "" });
+	it("rejects empty ANTHROPIC_API_KEY when provider is anthropic", () => {
+		const result = loadEnvFromRecord({ LLM_PROVIDER: "anthropic", ANTHROPIC_API_KEY: "" });
 		expect(result.success).toBe(false);
+	});
+
+	it("accepts missing ANTHROPIC_API_KEY when provider is ollama", () => {
+		const result = loadEnvFromRecord({ LLM_PROVIDER: "ollama" });
+		expect(result.success).toBe(true);
+	});
+
+	it("defaults LLM_PROVIDER to anthropic", () => {
+		const result = loadEnvFromRecord({ ANTHROPIC_API_KEY: "test-key" });
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.LLM_PROVIDER).toBe("anthropic");
+		}
+	});
+
+	it("accepts ollama provider with OLLAMA_BASE_URL", () => {
+		const result = loadEnvFromRecord({
+			LLM_PROVIDER: "ollama",
+			OLLAMA_BASE_URL: "http://localhost:11434/api",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.LLM_PROVIDER).toBe("ollama");
+			expect(result.data.OLLAMA_BASE_URL).toBe("http://localhost:11434/api");
+		}
 	});
 
 	it("accepts optional RESEND_API_KEY", () => {

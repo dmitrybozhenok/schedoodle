@@ -14,7 +14,7 @@ import * as schema from "../src/db/schema.js";
 
 // Mock AI SDK modules before any imports that use them
 const mockGenerateText = vi.fn();
-const mockAnthropicFn = vi.fn(() => "mock-model");
+const mockResolveModel = vi.fn(() => "mock-model");
 
 vi.mock("ai", () => ({
 	generateText: (...args: unknown[]) => mockGenerateText(...args),
@@ -30,8 +30,9 @@ vi.mock("ai", () => ({
 	},
 }));
 
-vi.mock("@ai-sdk/anthropic", () => ({
-	anthropic: (...args: unknown[]) => mockAnthropicFn(...args),
+vi.mock("../src/config/llm-provider.js", () => ({
+	DEFAULT_MODEL: "claude-sonnet-4-20250514",
+	resolveModel: (...args: unknown[]) => mockResolveModel(...args),
 }));
 
 vi.mock("../src/services/prefetch.js", () => ({
@@ -166,7 +167,7 @@ describe("executeAgent", () => {
 
 		await executeAgent(agent, db);
 
-		expect(mockAnthropicFn).toHaveBeenCalledWith("claude-haiku-4-20250514");
+		expect(mockResolveModel).toHaveBeenCalledWith("claude-haiku-4-20250514");
 		expect(mockGenerateText).toHaveBeenCalledTimes(1);
 		const callArgs = mockGenerateText.mock.calls[0][0];
 		expect(callArgs.system).toBe("You are helpful");
@@ -177,7 +178,7 @@ describe("executeAgent", () => {
 		const agent = makeAgent(db, { model: null });
 		await executeAgent(agent, db);
 
-		expect(mockAnthropicFn).toHaveBeenCalledWith("claude-sonnet-4-20250514");
+		expect(mockResolveModel).toHaveBeenCalledWith("claude-sonnet-4-20250514");
 	});
 
 	it("updates execution to 'success' with result, token counts, and duration", async () => {

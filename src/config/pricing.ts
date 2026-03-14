@@ -3,6 +3,8 @@ export interface ModelPricing {
 	outputPerMTok: number;
 }
 
+const LOCAL_MODEL_PRICING: ModelPricing = { inputPerMTok: 0, outputPerMTok: 0 };
+
 const MODEL_PRICING: Record<string, ModelPricing> = {
 	"claude-sonnet-4-20250514": { inputPerMTok: 3, outputPerMTok: 15 },
 	"claude-sonnet-4.5-20250514": { inputPerMTok: 3, outputPerMTok: 15 },
@@ -10,10 +12,16 @@ const MODEL_PRICING: Record<string, ModelPricing> = {
 	"claude-opus-4.5-20250514": { inputPerMTok: 5, outputPerMTok: 25 },
 };
 
+const LOCAL_MODEL_PREFIXES = ["gemma", "qwen", "llama", "phi", "mistral", "deepseek"];
+
 const DEFAULT_PRICING: ModelPricing = { inputPerMTok: 3, outputPerMTok: 15 };
 
 export function getModelPricing(modelId: string): ModelPricing {
-	return MODEL_PRICING[modelId] ?? DEFAULT_PRICING;
+	if (MODEL_PRICING[modelId]) return MODEL_PRICING[modelId];
+	if (LOCAL_MODEL_PREFIXES.some((p) => modelId.toLowerCase().startsWith(p))) {
+		return LOCAL_MODEL_PRICING;
+	}
+	return DEFAULT_PRICING;
 }
 
 export function estimateCost(modelId: string, inputTokens: number, outputTokens: number): number {
