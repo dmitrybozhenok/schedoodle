@@ -100,8 +100,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
 | 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
 | 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
-| 5. Notification | 0/2 | Not started | - |
-| 6. Agent Enabled Flag and Schedule Controls | 0/2 | Not started | - |
+| 5. Notification | 2/2 | Complete   | 2026-03-14 |
+| 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2026-03-14 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -117,5 +117,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
   6. At startup, only enabled agents are loaded into the scheduler
 **Plans:** 2 plans
 Plans:
-- [ ] 06-01-PLAN.md — Schema enabled column, input schemas, enrichAgent helper, scheduler enable/disable logic, and tests
-- [ ] 06-02-PLAN.md — API routes with enabled toggle, filtering, enriched responses, startup filtering, and route tests
+- [x] 06-01-PLAN.md — Schema enabled column, input schemas, enrichAgent helper, scheduler enable/disable logic, and tests
+- [x] 06-02-PLAN.md — API routes with enabled toggle, filtering, enriched responses, startup filtering, and route tests

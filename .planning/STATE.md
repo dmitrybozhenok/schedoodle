@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-14T23:27:00Z"
-last_activity: 2026-03-14 -- Plan 06-01 complete (schema, scheduler, enrichAgent)
+status: completed
+stopped_at: Completed 06-02-PLAN.md (all phases complete)
+last_updated: "2026-03-14T23:35:38.227Z"
+last_activity: 2026-03-14 -- Plan 06-02 complete (API routes enabled toggle, filtering, enriched responses)
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 11
-  completed_plans: 10
-  percent: 91
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 
 ## Current Position
 
-Phase: 6 of 6 (Agent Enabled Flag and Schedule Controls)
-Plan: 1 of 2 in current phase (Plan 01 complete)
-Status: Plan 06-01 complete, Plan 06-02 pending
-Last activity: 2026-03-14 -- Plan 06-01 complete (schema, scheduler, enrichAgent)
+Phase: 6 of 6 (Agent Enabled Flag and Schedule Controls) -- COMPLETE
+Plan: 2 of 2 in current phase (all plans complete)
+Status: All phases and plans complete
+Last activity: 2026-03-14 -- Plan 06-02 complete (API routes enabled toggle, filtering, enriched responses)
 
-Progress: [█████████ ] 91%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [█████████ ] 91%
 | Phase 05 P01 | 2min | 2 tasks | 5 files |
 | Phase 05 P02 | 2min | 1 tasks | 2 files |
 | Phase 06 P01 | 4min | 2 tasks | 11 files |
+| Phase 06 P02 | 3min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ Recent decisions affecting current work:
 - [06-01]: enrichAgent uses separate query per agent for lastRunAt (simple, bounded agent counts)
 - [06-01]: getNextRunAt creates paused Cron instance and stops it to avoid memory leaks
 - [06-01]: Boolean() conversion for enabled field in enrichAgent (integer 0/1 to boolean)
+- [06-02]: No changes needed to src/index.ts -- startAll already filters by enabled internally
+- [06-02]: PATCH reschedule logic combines enabled and cronSchedule checks into single conditional
+- [06-02]: enrichAgent used in all response paths for consistent API shape
 
 ### Roadmap Evolution
 
@@ -115,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T23:27:00Z
-Stopped at: Completed 06-01-PLAN.md
-Resume file: .planning/phases/06-agent-enabled-flag-and-schedule-controls/06-02-PLAN.md
+Last session: 2026-03-14T23:35:36.750Z
+Stopped at: Completed 06-02-PLAN.md (all phases complete)
+Resume file: None
