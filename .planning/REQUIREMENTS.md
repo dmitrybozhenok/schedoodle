@@ -28,8 +28,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Resilience
 
-- [ ] **RSLN-01**: A circuit breaker per LLM provider prevents hammering a downed API
-- [ ] **RSLN-02**: Circuit breaker auto-recovers when the provider comes back online
+- [x] **RSLN-01**: A circuit breaker per LLM provider prevents hammering a downed API
+- [x] **RSLN-02**: Circuit breaker auto-recovers when the provider comes back online
 
 ### Notification
 
@@ -38,7 +38,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Observability
 
-- [ ] **OBSV-01**: Token usage and estimated cost are tracked per agent per execution
+- [x] **OBSV-01**: Token usage and estimated cost are tracked per agent per execution
 - [ ] **OBSV-02**: A health check endpoint reports service status and basic operational info
 
 ## v2 Requirements
@@ -103,11 +103,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-04 | Phase 2 | Complete |
 | SCHD-01 | Phase 3 | Complete |
 | SCHD-02 | Phase 3 | Complete |
-| RSLN-01 | Phase 4 | Pending |
-| RSLN-02 | Phase 4 | Pending |
+| RSLN-01 | Phase 4 | Complete |
+| RSLN-02 | Phase 4 | Complete |
 | NOTF-01 | Phase 5 | Pending |
 | NOTF-02 | Phase 5 | Pending |
-| OBSV-01 | Phase 4 | Pending |
+| OBSV-01 | Phase 4 | Complete |
 | OBSV-02 | Phase 4 | Pending |
 
 **Coverage:**
