@@ -9,6 +9,7 @@ import { agentOutputSchema } from "../schemas/agent-output.js";
 import { buildPrompt, prefetchUrls } from "../services/prefetch.js";
 import type { Agent } from "../types/index.js";
 import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
+import { sendNotification } from "./notifier.js";
 
 const DEFAULT_MODEL = "claude-sonnet-4-20250514";
 
@@ -132,6 +133,37 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 			})
 			.where(eq(executionHistory.id, executionId))
 			.run();
+
+		// --- Notification (fire-and-forget, never affects execution status) ---
+		try {
+			// Set delivery status to pending before send attempt
+			db.update(executionHistory)
+				.set({ deliveryStatus: "pending" })
+				.where(eq(executionHistory.id, executionId))
+				.run();
+
+			const notifyResult = await sendNotification(agent.name, new Date().toISOString(), output);
+
+			if (notifyResult.status === "skipped") {
+				// Reset pending back to null when notification is not configured
+				db.update(executionHistory)
+					.set({ deliveryStatus: null })
+					.where(eq(executionHistory.id, executionId))
+					.run();
+			} else {
+				db.update(executionHistory)
+					.set({ deliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
+					.where(eq(executionHistory.id, executionId))
+					.run();
+			}
+		} catch (err) {
+			// Never let notification errors affect execution status
+			console.error(`[notify] Unexpected error: ${err}`);
+			db.update(executionHistory)
+				.set({ deliveryStatus: "failed" })
+				.where(eq(executionHistory.id, executionId))
+				.run();
+		}
 
 		return { status: "success", executionId, output };
 	} catch (error) {
