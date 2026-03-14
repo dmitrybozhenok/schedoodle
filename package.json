@@ -14,7 +14,9 @@
 		"lint:fix": "biome check --write .",
 		"format": "biome format --write .",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"eval": "tsx evals/eval.ts",
+		"eval:judge": "tsx evals/eval.ts --judge"
 	},
 	"keywords": [],
 	"author": "",
