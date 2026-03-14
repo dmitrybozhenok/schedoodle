@@ -39,6 +39,11 @@ vi.mock("../src/services/prefetch.js", () => ({
 	buildPrompt: vi.fn((task: string, _ctx: Map<string, string>) => task),
 }));
 
+const mockSendNotification = vi.fn();
+vi.mock("../src/services/notifier.js", () => ({
+	sendNotification: (...args: unknown[]) => mockSendNotification(...args),
+}));
+
 import { prefetchUrls, buildPrompt } from "../src/services/prefetch.js";
 import { executeAgent, executeAgents, _resetLlmBreaker } from "../src/services/executor.js";
 
@@ -118,6 +123,7 @@ describe("executeAgent", () => {
 		vi.clearAllMocks();
 		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
+		mockSendNotification.mockResolvedValue({ status: "skipped" });
 	});
 
 	afterEach(() => {
@@ -390,6 +396,7 @@ describe("executeAgents", () => {
 		vi.clearAllMocks();
 		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
+		mockSendNotification.mockResolvedValue({ status: "skipped" });
 	});
 
 	afterEach(() => {
@@ -433,5 +440,110 @@ describe("executeAgents", () => {
 		// One success, one failure -- but both settled, not rejected
 		const statuses = values.map((v) => v.status).sort();
 		expect(statuses).toEqual(["failure", "success"]);
+	});
+});
+
+describe("notification integration", () => {
+	let sqlite: Database.Database;
+	let db: ReturnType<typeof drizzle>;
+
+	beforeEach(() => {
+		sqlite = new Database(":memory:");
+		sqlite.exec(CREATE_AGENTS_SQL);
+		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		db = drizzle(sqlite, { schema });
+
+		vi.clearAllMocks();
+		_resetLlmBreaker();
+		mockGenerateText.mockResolvedValue(makeLlmResult());
+		mockSendNotification.mockResolvedValue({ status: "sent" });
+	});
+
+	afterEach(() => {
+		sqlite.close();
+	});
+
+	it("calls sendNotification after successful execution", async () => {
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		expect(mockSendNotification).toHaveBeenCalledTimes(1);
+		expect(mockSendNotification).toHaveBeenCalledWith(
+			agent.name,
+			expect.any(String),
+			{ summary: "test summary", details: "test details" },
+		);
+	});
+
+	it("sets deliveryStatus to sent on successful notification", async () => {
+		mockSendNotification.mockResolvedValue({ status: "sent" });
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].deliveryStatus).toBe("sent");
+	});
+
+	it("sets deliveryStatus to failed when notification fails", async () => {
+		mockSendNotification.mockResolvedValue({ status: "failed", error: "domain not verified" });
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].deliveryStatus).toBe("failed");
+	});
+
+	it("does not update deliveryStatus when notification skipped", async () => {
+		mockSendNotification.mockResolvedValue({ status: "skipped" });
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		// When skipped, deliveryStatus should be null (no notification attempted)
+		expect(rows[0].deliveryStatus).toBeNull();
+	});
+
+	it("does not call sendNotification on failed execution", async () => {
+		mockGenerateText.mockRejectedValue(new Error("LLM failed"));
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		expect(mockSendNotification).not.toHaveBeenCalled();
+	});
+
+	it("returns success even when sendNotification throws", async () => {
+		mockSendNotification.mockRejectedValue(new Error("unexpected crash"));
+
+		const agent = makeAgent(db);
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("success");
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].deliveryStatus).toBe("failed");
 	});
 });
