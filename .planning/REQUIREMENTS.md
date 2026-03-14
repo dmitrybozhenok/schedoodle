@@ -33,8 +33,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Notification
 
-- [ ] **NOTF-01**: Agent results are delivered via email after each successful execution
-- [ ] **NOTF-02**: Emails include the agent name, execution timestamp, and formatted results
+- [x] **NOTF-01**: Agent results are delivered via email after each successful execution
+- [x] **NOTF-02**: Emails include the agent name, execution timestamp, and formatted results
 
 ### Observability
 
@@ -105,8 +105,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCHD-02 | Phase 3 | Complete |
 | RSLN-01 | Phase 4 | Complete |
 | RSLN-02 | Phase 4 | Complete |
-| NOTF-01 | Phase 5 | Pending |
-| NOTF-02 | Phase 5 | Pending |
+| NOTF-01 | Phase 5 | Complete |
+| NOTF-02 | Phase 5 | Complete |
 | OBSV-01 | Phase 4 | Complete |
 | OBSV-02 | Phase 4 | Complete |
 
