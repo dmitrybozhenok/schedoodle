@@ -20,6 +20,7 @@ export const createAgentSchema = z.object({
 	cronSchedule: cronExpression,
 	systemPrompt: z.string().optional(),
 	model: z.string().optional(),
+	enabled: z.boolean().optional(),
 });
 
 export const updateAgentSchema = createAgentSchema.partial();

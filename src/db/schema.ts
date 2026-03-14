@@ -10,6 +10,7 @@ export const agents = sqliteTable(
 		cronSchedule: text("cron_schedule").notNull(),
 		systemPrompt: text("system_prompt"),
 		model: text("model"),
+		enabled: integer("enabled").notNull().default(1),
 		createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 		updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 	},
