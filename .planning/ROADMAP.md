@@ -71,7 +71,10 @@ Plans:
   2. After the provider recovers, the circuit breaker automatically closes and agents resume normal execution
   3. Each execution records token usage (input/output) and estimated cost, queryable per agent
   4. A health check endpoint returns service status including uptime, number of registered agents, and recent execution summary
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 04-01-PLAN.md — Circuit breaker service, pricing config, schema migration, executor integration with tests
+- [ ] 04-02-PLAN.md — Health check endpoint with uptime, agent count, execution summary, and circuit breaker status
 
 ### Phase 5: Notification
 **Goal**: Agent results are automatically delivered to the user's inbox after each execution
@@ -93,5 +96,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
 | 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
 | 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
-| 4. Resilience and Observability | 0/? | Not started | - |
+| 4. Resilience and Observability | 0/2 | Not started | - |
 | 5. Notification | 0/? | Not started | - |
