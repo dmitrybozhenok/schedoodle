@@ -33,4 +33,59 @@ describe("config validation", () => {
 		const result = loadEnvFromRecord({ ANTHROPIC_API_KEY: "" });
 		expect(result.success).toBe(false);
 	});
+
+	it("accepts optional RESEND_API_KEY", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			RESEND_API_KEY: "re_123",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.RESEND_API_KEY).toBe("re_123");
+		}
+	});
+
+	it("accepts optional NOTIFICATION_EMAIL", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			NOTIFICATION_EMAIL: "user@example.com",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.NOTIFICATION_EMAIL).toBe("user@example.com");
+		}
+	});
+
+	it("rejects invalid NOTIFICATION_EMAIL format", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			NOTIFICATION_EMAIL: "not-an-email",
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts optional NOTIFICATION_FROM", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			NOTIFICATION_FROM: "Schedoodle <noreply@example.com>",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.NOTIFICATION_FROM).toBe(
+				"Schedoodle <noreply@example.com>",
+			);
+		}
+	});
+
+	it("works without any email env vars", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.RESEND_API_KEY).toBeUndefined();
+			expect(result.data.NOTIFICATION_EMAIL).toBeUndefined();
+			expect(result.data.NOTIFICATION_FROM).toBeUndefined();
+		}
+	});
 });
