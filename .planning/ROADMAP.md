@@ -84,7 +84,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Schema | 0/1 | Planning | - |
+| 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
 | 2. Execution Engine | 0/? | Not started | - |
 | 3. Management API and Scheduling | 0/? | Not started | - |
 | 4. Resilience and Observability | 0/? | Not started | - |
