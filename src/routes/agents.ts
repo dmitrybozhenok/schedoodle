@@ -6,6 +6,7 @@ import {
 	createAgentSchema,
 	updateAgentSchema,
 } from "../schemas/agent-input.js";
+import { executeAgent } from "../services/executor.js";
 import { scheduleAgent, removeAgent } from "../services/scheduler.js";
 import type { Database } from "../db/index.js";
 
@@ -178,6 +179,27 @@ export function createAgentRoutes(db: Database): Hono {
 		db.delete(agents).where(eq(agents.id, id)).run();
 
 		return c.body(null, 204);
+	});
+
+	// POST /:id/execute - Manually trigger agent execution
+	app.post("/:id/execute", async (c) => {
+		const id = parseId(c.req.param("id"));
+		if (id === null) {
+			return c.json({ error: "Invalid agent ID" }, 400);
+		}
+
+		const agent = db
+			.select()
+			.from(agents)
+			.where(eq(agents.id, id))
+			.get();
+
+		if (!agent) {
+			return c.json({ error: "Agent not found" }, 404);
+		}
+
+		const result = await executeAgent(agent, db);
+		return c.json(result, result.status === "success" ? 200 : 500);
 	});
 
 	// GET /:id/executions - Get execution history for agent
