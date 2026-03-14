@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation and Schema** - Project scaffold, database schema, agent persistence, and configuration validation
 - [x] **Phase 2: Execution Engine** - Core LLM pipeline with structured output, data pre-fetch, and graceful failure handling (completed 2026-03-14)
-- [ ] **Phase 3: Management API and Scheduling** - Agent CRUD endpoints, system prompts, and cron-based automatic execution
+- [x] **Phase 3: Management API and Scheduling** - Agent CRUD endpoints, system prompts, and cron-based automatic execution (completed 2026-03-14)
 - [ ] **Phase 4: Resilience and Observability** - Circuit breaker, token tracking, cost estimation, and health check endpoint
 - [ ] **Phase 5: Notification** - Email delivery of agent results via Resend
 
@@ -57,7 +57,7 @@ Plans:
   3. An agent with a cron schedule executes automatically at the scheduled time without manual intervention
   4. Multiple agents with different cron schedules run concurrently without conflicts or missed executions
   5. System prompt shapes the LLM's behavior and tone when the agent executes
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 03-01-PLAN.md — Install deps, update env/schema, create input schemas and scheduler service with tests
 - [ ] 03-02-PLAN.md — Build Hono CRUD routes, execution history endpoint, and wire index.ts with server + scheduler
@@ -92,6 +92,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
 | 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
-| 3. Management API and Scheduling | 0/2 | Not started | - |
+| 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
 | 4. Resilience and Observability | 0/? | Not started | - |
 | 5. Notification | 0/? | Not started | - |

@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Agent Management
 
-- [ ] **AGNT-01**: User can create an agent with a name, task description, and cron schedule via API
-- [ ] **AGNT-02**: User can read, update, and delete agents via API
-- [ ] **AGNT-03**: Each agent can have an optional system prompt that shapes its behavior and tone
+- [x] **AGNT-01**: User can create an agent with a name, task description, and cron schedule via API
+- [x] **AGNT-02**: User can read, update, and delete agents via API
+- [x] **AGNT-03**: Each agent can have an optional system prompt that shapes its behavior and tone
 - [x] **AGNT-04**: Agent definitions are persisted in the database
 
 ### LLM Execution
@@ -93,9 +93,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AGNT-01 | Phase 3 | Pending |
-| AGNT-02 | Phase 3 | Pending |
-| AGNT-03 | Phase 3 | Pending |
+| AGNT-01 | Phase 3 | Complete |
+| AGNT-02 | Phase 3 | Complete |
+| AGNT-03 | Phase 3 | Complete |
 | AGNT-04 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Complete |
 | EXEC-02 | Phase 2 | Complete |
