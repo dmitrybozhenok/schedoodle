@@ -1,0 +1,493 @@
+{
+  "runId": "eval-1773530325927",
+  "timestamp": "2026-03-14T23:19:55.089Z",
+  "model": "claude-sonnet-4-20250514",
+  "totalCases": 9,
+  "passedCases": 9,
+  "failedCases": 0,
+  "slices": {
+    "error-handling": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "impossible": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "hallucination": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "ambiguous": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "edge-case": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "minimal": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "instruction-following": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "persona": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "system-prompt": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "tone": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "structured": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "count-constraint": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "simple": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "summarisation": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "no-urls": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "conciseness": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    }
+  },
+  "metrics": {
+    "avgDurationMs": 5929.444444444444,
+    "p95DurationMs": 10906,
+    "avgOutputTokens": 259.55555555555554,
+    "totalCostUsd": 0.047034000000000006,
+    "schemaPassRate": 0.6666666666666666,
+    "avgJudgeScore": 3.5454545454545454
+  },
+  "results": [
+    {
+      "caseId": "err-01",
+      "caseName": "Impossible prediction task",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "error-handling",
+        "impossible",
+        "hallucination"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Cannot provide exact future Bitcoin price or lottery numbers as these are unpredictable future events",
+        "details": "I cannot provide the exact price of Bitcoin at 3:42pm tomorrow or the winning lottery numbers for next Friday because:\n\n1. Bitcoin Price Prediction: Cryptocurrency prices are highly volatile and influenced by numerous unpredictable factors including market sentiment, regulatory changes, economic events, and trading volume. No one can predict the exact price at a specific time with certainty.\n\n2. Lottery Numbers: Lottery drawings are random events designed to be unpredictable. The winning numbers are determined by random number generation or mechanical drawing processes that cannot be predicted in advance.\n\nIf you're interested in Bitcoin, I can help you understand price analysis methods, market trends, or how to track current prices. For lottery information, I can explain how different lottery systems work or provide information about odds and past statistics.",
+        "durationMs": 5436,
+        "inputTokens": 444,
+        "outputTokens": 225,
+        "estimatedCost": 0.004707
+      },
+      "checks": [
+        {
+          "name": "Returns success (no crash)",
+          "passed": true
+        },
+        {
+          "name": "Acknowledges impossibility",
+          "passed": true
+        },
+        {
+          "name": "No hallucinated predictions",
+          "passed": true
+        },
+        {
+          "name": "No fake lottery numbers",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Honesty",
+          "score": 1,
+          "reasoning": "The agent clearly and directly states that it cannot fulfill the request. It explains the rationale behind its inability to predict these events (market volatility for Bitcoin and the inherent randomness of lottery drawings). The response is transparent, avoids any speculative language or hedging that could be interpreted as a prediction, and offers helpful, realistic alternatives. It fully adheres to the honesty criterion."
+        },
+        {
+          "criterion": "Helpfulness despite refusal",
+          "score": 5,
+          "reasoning": "The agent correctly identifies that the requested tasks are impossible. It goes beyond a simple refusal by providing a clear, logical explanation for *why* these predictions are impossible (market volatility for Bitcoin and the nature of random number generation for lotteries). Furthermore, it offers helpful, constructive alternatives by suggesting ways to learn about market analysis and lottery statistics, which adds value to the user's inquiry despite the inability to fulfill the specific request."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "err-02",
+      "caseName": "Ambiguous vague task",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "error-handling",
+        "ambiguous",
+        "edge-case"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Unable to determine specific task due to vague request",
+        "details": "The request \"Do the thing with the stuff\" is too vague and lacks specific information about what task should be performed or what \"thing\" and \"stuff\" refer to. To provide helpful assistance, I would need more specific details about:\n- What specific task or action you want performed\n- What objects, data, or materials are involved\n- What the desired outcome should be\n- Any relevant context or constraints\n\nPlease provide more specific instructions so I can assist you effectively.",
+        "durationMs": 3688,
+        "inputTokens": 428,
+        "outputTokens": 149,
+        "estimatedCost": 0.003519
+      },
+      "checks": [
+        {
+          "name": "Returns success (no crash)",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Graceful handling",
+          "score": 5,
+          "reasoning": "The agent correctly identifies that the input prompt is critically underspecified. It avoids the pitfall of hallucinating a task (e.g., guessing that \"the stuff\" refers to data analysis or file management) and instead provides a professional, polite explanation of why it cannot proceed. It also provides a helpful framework for the user to follow to clarify their request, which is the best practice for handling ambiguous prompts."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "err-03",
+      "caseName": "Empty task resilience",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "error-handling",
+        "edge-case",
+        "minimal"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "No query provided",
+        "details": "The user sent only ellipsis (...) without any specific question or request. Unable to provide a meaningful response without more information about what they need help with.",
+        "durationMs": 2313,
+        "inputTokens": 422,
+        "outputTokens": 77,
+        "estimatedCost": 0.002421
+      },
+      "checks": [
+        {
+          "name": "Does not crash",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "inst-01",
+      "caseName": "Pirate persona compliance",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "instruction-following",
+        "persona",
+        "system-prompt"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Arr! HTTP status codes be like signal flags on the high seas, tellin' ye whether yer request made it to port safely or ran into trouble on the digital waves!",
+        "details": "Ahoy there, matey! Let me chart these treacherous HTTP waters fer ye, arr!\n\n**200 - Success (Smooth Sailin'):**\nArr, this be the sweetest sound a pirate can hear! When ye get a 200, it means yer ship has reached port safely and the treasure ye sought has been loaded aboard. The server found exactly what ye were lookin' for and delivered it without a hitch. Fair winds and following seas, as we say!\n\n**404 - Not Found (Lost at Sea):**\nShiver me timbers! A 404 means ye've sailed to the wrong coordinates, arr! The treasure map led ye astray, and there be nothin' but empty water where ye expected to find yer bounty. The server searched high and low through its cargo hold but couldn't find the page or resource ye were seekin'. Time to check yer navigation, ye scurvy dog!\n\n**500 - Internal Server Error (Mutiny in the Engine Room):**\nBatten down the hatches! This be the worst kind of storm, arr! A 500 means there's been a mutiny in the server's engine room - somethin' has gone terribly wrong with the ship's machinery. The crew (server) wanted to help ye, but their own vessel is takin' on water faster than they can bail it out. Could be broken code, overloaded systems, or the digital equivalent of a kraken attack!\n\nRemember, matey - these status codes be like the ship's log, tellin' ye exactly what happened on yer voyage across the digital seas, arr!",
+        "durationMs": 10906,
+        "inputTokens": 466,
+        "outputTokens": 434,
+        "estimatedCost": 0.007908
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Contains pirate language",
+          "passed": true
+        },
+        {
+          "name": "Contains nautical terms",
+          "passed": true
+        },
+        {
+          "name": "Mentions HTTP codes",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Persona adherence",
+          "score": 5,
+          "reasoning": "The agent fully embraces the persona from the opening sentence to the final sign-off. It does not merely sprinkle in pirate keywords; it constructs the entire explanation through the lens of a nautical voyage. The metaphors (signal flags, port, treasure maps, mutiny in the engine room) are consistent and creative, and the tone remains gritty and thematic throughout. The use of \"arr\" is frequent as requested, and the pirate dialect is applied consistently to the sentence structure and vocabulary."
+        },
+        {
+          "criterion": "Domain accuracy",
+          "score": 1,
+          "reasoning": "1. The agent correctly identifies the 200 status code as \"OK\" or success, indicating the request was fulfilled.\n2. The agent correctly identifies the 404 status code as \"Not Found,\" indicating the server could not find the requested resource.\n3. The agent correctly identifies the 500 status code as an \"Internal Server Error,\" indicating an unexpected condition was encountered by the server that prevented it from fulfilling the request.\n4. The technical explanations are accurate and align with standard web protocols, despite the heavy use of the requested pirate persona."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "inst-02",
+      "caseName": "Formal business tone",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "instruction-following",
+        "tone",
+        "system-prompt"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Strong recommendation to adopt TypeScript for Node.js development to enhance code quality, maintainability, and developer productivity",
+        "details": "Based on industry best practices and enterprise development requirements, I recommend the immediate adoption of TypeScript for your Node.js projects. This strategic decision offers several critical business advantages:\n\n**Risk Mitigation and Quality Assurance:**\nTypeScript's static type system significantly reduces runtime errors by catching type-related defects during the development phase, resulting in more stable production deployments and reduced maintenance costs.\n\n**Enhanced Developer Experience and Productivity:**\nThe language provides superior tooling support including intelligent code completion, automated refactoring capabilities, and comprehensive IDE integration, which accelerates development velocity and reduces onboarding time for new team members.\n\n**Long-term Maintainability:**\nTypeScript's explicit type annotations serve as living documentation, making codebases more comprehensible and maintainable as projects scale. This is particularly valuable for enterprise applications with extended lifecycle requirements.\n\n**Ecosystem Compatibility:**\nTypeScript maintains full compatibility with existing JavaScript codebases, enabling gradual migration without disrupting current operations. The extensive type definitions ecosystem (@types packages) ensures seamless integration with third-party libraries.\n\n**Implementation Considerations:**\nInitial setup requires modest configuration overhead and team training investment. However, the return on investment becomes evident within the first development cycle through reduced debugging time and improved code reliability.\n\nThe adoption of TypeScript aligns with modern enterprise development standards and positions the organization for sustainable growth in software development capabilities.",
+        "durationMs": 9241,
+        "inputTokens": 471,
+        "outputTokens": 358,
+        "estimatedCost": 0.006783
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Mentions TypeScript",
+          "passed": true
+        },
+        {
+          "name": "No emojis",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Tone compliance",
+          "score": 5,
+          "reasoning": "The agent successfully adopted the persona of a senior technical architect. The language is formal, precise, and devoid of slang, contractions, or casual phrasing. The structure is logical and focuses on business value (risk mitigation, ROI, scalability), which is appropriate for a C-suite audience. The tone remains consistent throughout the entire document."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "inst-03",
+      "caseName": "Structured list output",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "instruction-following",
+        "structured",
+        "count-constraint"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "The 3 most popular programming languages in 2025 are Python, JavaScript, and Java, each with distinct strengths in their respective domains.",
+        "details": "1. **Python** - Key Strength: Exceptional versatility and simplicity. Python's clean, readable syntax makes it ideal for beginners while remaining powerful enough for advanced applications in AI/ML, data science, web development, and automation. Its extensive library ecosystem accelerates development across multiple domains.\n\n2. **JavaScript** - Key Strength: Universal web compatibility and full-stack capabilities. JavaScript runs natively in all web browsers and can be used for both frontend and backend development (Node.js), making it essential for modern web applications and enabling developers to use a single language across the entire web development stack.\n\n3. **Java** - Key Strength: Platform independence and enterprise reliability. Java's \"write once, run anywhere\" philosophy through the Java Virtual Machine (JVM), combined with its robust performance, strong memory management, and extensive enterprise frameworks, makes it the go-to choice for large-scale enterprise applications and Android development.",
+        "durationMs": 5562,
+        "inputTokens": 442,
+        "outputTokens": 266,
+        "estimatedCost": 0.005316
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty",
+          "passed": true
+        },
+        {
+          "name": "Mentions at least 2 languages",
+          "passed": true
+        },
+        {
+          "name": "Token counts positive",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Instruction compliance",
+          "score": 1,
+          "reasoning": "The agent was tasked with listing the 3 most popular programming languages in 2025 and one key strength for each. The agent provided a list containing exactly three languages (Python, JavaScript, and Java) and provided one distinct key strength for each of them. The output adheres strictly to the constraints provided in the task."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sum-01",
+      "caseName": "TDD benefits summary",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "simple",
+        "summarisation",
+        "no-urls"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Test-driven development (TDD) offers significant benefits including improved code quality, better design, reduced debugging time, comprehensive test coverage, and enhanced maintainability through a disciplined red-green-refactor cycle.",
+        "details": "Test-driven development (TDD) provides several key benefits for software engineering projects:\n\n**Code Quality & Reliability:**\n- Forces developers to write testable, modular code\n- Catches bugs early in the development process\n- Ensures each piece of functionality works as expected before integration\n\n**Better Software Design:**\n- Encourages simple, focused implementations (YAGNI principle)\n- Promotes loose coupling and high cohesion\n- Leads to cleaner interfaces and better separation of concerns\n\n**Comprehensive Test Coverage:**\n- Guarantees that all production code has corresponding tests\n- Creates a safety net for future changes and refactoring\n- Provides living documentation of system behavior\n\n**Faster Development Cycles:**\n- Reduces time spent debugging later in development\n- Enables confident refactoring without fear of breaking functionality\n- Provides immediate feedback on code changes\n\n**Enhanced Maintainability:**\n- Makes code easier to modify and extend over time\n- Reduces technical debt accumulation\n- Facilitates onboarding of new team members through clear test specifications\n\n**Process Benefits:**\n- Follows the red-green-refactor cycle: write failing test, make it pass, improve code\n- Encourages incremental development and continuous improvement\n- Builds developer confidence in code changes",
+        "durationMs": 7397,
+        "inputTokens": 436,
+        "outputTokens": 363,
+        "estimatedCost": 0.006753
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty (>20 chars)",
+          "passed": true
+        },
+        {
+          "name": "Details non-empty (>20 chars)",
+          "passed": true
+        },
+        {
+          "name": "Mentions TDD or test-driven",
+          "passed": true
+        },
+        {
+          "name": "Mentions at least 2 benefits",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Relevance",
+          "score": 5,
+          "reasoning": "The agent's output directly addresses the task of summarizing the key benefits of test-driven development. It categorizes these benefits logically (Code Quality, Design, Coverage, Development Cycles, Maintainability, and Process) and provides specific, relevant points for each. There are no irrelevant tangents or off-topic discussions; every point made is directly related to the advantages of TDD in a software engineering context. The content is accurate and focused."
+        },
+        {
+          "criterion": "Completeness",
+          "score": 5,
+          "reasoning": "The agent provides a comprehensive list of benefits associated with Test-Driven Development. It explicitly covers the key areas requested in the prompt's example criteria: fewer bugs (Code Quality & Reliability), better design (Better Software Design), documentation (Comprehensive Test Coverage), and confidence to refactor (Faster Development Cycles). It lists six distinct categories of benefits, far exceeding the minimum requirement of three. The content is accurate, well-structured, and directly addresses the task."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sum-02",
+      "caseName": "Climate change overview",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "simple",
+        "summarisation",
+        "no-urls"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Climate change is primarily caused by human activities that increase greenhouse gas emissions, leading to global warming and widespread environmental, social, and economic impacts.",
+        "details": "**Main Causes of Climate Change:**\n• **Greenhouse Gas Emissions**: Burning fossil fuels (coal, oil, natural gas) for electricity, heat, and transportation releases CO2, the primary driver of climate change\n• **Deforestation**: Clearing forests reduces Earth's capacity to absorb CO2 and releases stored carbon\n• **Industrial Processes**: Manufacturing, cement production, and chemical processes emit CO2 and other greenhouse gases\n• **Agriculture**: Livestock farming produces methane, while fertilizers release nitrous oxide\n• **Land Use Changes**: Converting natural landscapes for human use affects carbon storage and absorption\n\n**Main Effects of Climate Change:**\n• **Rising Temperatures**: Global average temperatures have increased by approximately 1.1°C since pre-industrial times\n• **Extreme Weather**: More frequent and intense heatwaves, droughts, floods, hurricanes, and wildfires\n• **Sea Level Rise**: Thermal expansion of oceans and melting ice sheets threaten coastal communities\n• **Ecosystem Disruption**: Species migration, habitat loss, coral bleaching, and changes in plant/animal life cycles\n• **Agricultural Impact**: Crop yield changes, water scarcity, and food security challenges\n• **Human Health**: Heat-related illnesses, disease vector expansion, air quality issues, and mental health impacts\n• **Economic Consequences**: Infrastructure damage, reduced productivity, and increased costs for adaptation and disaster response",
+        "durationMs": 6649,
+        "inputTokens": 436,
+        "outputTokens": 376,
+        "estimatedCost": 0.006948
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty",
+          "passed": true
+        },
+        {
+          "name": "Mentions causes",
+          "passed": true
+        },
+        {
+          "name": "Mentions effects",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Factual accuracy",
+          "score": 1,
+          "reasoning": "The agent's output accurately reflects the scientific consensus on climate change. \n1. **Causes**: The identification of fossil fuel combustion, deforestation, industrial processes, agriculture (methane/nitrous oxide), and land-use changes as primary drivers is consistent with reports from the IPCC (Intergovernmental Panel on Climate Change).\n2. **Effects**: The listed effects—rising global temperatures (specifically the ~1.1°C figure), extreme weather patterns, sea-level rise, ecosystem disruption, agricultural impacts, health risks, and economic consequences—are all well-documented and scientifically supported phenomena. \nThe information is presented clearly, without exaggeration or misinformation."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sum-03",
+      "caseName": "REST API explanation",
+      "model": "claude-sonnet-4-20250514",
+      "tags": [
+        "simple",
+        "summarisation",
+        "conciseness"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "A REST API is a web service architecture that uses HTTP methods to enable communication between applications.",
+        "details": "REST APIs follow stateless principles and use standard HTTP verbs (GET, POST, PUT, DELETE) to perform operations on resources identified by URLs.",
+        "durationMs": 2173,
+        "inputTokens": 453,
+        "outputTokens": 88,
+        "estimatedCost": 0.002679
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary under 300 chars",
+          "passed": true
+        },
+        {
+          "name": "Total output under 500 chars",
+          "passed": true
+        },
+        {
+          "name": "Mentions REST or API",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Conciseness",
+          "score": 5,
+          "reasoning": "The system prompt explicitly instructed the agent to provide a total of no more than 2 sentences across the summary and details. The agent provided exactly two sentences (one for the summary and one for the details). Furthermore, the task requested an explanation of a REST API in exactly one sentence; while the agent provided two sentences total, it successfully fulfilled the \"1-2 sentences total\" constraint of the system prompt while providing a clear and accurate definition. The response is highly concise and adheres to all constraints."
+        }
+      ],
+      "passed": true
+    }
+  ]
+}
