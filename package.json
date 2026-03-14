@@ -20,9 +20,12 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@ai-sdk/anthropic": "^3.0.58",
+		"ai": "^6.0.116",
 		"better-sqlite3": "^12.8.0",
 		"dotenv": "^17.3.1",
 		"drizzle-orm": "^0.45.1",
+		"html-to-text": "^9.0.5",
 		"zod": "^4.3.6"
 	},
 	"pnpm": {
@@ -34,6 +37,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.7",
 		"@types/better-sqlite3": "^7.6.13",
+		"@types/html-to-text": "^9.0.4",
 		"@types/node": "^25.5.0",
 		"drizzle-kit": "^0.31.9",
 		"tsx": "^4.21.0",

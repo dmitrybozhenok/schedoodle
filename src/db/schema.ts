@@ -9,6 +9,7 @@ export const agents = sqliteTable(
 		taskDescription: text("task_description").notNull(),
 		cronSchedule: text("cron_schedule").notNull(),
 		systemPrompt: text("system_prompt"),
+		model: text("model"),
 		createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 		updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 	},
