@@ -13,6 +13,13 @@ vi.mock("../src/services/scheduler.js", () => ({
 	removeAgent: (...args: unknown[]) => mockRemoveAgent(...args),
 }));
 
+// Mock executor for manual execution tests
+const mockExecuteAgent = vi.fn().mockResolvedValue({ status: "success", result: { summary: "done" } });
+
+vi.mock("../src/services/executor.js", () => ({
+	executeAgent: (...args: unknown[]) => mockExecuteAgent(...args),
+}));
+
 import { createAgentRoutes } from "../src/routes/agents.js";
 
 const CREATE_AGENTS_SQL = `
@@ -450,6 +457,157 @@ describe("Agent CRUD routes", () => {
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body).toEqual([]);
+		});
+	});
+
+	// --- Enabled flag and schedule metadata ---
+
+	describe("enabled flag and schedule metadata", () => {
+		it("POST creates agent with default enabled: true, response has enriched fields", async () => {
+			const res = await app.request("/agents", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name: "DefaultEnabled",
+					taskDescription: "Test default",
+					cronSchedule: "0 * * * *",
+				}),
+			});
+
+			expect(res.status).toBe(201);
+			const body = await res.json();
+			expect(body.enabled).toBe(true); // boolean, not integer
+			expect(typeof body.nextRunAt).toBe("string"); // ISO string
+			expect(body.lastRunAt).toBeNull();
+		});
+
+		it("POST with enabled: false creates disabled agent without scheduling", async () => {
+			const res = await app.request("/agents", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name: "DisabledCreate",
+					taskDescription: "Test disabled",
+					cronSchedule: "0 * * * *",
+					enabled: false,
+				}),
+			});
+
+			expect(res.status).toBe(201);
+			const body = await res.json();
+			expect(body.enabled).toBe(false);
+			expect(body.nextRunAt).toBeNull();
+			expect(mockScheduleAgent).not.toHaveBeenCalled();
+		});
+
+		it("GET /agents returns all agents with enriched fields", async () => {
+			makeAgent(db, { name: "ListAgent1" });
+			makeAgent(db, { name: "ListAgent2" });
+
+			const res = await app.request("/agents");
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toHaveLength(2);
+			for (const agent of body) {
+				expect(typeof agent.enabled).toBe("boolean");
+				expect(agent).toHaveProperty("nextRunAt");
+				expect(agent).toHaveProperty("lastRunAt");
+			}
+		});
+
+		it("GET /agents?enabled=true returns only enabled agents", async () => {
+			makeAgent(db, { name: "Enabled1" });
+			makeAgent(db, { name: "Disabled1", enabled: 0 });
+			makeAgent(db, { name: "Enabled2" });
+
+			const res = await app.request("/agents?enabled=true");
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toHaveLength(2);
+			expect(body.every((a: { enabled: boolean }) => a.enabled === true)).toBe(true);
+		});
+
+		it("GET /agents?enabled=false returns only disabled agents", async () => {
+			makeAgent(db, { name: "Enabled3" });
+			makeAgent(db, { name: "Disabled2", enabled: 0 });
+
+			const res = await app.request("/agents?enabled=false");
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toHaveLength(1);
+			expect(body[0].enabled).toBe(false);
+		});
+
+		it("GET /agents/:id returns agent with enriched fields", async () => {
+			const agent = makeAgent(db, { name: "DetailAgent" });
+
+			const res = await app.request(`/agents/${agent.id}`);
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(typeof body.enabled).toBe("boolean");
+			expect(body).toHaveProperty("nextRunAt");
+			expect(body).toHaveProperty("lastRunAt");
+		});
+
+		it("PATCH enabled: false calls removeAgent and returns enriched response", async () => {
+			const agent = makeAgent(db, { name: "DisableMe" });
+
+			const res = await app.request(`/agents/${agent.id}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ enabled: false }),
+			});
+
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body.enabled).toBe(false);
+			expect(body.nextRunAt).toBeNull();
+			expect(mockRemoveAgent).toHaveBeenCalledWith(agent.id);
+		});
+
+		it("PATCH enabled: true calls scheduleAgent and returns enriched response", async () => {
+			const agent = makeAgent(db, { name: "EnableMe", enabled: 0 });
+
+			const res = await app.request(`/agents/${agent.id}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ enabled: true }),
+			});
+
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body.enabled).toBe(true);
+			expect(typeof body.nextRunAt).toBe("string");
+			expect(mockScheduleAgent).toHaveBeenCalledTimes(1);
+		});
+
+		it("PATCH cronSchedule on disabled agent does NOT call scheduleAgent", async () => {
+			const agent = makeAgent(db, { name: "DisabledCron", enabled: 0 });
+
+			const res = await app.request(`/agents/${agent.id}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ cronSchedule: "*/5 * * * *" }),
+			});
+
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body.enabled).toBe(false);
+			expect(mockScheduleAgent).not.toHaveBeenCalled();
+			expect(mockRemoveAgent).toHaveBeenCalledWith(agent.id);
+		});
+
+		it("POST /:id/execute works on disabled agent", async () => {
+			const agent = makeAgent(db, { name: "ManualExec", enabled: 0 });
+
+			const res = await app.request(`/agents/${agent.id}/execute`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body.status).toBe("success");
+			expect(mockExecuteAgent).toHaveBeenCalledTimes(1);
 		});
 	});
 });
