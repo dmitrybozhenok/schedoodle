@@ -177,22 +177,11 @@ describe("scheduler", () => {
 
 	describe("stale data avoidance", () => {
 		it("re-reads agent from DB before executing", async () => {
+			const { eq } = await import("drizzle-orm");
 			const agent = makeAgent(db, { cronSchedule: "* * * * * *" });
 			scheduleAgent(agent, db);
 
 			// Update agent in DB after scheduling
-			db.update(schema.agents)
-				.set({ taskDescription: "Updated task" })
-				.where(
-					// biome-ignore lint/suspicious/noExplicitAny: test utility
-					(schema.agents.id as any).equals
-						? undefined
-						: undefined,
-				)
-				.run();
-
-			// Actually update using drizzle eq
-			const { eq } = await import("drizzle-orm");
 			db.update(schema.agents)
 				.set({ taskDescription: "Updated task" })
 				.where(eq(schema.agents.id, agent.id))
