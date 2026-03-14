@@ -1,14 +1,33 @@
-import { NoObjectGeneratedError, Output, generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { generateText, NoObjectGeneratedError, Output } from "ai";
 import { eq } from "drizzle-orm";
-import { agentOutputSchema } from "../schemas/agent-output.js";
-import type { AgentOutput } from "../schemas/agent-output.js";
-import { prefetchUrls, buildPrompt } from "../services/prefetch.js";
-import { executionHistory } from "../db/schema.js";
+import { estimateCost } from "../config/pricing.js";
 import type { Database } from "../db/index.js";
+import { executionHistory } from "../db/schema.js";
+import type { AgentOutput } from "../schemas/agent-output.js";
+import { agentOutputSchema } from "../schemas/agent-output.js";
+import { buildPrompt, prefetchUrls } from "../services/prefetch.js";
 import type { Agent } from "../types/index.js";
+import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
 
 const DEFAULT_MODEL = "claude-sonnet-4-20250514";
+
+let llmBreaker = createCircuitBreaker({
+	name: "anthropic",
+	failureThreshold: 3,
+	resetTimeoutMs: 30_000,
+});
+
+/**
+ * Reset the LLM circuit breaker. Intended for test isolation only.
+ */
+export function _resetLlmBreaker() {
+	llmBreaker = createCircuitBreaker({
+		name: "anthropic",
+		failureThreshold: 3,
+		resetTimeoutMs: 30_000,
+	});
+}
 
 type ExecuteSuccess = {
 	status: "success";
@@ -25,13 +44,17 @@ type ExecuteFailure = {
 export type ExecuteResult = ExecuteSuccess | ExecuteFailure;
 
 /**
+ * Get the current circuit breaker status for the LLM provider.
+ * Useful for health endpoints.
+ */
+export function getLlmCircuitStatus() {
+	return llmBreaker.getStatus();
+}
+
+/**
  * Call the LLM with structured output and one retry on validation failure.
  */
-async function callLlmWithRetry(
-	modelId: string,
-	systemPrompt: string | null,
-	userMessage: string,
-) {
+async function callLlmWithRetry(modelId: string, systemPrompt: string | null, userMessage: string) {
 	try {
 		const result = await generateText({
 			model: anthropic(modelId),
@@ -43,8 +66,7 @@ async function callLlmWithRetry(
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			// Retry once with validation error appended as feedback
-			const errorMsg =
-				error instanceof Error ? error.message : String(error);
+			const errorMsg = error instanceof Error ? error.message : String(error);
 			const retryPrompt = `${userMessage}\n\n[Previous attempt failed validation: ${errorMsg}]\nPlease provide a valid response matching the required schema.`;
 
 			const result = await generateText({
@@ -62,10 +84,7 @@ async function callLlmWithRetry(
 /**
  * Execute a single agent: prefetch URLs, call LLM, record result in DB.
  */
-export async function executeAgent(
-	agent: Agent,
-	db: Database,
-): Promise<ExecuteResult> {
+export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteResult> {
 	// Insert running record
 	const inserted = db
 		.insert(executionHistory)
@@ -84,16 +103,21 @@ export async function executeAgent(
 		const contextData = await prefetchUrls(agent.taskDescription);
 		const userMessage = buildPrompt(agent.taskDescription, contextData);
 
-		// Call LLM with retry on validation failure
+		// Call LLM with retry, wrapped in circuit breaker
 		const modelId = agent.model ?? DEFAULT_MODEL;
-		const result = await callLlmWithRetry(
-			modelId,
-			agent.systemPrompt,
-			userMessage,
+		const result = await llmBreaker.execute(() =>
+			callLlmWithRetry(modelId, agent.systemPrompt, userMessage),
 		);
 
 		const durationMs = Date.now() - startTime;
 		const output = result.output as AgentOutput;
+
+		// Compute estimated cost from token usage
+		const cost = estimateCost(
+			modelId,
+			result.usage.inputTokens ?? 0,
+			result.usage.outputTokens ?? 0,
+		);
 
 		// Update execution to success
 		db.update(executionHistory)
@@ -102,6 +126,7 @@ export async function executeAgent(
 				result: output,
 				inputTokens: result.usage.inputTokens ?? null,
 				outputTokens: result.usage.outputTokens ?? null,
+				estimatedCost: cost,
 				durationMs,
 				completedAt: new Date().toISOString(),
 			})
@@ -111,14 +136,19 @@ export async function executeAgent(
 		return { status: "success", executionId, output };
 	} catch (error) {
 		const durationMs = Date.now() - startTime;
-		const errorMsg =
-			error instanceof Error ? error.message : String(error);
+		const isCircuitOpen = error instanceof CircuitBreakerOpenError;
+		const errorMsg = isCircuitOpen
+			? "Circuit breaker open - call rejected"
+			: error instanceof Error
+				? error.message
+				: String(error);
 
 		// Update execution to failure
 		db.update(executionHistory)
 			.set({
 				status: "failure",
 				error: errorMsg,
+				estimatedCost: isCircuitOpen ? 0 : null,
 				durationMs,
 				completedAt: new Date().toISOString(),
 			})

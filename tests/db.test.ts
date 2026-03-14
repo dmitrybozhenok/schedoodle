@@ -28,6 +28,7 @@ CREATE TABLE execution_history (
   result TEXT,
   error TEXT,
   delivery_status TEXT,
+  estimated_cost REAL,
   started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   completed_at TEXT
 );

@@ -32,11 +32,7 @@ export function createCircuitBreaker(options: CircuitBreakerOptions) {
 	let openedAt: number | null = null;
 
 	function resolveState(): CircuitState {
-		if (
-			state === "OPEN" &&
-			openedAt !== null &&
-			Date.now() - openedAt >= resetTimeoutMs
-		) {
+		if (state === "OPEN" && openedAt !== null && Date.now() - openedAt >= resetTimeoutMs) {
 			state = "HALF_OPEN";
 		}
 		return state;

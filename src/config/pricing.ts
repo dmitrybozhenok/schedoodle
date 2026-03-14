@@ -16,11 +16,7 @@ export function getModelPricing(modelId: string): ModelPricing {
 	return MODEL_PRICING[modelId] ?? DEFAULT_PRICING;
 }
 
-export function estimateCost(
-	modelId: string,
-	inputTokens: number,
-	outputTokens: number,
-): number {
+export function estimateCost(modelId: string, inputTokens: number, outputTokens: number): number {
 	const pricing = getModelPricing(modelId);
 	const cost =
 		(inputTokens / 1_000_000) * pricing.inputPerMTok +

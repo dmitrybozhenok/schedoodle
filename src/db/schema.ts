@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const agents = sqliteTable(
 	"agents",
@@ -28,6 +28,7 @@ export const executionHistory = sqliteTable("execution_history", {
 	result: text("result", { mode: "json" }),
 	error: text("error"),
 	deliveryStatus: text("delivery_status"),
+	estimatedCost: real("estimated_cost"),
 	startedAt: text("started_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 	completedAt: text("completed_at"),
 });

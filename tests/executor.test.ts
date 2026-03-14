@@ -40,7 +40,7 @@ vi.mock("../src/services/prefetch.js", () => ({
 }));
 
 import { prefetchUrls, buildPrompt } from "../src/services/prefetch.js";
-import { executeAgent, executeAgents } from "../src/services/executor.js";
+import { executeAgent, executeAgents, _resetLlmBreaker } from "../src/services/executor.js";
 
 const CREATE_AGENTS_SQL = `
 CREATE TABLE agents (
@@ -67,6 +67,7 @@ CREATE TABLE execution_history (
   result TEXT,
   error TEXT,
   delivery_status TEXT,
+  estimated_cost REAL,
   started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   completed_at TEXT
 );
@@ -115,6 +116,7 @@ describe("executeAgent", () => {
 		db = drizzle(sqlite, { schema });
 
 		vi.clearAllMocks();
+		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 	});
 
@@ -299,6 +301,80 @@ describe("executeAgent", () => {
 			.all();
 		expect(rows[0].durationMs).toBeGreaterThanOrEqual(25);
 	});
+
+	it("records estimatedCost in execution history on success", async () => {
+		// Default model is claude-sonnet-4-20250514: $3/MTok input, $15/MTok output
+		// 10 input tokens + 20 output tokens => 10/1e6*3 + 20/1e6*15 = 0.00003 + 0.0003 = 0.00033
+		mockGenerateText.mockResolvedValue(
+			makeLlmResult({ usage: { inputTokens: 1000, outputTokens: 500 } }),
+		);
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].estimatedCost).toBeTypeOf("number");
+		expect(rows[0].estimatedCost).toBeGreaterThan(0);
+		// 1000/1e6*3 + 500/1e6*15 = 0.003 + 0.0075 = 0.0105
+		expect(rows[0].estimatedCost).toBeCloseTo(0.0105, 4);
+	});
+
+	it("records CircuitBreakerOpenError as failure with estimatedCost 0", async () => {
+		// Trip the circuit breaker by causing 3 consecutive failures
+		mockGenerateText.mockRejectedValue(new Error("API down"));
+
+		for (let i = 0; i < 3; i++) {
+			const agent = makeAgent(db, { name: `FailAgent${i}` });
+			await executeAgent(agent, db);
+		}
+
+		// 4th call should be rejected by circuit breaker without calling generateText
+		mockGenerateText.mockClear();
+		const agent = makeAgent(db, { name: "BlockedAgent" });
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("failure");
+		expect(result.error).toBe("Circuit breaker open - call rejected");
+		expect(mockGenerateText).not.toHaveBeenCalled();
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].estimatedCost).toBe(0);
+	});
+
+	it("circuit breaker trips after consecutive failures and rejects fast", async () => {
+		// First 3 calls fail (trips the breaker)
+		mockGenerateText.mockRejectedValue(new Error("service unavailable"));
+
+		for (let i = 0; i < 3; i++) {
+			const agent = makeAgent(db, { name: `Fail${i}` });
+			await executeAgent(agent, db);
+		}
+
+		expect(mockGenerateText).toHaveBeenCalledTimes(3);
+
+		// 4th call: circuit is open, should not call generateText at all
+		mockGenerateText.mockClear();
+		const agent = makeAgent(db, { name: "Rejected" });
+		const start = Date.now();
+		const result = await executeAgent(agent, db);
+		const elapsed = Date.now() - start;
+
+		expect(result.status).toBe("failure");
+		expect(result.error).toBe("Circuit breaker open - call rejected");
+		expect(mockGenerateText).not.toHaveBeenCalled();
+		// Should be near-instant (< 50ms)
+		expect(elapsed).toBeLessThan(50);
+	});
 });
 
 describe("executeAgents", () => {
@@ -312,6 +388,7 @@ describe("executeAgents", () => {
 		db = drizzle(sqlite, { schema });
 
 		vi.clearAllMocks();
+		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 	});
 
