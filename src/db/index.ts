@@ -15,4 +15,7 @@ export const db = drizzle(env.DATABASE_URL, { schema });
 // Enable WAL mode for better concurrent read/write performance
 db.$client.pragma("journal_mode = WAL");
 
+// Enable foreign key constraint enforcement
+db.$client.pragma("foreign_keys = ON");
+
 export type Database = typeof db;

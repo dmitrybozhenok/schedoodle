@@ -18,9 +18,9 @@ export const agents = sqliteTable(
 
 export const executionHistory = sqliteTable("execution_history", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
-	agentId: integer("agent_id")
-		.notNull()
-		.references(() => agents.id),
+	agentId: integer("agent_id").references(() => agents.id, {
+		onDelete: "set null",
+	}),
 	status: text("status", { enum: ["success", "failure", "running"] }).notNull(),
 	inputTokens: integer("input_tokens"),
 	outputTokens: integer("output_tokens"),

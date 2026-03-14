@@ -4,6 +4,7 @@ import { z } from "zod";
 export const envSchema = z.object({
 	DATABASE_URL: z.string().default("./data/schedoodle.db"),
 	ANTHROPIC_API_KEY: z.string().min(1, "ANTHROPIC_API_KEY is required"),
+	PORT: z.coerce.number().default(3000),
 });
 
 export function loadEnvFromRecord(record: Record<string, string | undefined>) {
