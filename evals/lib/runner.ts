@@ -93,15 +93,21 @@ export async function evaluateCase(
 	try {
 		const output = await executeCase(evalCase, agentId);
 
-		// Layer 1: Deterministic checks
+		// Layer 0: Execution gate — if the LLM produced no output, fail everything
+		const executionFailed = output.status !== "success" || (!output.summary && !output.details);
+
+		// Layer 1: Deterministic checks (skip if execution failed, except for cases that expect failure)
+		const expectsFailure = evalCase.checks.some(
+			(c) => c.type === "regex" && c.field === "status" && String(c.params?.pattern).includes("failure"),
+		);
 		const checkResults = evalCase.checks.map((check) => ({
 			name: check.name,
-			passed: evaluateCheck(check, output),
+			passed: executionFailed && !expectsFailure ? false : evaluateCheck(check, output),
 		}));
 
-		// Layer 2: AI-as-judge (if enabled and criteria defined)
+		// Layer 2: AI-as-judge (skip if execution failed — no output to judge)
 		let judgeScores: { criterion: string; score: number; reasoning: string }[] | undefined;
-		if (options.enableJudge && evalCase.judgeCriteria && evalCase.judgeCriteria.length > 0) {
+		if (options.enableJudge && !executionFailed && evalCase.judgeCriteria && evalCase.judgeCriteria.length > 0) {
 			judgeScores = await scoreAllCriteria(
 				evalCase.judgeCriteria,
 				{

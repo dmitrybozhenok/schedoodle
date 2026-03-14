@@ -8,8 +8,8 @@ describe("getModelPricing", () => {
 		expect(pricing.outputPerMTok).toBe(15);
 	});
 
-	it("returns correct pricing for claude-haiku-4.5-20250514", () => {
-		const pricing = getModelPricing("claude-haiku-4.5-20250514");
+	it("returns correct pricing for claude-haiku-4.5-20251001", () => {
+		const pricing = getModelPricing("claude-haiku-4.5-20251001");
 		expect(pricing.inputPerMTok).toBe(1);
 		expect(pricing.outputPerMTok).toBe(5);
 	});
