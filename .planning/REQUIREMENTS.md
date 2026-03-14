@@ -39,7 +39,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Observability
 
 - [x] **OBSV-01**: Token usage and estimated cost are tracked per agent per execution
-- [ ] **OBSV-02**: A health check endpoint reports service status and basic operational info
+- [x] **OBSV-02**: A health check endpoint reports service status and basic operational info
 
 ## v2 Requirements
 
@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOTF-01 | Phase 5 | Pending |
 | NOTF-02 | Phase 5 | Pending |
 | OBSV-01 | Phase 4 | Complete |
-| OBSV-02 | Phase 4 | Pending |
+| OBSV-02 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 16 total

@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Foundation and Schema** - Project scaffold, database schema, agent persistence, and configuration validation
 - [x] **Phase 2: Execution Engine** - Core LLM pipeline with structured output, data pre-fetch, and graceful failure handling (completed 2026-03-14)
 - [x] **Phase 3: Management API and Scheduling** - Agent CRUD endpoints, system prompts, and cron-based automatic execution (completed 2026-03-14)
-- [ ] **Phase 4: Resilience and Observability** - Circuit breaker, token tracking, cost estimation, and health check endpoint
+- [x] **Phase 4: Resilience and Observability** - Circuit breaker, token tracking, cost estimation, and health check endpoint (completed 2026-03-14)
 - [ ] **Phase 5: Notification** - Email delivery of agent results via Resend
 
 ## Phase Details
@@ -71,7 +71,7 @@ Plans:
   2. After the provider recovers, the circuit breaker automatically closes and agents resume normal execution
   3. Each execution records token usage (input/output) and estimated cost, queryable per agent
   4. A health check endpoint returns service status including uptime, number of registered agents, and recent execution summary
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 04-01-PLAN.md — Circuit breaker service, pricing config, schema migration, executor integration with tests
 - [ ] 04-02-PLAN.md — Health check endpoint with uptime, agent count, execution summary, and circuit breaker status
@@ -96,5 +96,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
 | 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
 | 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
-| 4. Resilience and Observability | 1/2 | In Progress|  |
+| 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
 | 5. Notification | 0/? | Not started | - |
