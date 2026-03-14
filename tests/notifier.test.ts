@@ -2,11 +2,13 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { AgentOutput } from "../src/schemas/agent-output.js";
 
 const mockSend = vi.fn();
-vi.mock("resend", () => ({
-	Resend: vi.fn().mockImplementation(() => ({
-		emails: { send: mockSend },
-	})),
-}));
+vi.mock("resend", () => {
+	return {
+		Resend: class {
+			emails = { send: mockSend };
+		},
+	};
+});
 
 const mockEnv: Record<string, string | undefined> = {};
 vi.mock("../src/config/env.js", () => ({
