@@ -16,6 +16,7 @@ export const envSchema = z
 		BRAVE_API_KEY: z.string().optional(),
 		AUTH_TOKEN: z.string().optional(),
 		RETENTION_DAYS: z.coerce.number().min(1).default(30),
+		MAX_CONCURRENT_LLM: z.coerce.number().min(1).default(3),
 	})
 	.refine(
 		(data) =>

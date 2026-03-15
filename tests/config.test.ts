@@ -150,4 +150,43 @@ describe("config validation", () => {
 		});
 		expect(result.success).toBe(false);
 	});
+
+	// --- MAX_CONCURRENT_LLM ---
+
+	it("MAX_CONCURRENT_LLM defaults to 3 when not provided", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.MAX_CONCURRENT_LLM).toBe(3);
+		}
+	});
+
+	it("MAX_CONCURRENT_LLM parses string '5' to number 5", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			MAX_CONCURRENT_LLM: "5",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.MAX_CONCURRENT_LLM).toBe(5);
+		}
+	});
+
+	it("MAX_CONCURRENT_LLM rejects 0 (min 1)", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			MAX_CONCURRENT_LLM: "0",
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("MAX_CONCURRENT_LLM rejects negative values", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			MAX_CONCURRENT_LLM: "-1",
+		});
+		expect(result.success).toBe(false);
+	});
 });
