@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 9. Agent Tool Use | 1/3 | In Progress|  |
 | 10. API Security and Hardening | 2/2 | Complete    | 2026-03-15 |
 | 11. Data Integrity and Execution Lifecycle | 2/2 | Complete    | 2026-03-15 |
-| 12. LLM Concurrency Limits and Graceful Shutdown | 0/2 | Planned | |
+| 12. LLM Concurrency Limits and Graceful Shutdown | 1/2 | In Progress|  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -234,7 +234,7 @@ Plans:
   7. Health endpoint includes concurrency stats (active, queued, limit) and shutting_down flag
   8. Health endpoint returns 503 during shutdown
   9. Log emitted only when an execution has to wait for a slot
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 12-01-PLAN.md — Semaphore module, MAX_CONCURRENT_LLM env config, executor semaphore wrapping, and tests
 - [ ] 12-02-PLAN.md — Graceful shutdown drain/timeout, health concurrency stats, shutdown guards, and tests
