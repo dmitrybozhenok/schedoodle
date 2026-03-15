@@ -10,6 +10,13 @@ vi.mock("resend", () => {
 	};
 });
 
+const mockSendTelegramMessage = vi.fn();
+vi.mock("../src/services/telegram.js", () => ({
+	sendTelegramMessage: (...args: unknown[]) => mockSendTelegramMessage(...args),
+	escapeMdV2: (text: string) => text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1"),
+	escapeMdV2CodeBlock: (text: string) => text.replace(/([`\\])/g, "\\$1"),
+}));
+
 const mockSmtpSend = vi.fn();
 vi.mock("nodemailer", () => ({
 	default: {
@@ -279,5 +286,225 @@ describe("sendFailureNotification", () => {
 		const html = mockResendSend.mock.calls[0][0].html;
 		expect(html).toContain("&lt;script&gt;");
 		expect(html).not.toContain("<script>alert");
+	});
+});
+
+const telegramEnv = {
+	TELEGRAM_BOT_TOKEN: "bot123:ABC-DEF",
+	TELEGRAM_CHAT_ID: "-100123456",
+};
+
+describe("Telegram notification", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		setEnv();
+	});
+
+	it("skips when TELEGRAM_BOT_TOKEN is missing", async () => {
+		setEnv({ TELEGRAM_CHAT_ID: "-100123456" });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramNotification(
+			"Test Agent",
+			"2026-03-15T10:00:00Z",
+			baseOutput,
+		);
+		expect(result.status).toBe("skipped");
+		expect(mockSendTelegramMessage).not.toHaveBeenCalled();
+	});
+
+	it("skips when TELEGRAM_CHAT_ID is missing", async () => {
+		setEnv({ TELEGRAM_BOT_TOKEN: "bot123:ABC" });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramNotification(
+			"Test Agent",
+			"2026-03-15T10:00:00Z",
+			baseOutput,
+		);
+		expect(result.status).toBe("skipped");
+	});
+
+	it("returns sent on successful API call", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramNotification(
+			"Agent X",
+			"2026-03-15T10:00:00Z",
+			baseOutput,
+		);
+		expect(result.status).toBe("sent");
+		expect(mockSendTelegramMessage).toHaveBeenCalledOnce();
+	});
+
+	it("returns failed on API error", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: false, description: "Bad Request" });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramNotification(
+			"Agent X",
+			"2026-03-15T10:00:00Z",
+			baseOutput,
+		);
+		expect(result.status).toBe("failed");
+		expect(result.error).toBe("Bad Request");
+	});
+
+	it("returns failed on network error", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockRejectedValue(new Error("Network error"));
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramNotification(
+			"Agent X",
+			"2026-03-15T10:00:00Z",
+			baseOutput,
+		);
+		expect(result.status).toBe("failed");
+		expect(result.error).toBe("Network error");
+	});
+});
+
+describe("Telegram failure notification", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		setEnv();
+	});
+
+	it("skips when env vars missing", async () => {
+		const { sendTelegramFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramFailureNotification(
+			"Test Agent",
+			"2026-03-15T10:00:00Z",
+			"some error",
+		);
+		expect(result.status).toBe("skipped");
+	});
+
+	it("returns sent on successful API call", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramFailureNotification(
+			"Broken Agent",
+			"2026-03-15T10:00:00Z",
+			"model not found",
+		);
+		expect(result.status).toBe("sent");
+	});
+
+	it("returns failed on API error", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: false, description: "Forbidden" });
+		const { sendTelegramFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramFailureNotification(
+			"Broken Agent",
+			"2026-03-15T10:00:00Z",
+			"timeout",
+		);
+		expect(result.status).toBe("failed");
+		expect(result.error).toBe("Forbidden");
+	});
+
+	it("returns failed on throw", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockRejectedValue(new Error("connection reset"));
+		const { sendTelegramFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendTelegramFailureNotification(
+			"Broken Agent",
+			"2026-03-15T10:00:00Z",
+			"timeout",
+		);
+		expect(result.status).toBe("failed");
+		expect(result.error).toBe("connection reset");
+	});
+});
+
+describe("Telegram content", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		setEnv();
+	});
+
+	it("buildTelegramMarkdown contains agent name and timestamp", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", baseOutput);
+
+		const text = mockSendTelegramMessage.mock.calls[0][2];
+		expect(text).toContain("Agent X");
+		expect(text).toContain("2026");
+	});
+
+	it("buildTelegramMarkdown escapes special chars in content", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		await sendTelegramNotification("Agent_Test", "2026-03-15T10:00:00Z", {
+			summary: "found 3 items (important)",
+			details: "Items: A, B, C [all done]",
+		});
+
+		const text = mockSendTelegramMessage.mock.calls[0][2];
+		// Should escape underscores, parens, brackets in content
+		expect(text).toContain("Agent\\_Test");
+		expect(text).toContain("\\(important\\)");
+		expect(text).toContain("\\[all done\\]");
+	});
+
+	it("buildTelegramMarkdown includes data code block when present", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", {
+			...baseOutput,
+			data: "some code data",
+		});
+
+		const text = mockSendTelegramMessage.mock.calls[0][2];
+		expect(text).toContain("*Data*");
+		expect(text).toContain("```");
+		expect(text).toContain("some code data");
+	});
+
+	it("buildTelegramMarkdown omits data section when absent", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", baseOutput);
+
+		const text = mockSendTelegramMessage.mock.calls[0][2];
+		expect(text).not.toContain("*Data*");
+		expect(text).not.toContain("```");
+	});
+
+	it("buildTelegramMarkdown truncates at ~3800 chars", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramNotification } = await import("../src/services/notifier.js");
+		await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", {
+			summary: "short summary",
+			details: "D".repeat(4000),
+		});
+
+		const text = mockSendTelegramMessage.mock.calls[0][2];
+		expect(text.length).toBeLessThanOrEqual(3900);
+		expect(text).toContain("truncated");
+	});
+
+	it("buildTelegramFailureMarkdown includes warning emoji and FAILED", async () => {
+		setEnv(telegramEnv);
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+		const { sendTelegramFailureNotification } = await import("../src/services/notifier.js");
+		await sendTelegramFailureNotification(
+			"Broken Agent",
+			"2026-03-15T10:00:00Z",
+			"model not found",
+		);
+
+		const text = mockSendTelegramMessage.mock.calls[0][2];
+		expect(text).toContain("\u26a0\ufe0f");
+		expect(text).toContain("FAILED");
+		expect(text).toContain("Broken Agent");
+		expect(text).toContain("model not found");
 	});
 });
