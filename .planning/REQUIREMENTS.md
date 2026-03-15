@@ -108,14 +108,14 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **MCP-07**: execute_agent MCP tool triggers synchronous agent execution and returns full result
 - [x] **MCP-08**: get_execution_history MCP tool returns execution records for an agent (default 100, max 200)
 - [x] **MCP-09**: All MCP error responses include actionable guidance for self-correction
-- [ ] **MCP-10**: list_tools, get_tool, create_tool, update_tool MCP tools provide full custom tool CRUD
-- [ ] **MCP-11**: delete_tool MCP tool uses two-step confirmation matching delete_agent pattern
-- [ ] **MCP-12**: list_agent_tools MCP tool returns tools attached to an agent
-- [ ] **MCP-13**: attach_tool MCP tool links a custom tool to an agent
-- [ ] **MCP-14**: detach_tool MCP tool unlinks a custom tool from an agent
-- [ ] **MCP-15**: get_health MCP tool returns system health with per-agent breakdown and circuit breaker status
-- [ ] **MCP-16**: parse_schedule MCP tool converts natural language to cron expression
-- [ ] **MCP-17**: All 17 MCP tools are registered and discoverable via MCP tool listing
+- [x] **MCP-10**: list_tools, get_tool, create_tool, update_tool MCP tools provide full custom tool CRUD
+- [x] **MCP-11**: delete_tool MCP tool uses two-step confirmation matching delete_agent pattern
+- [x] **MCP-12**: list_agent_tools MCP tool returns tools attached to an agent
+- [x] **MCP-13**: attach_tool MCP tool links a custom tool to an agent
+- [x] **MCP-14**: detach_tool MCP tool unlinks a custom tool from an agent
+- [x] **MCP-15**: get_health MCP tool returns system health with per-agent breakdown and circuit breaker status
+- [x] **MCP-16**: parse_schedule MCP tool converts natural language to cron expression
+- [x] **MCP-17**: All 17 MCP tools are registered and discoverable via MCP tool listing
 
 ## v2 Requirements
 

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 14-01-PLAN.md
-last_updated: "2026-03-15T12:57:37.975Z"
-last_activity: 2026-03-15 -- Plan 14-01 complete (MCP server with agent tools and tests)
+status: completed
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-15T13:06:01.951Z"
+last_activity: 2026-03-15 -- Plan 14-02 complete (tool CRUD, health, schedule MCP tools + tests)
 progress:
   total_phases: 15
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 27
-  completed_plans: 26
+  completed_plans: 27
   percent: 96
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 14 of 15 (MCP Server for Claude Code Integration)
-Plan: 1 of 2 in current phase (1 complete)
-Status: In Progress
-Last activity: 2026-03-15 -- Plan 14-01 complete (MCP server with agent tools and tests)
+Plan: 2 of 2 in current phase (2 complete)
+Status: Phase Complete
+Last activity: 2026-03-15 -- Plan 14-02 complete (tool CRUD, health, schedule MCP tools + tests)
 
 Progress: [█████████░] 96%
 
@@ -79,6 +79,7 @@ Progress: [█████████░] 96%
 | Phase 12 P02 | 5min | 2 tasks | 7 files |
 | Phase 13 P01 | 4min | 2 tasks | 46 files |
 | Phase 14 P01 | 5min | 2 tasks | 6 files |
+| Phase 14 P02 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -176,6 +177,11 @@ Recent decisions affecting current work:
 - [Phase 14]: [14-01]: MCP server does NOT call scheduleAgent/removeAgent (no scheduler, avoids dual-process conflicts)
 - [Phase 14]: [14-01]: Error responses use { error, guidance } shape for Claude self-correction
 - [Phase 14]: [14-01]: delete_agent two-step confirm flow with destructiveHint annotation
+- [Phase 14]: [14-02]: inArray query for fetching attached tools by IDs from join table (avoids N+1)
+- [Phase 14]: [14-02]: and() compound WHERE for precise agent-tool link deletion (not just agentId)
+- [Phase 14]: [14-02]: Health tool imports getLlmCircuitStatus/getLlmSemaphoreStatus directly from executor (MCP has own state)
+- [Phase 14]: [14-02]: upcomingRuns as string note (MCP server has no scheduler process)
+- [Phase 14]: [14-02]: CircuitBreakerOpenError catch for specific LLM-unavailable guidance on parse_schedule
 
 ### Roadmap Evolution
 
@@ -201,6 +207,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T12:57:37.971Z
-Stopped at: Completed 14-01-PLAN.md
+Last session: 2026-03-15T13:06:01.948Z
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
