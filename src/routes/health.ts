@@ -124,7 +124,19 @@ export function createHealthRoute(
 			};
 		});
 
-		// --- B. System-wide aggregates ---
+		// --- B. Per-channel delivery stats (24h window) ---
+		let emailSent = 0;
+		let emailFailed = 0;
+		let telegramSent = 0;
+		let telegramFailed = 0;
+		for (const row of recentRows) {
+			if (row.emailDeliveryStatus === "sent") emailSent++;
+			else if (row.emailDeliveryStatus === "failed") emailFailed++;
+			if (row.telegramDeliveryStatus === "sent") telegramSent++;
+			else if (row.telegramDeliveryStatus === "failed") telegramFailed++;
+		}
+
+		// --- C. System-wide aggregates ---
 		let success = 0;
 		let failure = 0;
 		const allDurations: number[] = [];
@@ -141,7 +153,7 @@ export function createHealthRoute(
 				? Math.round(allDurations.reduce((a, b) => a + b, 0) / allDurations.length)
 				: 0;
 
-		// --- C. Upcoming runs ---
+		// --- D. Upcoming runs ---
 		const scheduledJobs = getScheduledJobs();
 		const agentNameLookup = new Map<number, string>();
 		for (const agent of allAgents) {
@@ -159,7 +171,7 @@ export function createHealthRoute(
 		upcomingRuns.sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
 		const limitedUpcomingRuns = upcomingRuns.slice(0, 5);
 
-		// --- D. Top-level status ---
+		// --- E. Top-level status ---
 		const circuitBreaker = getCircuitStatus();
 		let status: "ok" | "degraded" | "unhealthy";
 		if (circuitBreaker.state === "OPEN") {
@@ -177,7 +189,7 @@ export function createHealthRoute(
 			}
 		}
 
-		// --- E. Build response ---
+		// --- F. Build response ---
 		return c.json({
 			status,
 			shutting_down: false,
@@ -191,6 +203,10 @@ export function createHealthRoute(
 				total: recentRows.length,
 				successRate: systemSuccessRate,
 				avgDurationMs: systemAvgDurationMs,
+			},
+			deliveryStats: {
+				email: { sent: emailSent, failed: emailFailed },
+				telegram: { sent: telegramSent, failed: telegramFailed },
 			},
 			agents: agentStats,
 			upcomingRuns: limitedUpcomingRuns,

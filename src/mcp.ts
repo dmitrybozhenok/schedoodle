@@ -5,6 +5,7 @@ import { registerAgentTools } from "./mcp/tools/agents.js";
 import { registerHealthTools } from "./mcp/tools/health.js";
 import { registerHistoryTools } from "./mcp/tools/history.js";
 import { registerScheduleTools } from "./mcp/tools/schedules.js";
+import { registerTelegramTools } from "./mcp/tools/telegram.js";
 import { registerToolTools } from "./mcp/tools/tools.js";
 
 const server = new McpServer({
@@ -17,6 +18,7 @@ registerHistoryTools(server, db);
 registerToolTools(server, db);
 registerHealthTools(server, db);
 registerScheduleTools(server);
+registerTelegramTools(server);
 
 async function main() {
 	const transport = new StdioServerTransport();

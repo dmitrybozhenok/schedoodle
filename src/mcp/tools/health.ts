@@ -90,6 +90,18 @@ export function registerHealthTools(server: McpServer, db: Database): void {
 				};
 			});
 
+			// Per-channel delivery stats (24h window)
+			let emailSent = 0;
+			let emailFailed = 0;
+			let telegramSent = 0;
+			let telegramFailed = 0;
+			for (const row of recentRows) {
+				if (row.emailDeliveryStatus === "sent") emailSent++;
+				else if (row.emailDeliveryStatus === "failed") emailFailed++;
+				if (row.telegramDeliveryStatus === "sent") telegramSent++;
+				else if (row.telegramDeliveryStatus === "failed") telegramFailed++;
+			}
+
 			// System-wide aggregates
 			let success = 0;
 			let failure = 0;
@@ -139,6 +151,10 @@ export function registerHealthTools(server: McpServer, db: Database): void {
 					total: recentRows.length,
 					successRate: systemSuccessRate,
 					avgDurationMs: systemAvgDurationMs,
+				},
+				deliveryStats: {
+					email: { sent: emailSent, failed: emailFailed },
+					telegram: { sent: telegramSent, failed: telegramFailed },
 				},
 				agents: agentStats,
 				upcomingRuns: "Not available from MCP server (scheduler runs in HTTP server process)",
