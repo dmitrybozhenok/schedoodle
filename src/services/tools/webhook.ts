@@ -1,10 +1,9 @@
-import { jsonSchema } from "ai";
 import type { Tool as AiTool } from "ai";
+import { jsonSchema } from "ai";
 import type { Tool } from "../../types/index.js";
 
 export function createWebhookTool(toolDef: Tool): AiTool<Record<string, unknown>, string> {
-	const parsedHeaders =
-		toolDef.headers != null ? (toolDef.headers as Record<string, string>) : {};
+	const parsedHeaders = toolDef.headers != null ? (toolDef.headers as Record<string, string>) : {};
 
 	return {
 		description: toolDef.description,

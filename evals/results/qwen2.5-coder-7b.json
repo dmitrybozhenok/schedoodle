@@ -1,489 +1,451 @@
 {
-  "runId": "eval-1773532516457",
-  "timestamp": "2026-03-15T00:04:04.079Z",
-  "model": "qwen2.5-coder:7b",
-  "totalCases": 9,
-  "passedCases": 7,
-  "failedCases": 2,
-  "slices": {
-    "error-handling": {
-      "total": 3,
-      "passed": 3,
-      "rate": 1
-    },
-    "impossible": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "hallucination": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "ambiguous": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "edge-case": {
-      "total": 2,
-      "passed": 2,
-      "rate": 1
-    },
-    "minimal": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "instruction-following": {
-      "total": 3,
-      "passed": 3,
-      "rate": 1
-    },
-    "persona": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "system-prompt": {
-      "total": 2,
-      "passed": 2,
-      "rate": 1
-    },
-    "tone": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "structured": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "count-constraint": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "simple": {
-      "total": 3,
-      "passed": 1,
-      "rate": 0.3333333333333333
-    },
-    "summarisation": {
-      "total": 3,
-      "passed": 1,
-      "rate": 0.3333333333333333
-    },
-    "no-urls": {
-      "total": 2,
-      "passed": 1,
-      "rate": 0.5
-    },
-    "conciseness": {
-      "total": 1,
-      "passed": 0,
-      "rate": 0
-    }
-  },
-  "metrics": {
-    "avgDurationMs": 49391.11111111111,
-    "p95DurationMs": 213898,
-    "avgOutputTokens": 152.55555555555554,
-    "totalCostUsd": 0,
-    "schemaPassRate": 0.5555555555555556,
-    "avgJudgeScore": 3.1
-  },
-  "results": [
-    {
-      "caseId": "err-01",
-      "caseName": "Impossible prediction task",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "error-handling",
-        "impossible",
-        "hallucination"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "I'm sorry, but I'm unable to provide real-time information such as current Bitcoin prices or future lottery numbers. To get the most accurate and up-to-date information, I recommend checking a reliable cryptocurrency exchange for Bitcoin prices and visiting a reputable lottery website for the latest draw results.",
-        "details": "Bitcoin price and lottery numbers are subject to change and are not publicly available until the draw time. You can check the current Bitcoin price on a reliable cryptocurrency exchange and visit a reputable lottery website to find the winning numbers for the next draw.",
-        "durationMs": 27407,
-        "inputTokens": 53,
-        "outputTokens": 114,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success (no crash)",
-          "passed": true
-        },
-        {
-          "name": "Acknowledges impossibility",
-          "passed": true
-        },
-        {
-          "name": "No hallucinated predictions",
-          "passed": true
-        },
-        {
-          "name": "No fake lottery numbers",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Honesty",
-          "score": 1,
-          "reasoning": "The agent clearly states that it is unable to provide the requested information. It correctly identifies that future lottery numbers are unpredictable and that Bitcoin prices are subject to market fluctuations, thereby avoiding any attempt to guess or provide a misleading prediction. The response is direct, honest, and does not contain any hedging that could be interpreted as a forecast."
-        },
-        {
-          "criterion": "Helpfulness despite refusal",
-          "score": 2,
-          "reasoning": "The agent correctly identifies that the request is impossible to fulfill. However, it fails to provide any meaningful context regarding *why* these tasks are impossible. For Bitcoin, it suggests checking an exchange, but it misses the opportunity to explain that market prices are inherently unpredictable and volatile. For the lottery, it mentions that numbers are not available until the draw, but it fails to explain the concept of randomness or why lottery numbers are statistically impossible to predict. The response is a generic refusal that offers little educational value or \"useful context\" beyond directing the user to external websites."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "err-02",
-      "caseName": "Ambiguous vague task",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "error-handling",
-        "ambiguous",
-        "edge-case"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "I will handle the items accordingly.",
-        "details": "Please specify the nature of the 'stuff' and what action you would like me to perform with it. This could include organizing, processing, storing, or any other relevant task.",
-        "durationMs": 9333,
-        "inputTokens": 36,
-        "outputTokens": 57,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success (no crash)",
-          "passed": true
-        },
-        {
-          "name": "Summary non-empty",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Graceful handling",
-          "score": 5,
-          "reasoning": "The agent was given an extremely vague and ambiguous task (\"Do the thing with the stuff\"). The agent handled this gracefully by:\n1. Acknowledging the ambiguity rather than guessing or hallucinating a specific task.\n2. Providing a professional summary that indicates a willingness to help.\n3. Asking clarifying questions to narrow down the scope, offering examples of what it is capable of doing (organizing, processing, storing).\nThis is the ideal way to handle an underspecified prompt, as it prevents errors while maintaining a helpful persona."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "err-03",
-      "caseName": "Empty task resilience",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "error-handling",
-        "edge-case",
-        "minimal"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "I'm sorry, I didn't understand what you were trying to say. Can you please rephrase your question or statement?",
-        "details": "I was unable to understand your input. I can assist you with a wide range of topics, from answering questions and providing information to helping you with tasks and solving problems. If you have a specific question or topic you'd like to know more about, please feel free to ask and I'll do my best to provide you with a helpful response.",
-        "durationMs": 17796,
-        "inputTokens": 30,
-        "outputTokens": 106,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Does not crash",
-          "passed": true
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "inst-01",
-      "caseName": "Pirate persona compliance",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "instruction-following",
-        "persona",
-        "system-prompt"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "Arr me hearty, matey! HTTP status codes be like the weather forecast, tellin' ye what's comin' next in the digital seas. A 200 status code be a clear blue sky, meanin' all's well and good. A 404 status code be like a stormy night with no land in sight, meanin' somethin' ain't where it should be. And a 500 status code be a tempest brewin' on the horizon, meanin' the server be havin' a bit of a rough time. So, keep yer eyes peeled and navigate with caution! Arr!",
-        "details": "HTTP status codes be like the weather, tellin' ye what's comin' next in the digital seas. A 200 status code be a clear blue sky, meanin' all's well and good, the request be fulfilled and everything be just dandy. A 404 status code be like a stormy night with no land in sight, meanin' somethin' ain't where it should be, like a page ye be tryin' to find be deleted or moved. And a 500 status code be a tempest brewin' on the horizon, meanin' the server be havin' a bit of a rough time, like the server be down or somethin' be wrong on the server end. So, keep yer eyes peeled and navigate with caution, me hearty!",
-        "durationMs": 51808,
-        "inputTokens": 59,
-        "outputTokens": 319,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": true
-        },
-        {
-          "name": "Contains pirate language",
-          "passed": true
-        },
-        {
-          "name": "Contains nautical terms",
-          "passed": true
-        },
-        {
-          "name": "Mentions HTTP codes",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Persona adherence",
-          "score": 5,
-          "reasoning": "The agent successfully adopts the requested persona. It uses consistent nautical metaphors (digital seas, clear blue skies, tempests) and incorporates pirate slang throughout the text. The \"arr\" requirement is met, and the tone remains thematic from start to finish. The explanation is clear while remaining firmly within the character constraints. It avoids breaking character to provide a dry technical explanation, which is exactly what was requested."
-        },
-        {
-          "criterion": "Domain accuracy",
-          "score": 1,
-          "reasoning": "The agent correctly identifies the core meaning of the three HTTP status codes requested. \n- 200 is correctly identified as a successful request (\"all's well and good\").\n- 404 is correctly identified as a \"Not Found\" error (\"something ain't where it should be\").\n- 500 is correctly identified as a server-side error (\"server be havin' a bit of a rough time\").\nThe explanations are accurate in a technical sense while adhering to the requested persona."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "inst-02",
-      "caseName": "Formal business tone",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "instruction-following",
-        "tone",
-        "system-prompt"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "Adopting TypeScript in a Node.js project is highly recommended to enhance code quality, maintainability, and scalability. TypeScript provides strong typing, which helps prevent runtime errors and makes it easier for developers to understand and maintain code. Additionally, it offers robust features such as interfaces, enums, and generics, enabling developers to build more reliable and maintainable applications. The transition to TypeScript requires a slight learning curve, but the long-term benefits are significant, including improved developer productivity, easier debugging, and reduced maintenance costs. For any Node.js project, integrating TypeScript can be a strategic decision to foster a more robust and scalable development environment.",
-        "details": "TypeScript is a statically typed superset of JavaScript, designed to add optional static typing to JavaScript and to support modern JavaScript features. This additional level of type safety reduces the number of bugs during the development phase, making the codebase easier to understand and maintain. By leveraging TypeScript, developers can catch type-related errors at compile time rather than at runtime, leading to more reliable applications. Furthermore, TypeScript supports popular JavaScript frameworks and libraries, making it a versatile choice for Node.js projects of all sizes and complexities. The transition to TypeScript can be facilitated through existing tooling and resources, including IDE support, transpilation to JavaScript, and migration strategies. The benefits of adopting TypeScript in a Node.js project are substantial, contributing to a more efficient and scalable development process.",
-        "durationMs": 46948,
-        "inputTokens": 55,
-        "outputTokens": 288,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": true
-        },
-        {
-          "name": "Mentions TypeScript",
-          "passed": true
-        },
-        {
-          "name": "No emojis",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Tone compliance",
-          "score": 5,
-          "reasoning": "The agent successfully adheres to the requested persona of a senior technical architect. The language is formal, professional, and devoid of slang, emojis, or casual phrasing. It avoids contractions (e.g., \"it is\" instead of \"it's\"), which is appropriate for a C-suite briefing. The tone is objective and focused on strategic business outcomes (productivity, maintenance costs, scalability) rather than just technical implementation details, which aligns well with the target audience. The structure is clear and the vocabulary is sophisticated."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "inst-03",
-      "caseName": "Structured list output",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "instruction-following",
-        "structured",
-        "count-constraint"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "The three most popular programming languages in 2025, based on current trends and industry demand, are Python, JavaScript, and Rust. Python is widely used for data analysis and machine learning due to its simplicity and large ecosystem of libraries. JavaScript remains the backbone of web development, with frameworks like React, Angular, and Vue.js driving its popularity. Rust is gaining ground due to its performance and memory safety, making it ideal for system programming and embedded systems.",
-        "details": "Python's ease of use, readability, and vast array of libraries for data analysis, machine learning, and web development have made it a cornerstone of modern programming. JavaScript continues to be essential for web development, with its client-side execution in web browsers and its server-side execution with Node.js. Rust's focus on performance and memory safety, which is crucial for applications that require high-speed execution and robustness, such as systems programming and web servers, makes it a rising star in programming languages.",
-        "durationMs": 32772,
-        "inputTokens": 50,
-        "outputTokens": 203,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": true
-        },
-        {
-          "name": "Summary non-empty",
-          "passed": true
-        },
-        {
-          "name": "Mentions at least 2 languages",
-          "passed": true
-        },
-        {
-          "name": "Token counts positive",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Instruction compliance",
-          "score": 1,
-          "reasoning": "The agent identified exactly three programming languages: Python, JavaScript, and Rust. For each language, it provided a clear key strength: Python (simplicity/large ecosystem), JavaScript (backbone of web development), and Rust (performance and memory safety). The output adheres strictly to the requested count and content requirements."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "sum-01",
-      "caseName": "TDD benefits summary",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "simple",
-        "summarisation",
-        "no-urls"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "Test-driven development (TDD) in software engineering offers several key benefits. Firstly, it enhances code quality by ensuring that each piece of code works as expected before moving on to the next part of the application. Secondly, it improves the maintainability of the software by making it easier to understand and modify, as tests act as documentation for how the code is supposed to function. Thirdly, TDD accelerates the development process by catching and fixing issues early, reducing the need for rework and saving time on debugging. Additionally, it fosters a collaborative and iterative development environment, where developers can continuously integrate their code and receive immediate feedback. Overall, TDD leads to more robust, scalable, and reliable software with a reduced testing time and cost.",
-        "details": "Test-driven development (TDD) is a software development process where test cases are created before the actual code. This ensures that the code meets the requirements and functions correctly. The key benefits of TDD include improved code quality, increased maintainability, accelerated development, and a collaborative development environment. Improved code quality is achieved as developers focus on writing reliable and maintainable code. Increased maintainability is a result of clear, understandable tests that act as documentation. Accelerated development happens because issues are identified and resolved early, reducing the need for rework. The collaborative development environment is fostered by continuous integration and immediate feedback.",
-        "durationMs": 44558,
-        "inputTokens": 43,
-        "outputTokens": 286,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": true
-        },
-        {
-          "name": "Summary non-empty (>20 chars)",
-          "passed": true
-        },
-        {
-          "name": "Details non-empty (>20 chars)",
-          "passed": true
-        },
-        {
-          "name": "Mentions TDD or test-driven",
-          "passed": true
-        },
-        {
-          "name": "Mentions at least 2 benefits",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Relevance",
-          "score": 5,
-          "reasoning": "The agent directly addresses the task of summarizing the key benefits of test-driven development. It identifies several core advantages, such as improved code quality, maintainability, accelerated development, and collaboration. The content remains strictly on topic throughout both the summary and the details sections, with no irrelevant tangents or off-topic information. The structure is logical and directly answers the prompt."
-        },
-        {
-          "criterion": "Completeness",
-          "score": 5,
-          "reasoning": "The agent identifies and explains four distinct benefits of TDD: improved code quality, increased maintainability (acting as documentation), accelerated development (early bug detection), and a collaborative/iterative environment. It also touches upon the \"confidence to refactor\" implicitly by mentioning that it leads to more robust and reliable software. The response clearly exceeds the requirement of mentioning at least three benefits and provides sufficient detail for each."
-        }
-      ],
-      "passed": false,
-      "thresholdViolations": [
-        "Duration 44558ms > max 30000ms"
-      ]
-    },
-    {
-      "caseId": "sum-02",
-      "caseName": "Climate change overview",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "simple",
-        "summarisation",
-        "no-urls"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "Climate change refers to the long-term alteration of weather patterns, driven mainly by increased concentrations of greenhouse gases (like carbon dioxide) in the atmosphere. These gases trap heat from the sun, leading to global warming and other environmental shifts. The primary causes include the burning of fossil fuels, deforestation, and industrial processes. The effects of climate change are widespread and include rising temperatures, more frequent extreme weather events, increased sea levels, melting glaciers, and altered patterns of precipitation. These changes impact biodiversity, human health, agriculture, and water resources, necessitating global efforts to reduce emissions and implement sustainable practices to mitigate its impacts.",
-        "details": "The main causes of climate change include human activities such as burning fossil fuels for energy, deforestation, and industrial processes that release large amounts of greenhouse gases into the atmosphere. These activities increase the concentration of these gases, primarily carbon dioxide, methane, and nitrous oxide. When these gases trap heat from the sun, it leads to an increase in global temperatures, a phenomenon known as global warming. This warming affects weather patterns, leading to more frequent and intense heatwaves, droughts, floods, and storms. It also causes sea levels to rise, threatening coastal areas and islands, and leads to the melting of ice caps and glaciers, contributing to changes in sea levels and affecting ecosystems that depend on these natural resources. Climate change also impacts biodiversity, as species struggle to adapt to new environmental conditions, leading to habitat loss and extinctions. It can affect human health by increasing the risk of heat-related illnesses, affecting air quality, and spreading disease-carrying insects. Changes in precipitation patterns can lead to food insecurity, as agriculture is highly dependent on reliable rainfall. Finally, climate change affects water resources, leading to droughts and increased competition for water in many regions. Addressing climate change requires global efforts to reduce greenhouse gas emissions, increase the use of renewable energy sources, and implement sustainable practices in agriculture, forestry, and industrial processes. This includes international agreements like the Paris Agreement, which aims to limit global temperature rise to well below 2 degrees Celsius above pre-industrial levels and pursue efforts to limit the temperature increase even further to 1.5 degrees Celsius.",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": true
-        },
-        {
-          "name": "Summary non-empty",
-          "passed": true
-        },
-        {
-          "name": "Mentions causes",
-          "passed": true
-        },
-        {
-          "name": "Mentions effects",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Factual accuracy",
-          "score": 1,
-          "reasoning": "The agent correctly identifies the primary drivers of climate change, specifically the increase in greenhouse gases (CO2, methane, nitrous oxide) resulting from human activities like burning fossil fuels, deforestation, and industrial processes. The described effects—global warming, rising sea levels, melting glaciers, extreme weather events, biodiversity loss, and impacts on human health and agriculture—are all well-supported by current scientific consensus (e.g., IPCC reports). The mention of the Paris Agreement and its temperature goals is also factually accurate. There is no misinformation or misleading content in the response."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "sum-03",
-      "caseName": "REST API explanation",
-      "model": "qwen2.5-coder:7b",
-      "tags": [
-        "simple",
-        "summarisation",
-        "conciseness"
-      ],
-      "output": {
-        "status": "failure",
-        "summary": "",
-        "details": "",
-        "durationMs": 213898,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": false
-        },
-        {
-          "name": "Summary under 300 chars",
-          "passed": false
-        },
-        {
-          "name": "Total output under 500 chars",
-          "passed": false
-        },
-        {
-          "name": "Mentions REST or API",
-          "passed": false
-        }
-      ],
-      "passed": false
-    }
-  ]
+	"runId": "eval-1773532516457",
+	"timestamp": "2026-03-15T00:04:04.079Z",
+	"model": "qwen2.5-coder:7b",
+	"totalCases": 9,
+	"passedCases": 7,
+	"failedCases": 2,
+	"slices": {
+		"error-handling": {
+			"total": 3,
+			"passed": 3,
+			"rate": 1
+		},
+		"impossible": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"hallucination": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"ambiguous": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"edge-case": {
+			"total": 2,
+			"passed": 2,
+			"rate": 1
+		},
+		"minimal": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"instruction-following": {
+			"total": 3,
+			"passed": 3,
+			"rate": 1
+		},
+		"persona": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"system-prompt": {
+			"total": 2,
+			"passed": 2,
+			"rate": 1
+		},
+		"tone": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"structured": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"count-constraint": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"simple": {
+			"total": 3,
+			"passed": 1,
+			"rate": 0.3333333333333333
+		},
+		"summarisation": {
+			"total": 3,
+			"passed": 1,
+			"rate": 0.3333333333333333
+		},
+		"no-urls": {
+			"total": 2,
+			"passed": 1,
+			"rate": 0.5
+		},
+		"conciseness": {
+			"total": 1,
+			"passed": 0,
+			"rate": 0
+		}
+	},
+	"metrics": {
+		"avgDurationMs": 49391.11111111111,
+		"p95DurationMs": 213898,
+		"avgOutputTokens": 152.55555555555554,
+		"totalCostUsd": 0,
+		"schemaPassRate": 0.5555555555555556,
+		"avgJudgeScore": 3.1
+	},
+	"results": [
+		{
+			"caseId": "err-01",
+			"caseName": "Impossible prediction task",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["error-handling", "impossible", "hallucination"],
+			"output": {
+				"status": "success",
+				"summary": "I'm sorry, but I'm unable to provide real-time information such as current Bitcoin prices or future lottery numbers. To get the most accurate and up-to-date information, I recommend checking a reliable cryptocurrency exchange for Bitcoin prices and visiting a reputable lottery website for the latest draw results.",
+				"details": "Bitcoin price and lottery numbers are subject to change and are not publicly available until the draw time. You can check the current Bitcoin price on a reliable cryptocurrency exchange and visit a reputable lottery website to find the winning numbers for the next draw.",
+				"durationMs": 27407,
+				"inputTokens": 53,
+				"outputTokens": 114,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success (no crash)",
+					"passed": true
+				},
+				{
+					"name": "Acknowledges impossibility",
+					"passed": true
+				},
+				{
+					"name": "No hallucinated predictions",
+					"passed": true
+				},
+				{
+					"name": "No fake lottery numbers",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Honesty",
+					"score": 1,
+					"reasoning": "The agent clearly states that it is unable to provide the requested information. It correctly identifies that future lottery numbers are unpredictable and that Bitcoin prices are subject to market fluctuations, thereby avoiding any attempt to guess or provide a misleading prediction. The response is direct, honest, and does not contain any hedging that could be interpreted as a forecast."
+				},
+				{
+					"criterion": "Helpfulness despite refusal",
+					"score": 2,
+					"reasoning": "The agent correctly identifies that the request is impossible to fulfill. However, it fails to provide any meaningful context regarding *why* these tasks are impossible. For Bitcoin, it suggests checking an exchange, but it misses the opportunity to explain that market prices are inherently unpredictable and volatile. For the lottery, it mentions that numbers are not available until the draw, but it fails to explain the concept of randomness or why lottery numbers are statistically impossible to predict. The response is a generic refusal that offers little educational value or \"useful context\" beyond directing the user to external websites."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "err-02",
+			"caseName": "Ambiguous vague task",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["error-handling", "ambiguous", "edge-case"],
+			"output": {
+				"status": "success",
+				"summary": "I will handle the items accordingly.",
+				"details": "Please specify the nature of the 'stuff' and what action you would like me to perform with it. This could include organizing, processing, storing, or any other relevant task.",
+				"durationMs": 9333,
+				"inputTokens": 36,
+				"outputTokens": 57,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success (no crash)",
+					"passed": true
+				},
+				{
+					"name": "Summary non-empty",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Graceful handling",
+					"score": 5,
+					"reasoning": "The agent was given an extremely vague and ambiguous task (\"Do the thing with the stuff\"). The agent handled this gracefully by:\n1. Acknowledging the ambiguity rather than guessing or hallucinating a specific task.\n2. Providing a professional summary that indicates a willingness to help.\n3. Asking clarifying questions to narrow down the scope, offering examples of what it is capable of doing (organizing, processing, storing).\nThis is the ideal way to handle an underspecified prompt, as it prevents errors while maintaining a helpful persona."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "err-03",
+			"caseName": "Empty task resilience",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["error-handling", "edge-case", "minimal"],
+			"output": {
+				"status": "success",
+				"summary": "I'm sorry, I didn't understand what you were trying to say. Can you please rephrase your question or statement?",
+				"details": "I was unable to understand your input. I can assist you with a wide range of topics, from answering questions and providing information to helping you with tasks and solving problems. If you have a specific question or topic you'd like to know more about, please feel free to ask and I'll do my best to provide you with a helpful response.",
+				"durationMs": 17796,
+				"inputTokens": 30,
+				"outputTokens": 106,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Does not crash",
+					"passed": true
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "inst-01",
+			"caseName": "Pirate persona compliance",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["instruction-following", "persona", "system-prompt"],
+			"output": {
+				"status": "success",
+				"summary": "Arr me hearty, matey! HTTP status codes be like the weather forecast, tellin' ye what's comin' next in the digital seas. A 200 status code be a clear blue sky, meanin' all's well and good. A 404 status code be like a stormy night with no land in sight, meanin' somethin' ain't where it should be. And a 500 status code be a tempest brewin' on the horizon, meanin' the server be havin' a bit of a rough time. So, keep yer eyes peeled and navigate with caution! Arr!",
+				"details": "HTTP status codes be like the weather, tellin' ye what's comin' next in the digital seas. A 200 status code be a clear blue sky, meanin' all's well and good, the request be fulfilled and everything be just dandy. A 404 status code be like a stormy night with no land in sight, meanin' somethin' ain't where it should be, like a page ye be tryin' to find be deleted or moved. And a 500 status code be a tempest brewin' on the horizon, meanin' the server be havin' a bit of a rough time, like the server be down or somethin' be wrong on the server end. So, keep yer eyes peeled and navigate with caution, me hearty!",
+				"durationMs": 51808,
+				"inputTokens": 59,
+				"outputTokens": 319,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": true
+				},
+				{
+					"name": "Contains pirate language",
+					"passed": true
+				},
+				{
+					"name": "Contains nautical terms",
+					"passed": true
+				},
+				{
+					"name": "Mentions HTTP codes",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Persona adherence",
+					"score": 5,
+					"reasoning": "The agent successfully adopts the requested persona. It uses consistent nautical metaphors (digital seas, clear blue skies, tempests) and incorporates pirate slang throughout the text. The \"arr\" requirement is met, and the tone remains thematic from start to finish. The explanation is clear while remaining firmly within the character constraints. It avoids breaking character to provide a dry technical explanation, which is exactly what was requested."
+				},
+				{
+					"criterion": "Domain accuracy",
+					"score": 1,
+					"reasoning": "The agent correctly identifies the core meaning of the three HTTP status codes requested. \n- 200 is correctly identified as a successful request (\"all's well and good\").\n- 404 is correctly identified as a \"Not Found\" error (\"something ain't where it should be\").\n- 500 is correctly identified as a server-side error (\"server be havin' a bit of a rough time\").\nThe explanations are accurate in a technical sense while adhering to the requested persona."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "inst-02",
+			"caseName": "Formal business tone",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["instruction-following", "tone", "system-prompt"],
+			"output": {
+				"status": "success",
+				"summary": "Adopting TypeScript in a Node.js project is highly recommended to enhance code quality, maintainability, and scalability. TypeScript provides strong typing, which helps prevent runtime errors and makes it easier for developers to understand and maintain code. Additionally, it offers robust features such as interfaces, enums, and generics, enabling developers to build more reliable and maintainable applications. The transition to TypeScript requires a slight learning curve, but the long-term benefits are significant, including improved developer productivity, easier debugging, and reduced maintenance costs. For any Node.js project, integrating TypeScript can be a strategic decision to foster a more robust and scalable development environment.",
+				"details": "TypeScript is a statically typed superset of JavaScript, designed to add optional static typing to JavaScript and to support modern JavaScript features. This additional level of type safety reduces the number of bugs during the development phase, making the codebase easier to understand and maintain. By leveraging TypeScript, developers can catch type-related errors at compile time rather than at runtime, leading to more reliable applications. Furthermore, TypeScript supports popular JavaScript frameworks and libraries, making it a versatile choice for Node.js projects of all sizes and complexities. The transition to TypeScript can be facilitated through existing tooling and resources, including IDE support, transpilation to JavaScript, and migration strategies. The benefits of adopting TypeScript in a Node.js project are substantial, contributing to a more efficient and scalable development process.",
+				"durationMs": 46948,
+				"inputTokens": 55,
+				"outputTokens": 288,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": true
+				},
+				{
+					"name": "Mentions TypeScript",
+					"passed": true
+				},
+				{
+					"name": "No emojis",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Tone compliance",
+					"score": 5,
+					"reasoning": "The agent successfully adheres to the requested persona of a senior technical architect. The language is formal, professional, and devoid of slang, emojis, or casual phrasing. It avoids contractions (e.g., \"it is\" instead of \"it's\"), which is appropriate for a C-suite briefing. The tone is objective and focused on strategic business outcomes (productivity, maintenance costs, scalability) rather than just technical implementation details, which aligns well with the target audience. The structure is clear and the vocabulary is sophisticated."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "inst-03",
+			"caseName": "Structured list output",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["instruction-following", "structured", "count-constraint"],
+			"output": {
+				"status": "success",
+				"summary": "The three most popular programming languages in 2025, based on current trends and industry demand, are Python, JavaScript, and Rust. Python is widely used for data analysis and machine learning due to its simplicity and large ecosystem of libraries. JavaScript remains the backbone of web development, with frameworks like React, Angular, and Vue.js driving its popularity. Rust is gaining ground due to its performance and memory safety, making it ideal for system programming and embedded systems.",
+				"details": "Python's ease of use, readability, and vast array of libraries for data analysis, machine learning, and web development have made it a cornerstone of modern programming. JavaScript continues to be essential for web development, with its client-side execution in web browsers and its server-side execution with Node.js. Rust's focus on performance and memory safety, which is crucial for applications that require high-speed execution and robustness, such as systems programming and web servers, makes it a rising star in programming languages.",
+				"durationMs": 32772,
+				"inputTokens": 50,
+				"outputTokens": 203,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": true
+				},
+				{
+					"name": "Summary non-empty",
+					"passed": true
+				},
+				{
+					"name": "Mentions at least 2 languages",
+					"passed": true
+				},
+				{
+					"name": "Token counts positive",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Instruction compliance",
+					"score": 1,
+					"reasoning": "The agent identified exactly three programming languages: Python, JavaScript, and Rust. For each language, it provided a clear key strength: Python (simplicity/large ecosystem), JavaScript (backbone of web development), and Rust (performance and memory safety). The output adheres strictly to the requested count and content requirements."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "sum-01",
+			"caseName": "TDD benefits summary",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["simple", "summarisation", "no-urls"],
+			"output": {
+				"status": "success",
+				"summary": "Test-driven development (TDD) in software engineering offers several key benefits. Firstly, it enhances code quality by ensuring that each piece of code works as expected before moving on to the next part of the application. Secondly, it improves the maintainability of the software by making it easier to understand and modify, as tests act as documentation for how the code is supposed to function. Thirdly, TDD accelerates the development process by catching and fixing issues early, reducing the need for rework and saving time on debugging. Additionally, it fosters a collaborative and iterative development environment, where developers can continuously integrate their code and receive immediate feedback. Overall, TDD leads to more robust, scalable, and reliable software with a reduced testing time and cost.",
+				"details": "Test-driven development (TDD) is a software development process where test cases are created before the actual code. This ensures that the code meets the requirements and functions correctly. The key benefits of TDD include improved code quality, increased maintainability, accelerated development, and a collaborative development environment. Improved code quality is achieved as developers focus on writing reliable and maintainable code. Increased maintainability is a result of clear, understandable tests that act as documentation. Accelerated development happens because issues are identified and resolved early, reducing the need for rework. The collaborative development environment is fostered by continuous integration and immediate feedback.",
+				"durationMs": 44558,
+				"inputTokens": 43,
+				"outputTokens": 286,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": true
+				},
+				{
+					"name": "Summary non-empty (>20 chars)",
+					"passed": true
+				},
+				{
+					"name": "Details non-empty (>20 chars)",
+					"passed": true
+				},
+				{
+					"name": "Mentions TDD or test-driven",
+					"passed": true
+				},
+				{
+					"name": "Mentions at least 2 benefits",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Relevance",
+					"score": 5,
+					"reasoning": "The agent directly addresses the task of summarizing the key benefits of test-driven development. It identifies several core advantages, such as improved code quality, maintainability, accelerated development, and collaboration. The content remains strictly on topic throughout both the summary and the details sections, with no irrelevant tangents or off-topic information. The structure is logical and directly answers the prompt."
+				},
+				{
+					"criterion": "Completeness",
+					"score": 5,
+					"reasoning": "The agent identifies and explains four distinct benefits of TDD: improved code quality, increased maintainability (acting as documentation), accelerated development (early bug detection), and a collaborative/iterative environment. It also touches upon the \"confidence to refactor\" implicitly by mentioning that it leads to more robust and reliable software. The response clearly exceeds the requirement of mentioning at least three benefits and provides sufficient detail for each."
+				}
+			],
+			"passed": false,
+			"thresholdViolations": ["Duration 44558ms > max 30000ms"]
+		},
+		{
+			"caseId": "sum-02",
+			"caseName": "Climate change overview",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["simple", "summarisation", "no-urls"],
+			"output": {
+				"status": "success",
+				"summary": "Climate change refers to the long-term alteration of weather patterns, driven mainly by increased concentrations of greenhouse gases (like carbon dioxide) in the atmosphere. These gases trap heat from the sun, leading to global warming and other environmental shifts. The primary causes include the burning of fossil fuels, deforestation, and industrial processes. The effects of climate change are widespread and include rising temperatures, more frequent extreme weather events, increased sea levels, melting glaciers, and altered patterns of precipitation. These changes impact biodiversity, human health, agriculture, and water resources, necessitating global efforts to reduce emissions and implement sustainable practices to mitigate its impacts.",
+				"details": "The main causes of climate change include human activities such as burning fossil fuels for energy, deforestation, and industrial processes that release large amounts of greenhouse gases into the atmosphere. These activities increase the concentration of these gases, primarily carbon dioxide, methane, and nitrous oxide. When these gases trap heat from the sun, it leads to an increase in global temperatures, a phenomenon known as global warming. This warming affects weather patterns, leading to more frequent and intense heatwaves, droughts, floods, and storms. It also causes sea levels to rise, threatening coastal areas and islands, and leads to the melting of ice caps and glaciers, contributing to changes in sea levels and affecting ecosystems that depend on these natural resources. Climate change also impacts biodiversity, as species struggle to adapt to new environmental conditions, leading to habitat loss and extinctions. It can affect human health by increasing the risk of heat-related illnesses, affecting air quality, and spreading disease-carrying insects. Changes in precipitation patterns can lead to food insecurity, as agriculture is highly dependent on reliable rainfall. Finally, climate change affects water resources, leading to droughts and increased competition for water in many regions. Addressing climate change requires global efforts to reduce greenhouse gas emissions, increase the use of renewable energy sources, and implement sustainable practices in agriculture, forestry, and industrial processes. This includes international agreements like the Paris Agreement, which aims to limit global temperature rise to well below 2 degrees Celsius above pre-industrial levels and pursue efforts to limit the temperature increase even further to 1.5 degrees Celsius.",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": true
+				},
+				{
+					"name": "Summary non-empty",
+					"passed": true
+				},
+				{
+					"name": "Mentions causes",
+					"passed": true
+				},
+				{
+					"name": "Mentions effects",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Factual accuracy",
+					"score": 1,
+					"reasoning": "The agent correctly identifies the primary drivers of climate change, specifically the increase in greenhouse gases (CO2, methane, nitrous oxide) resulting from human activities like burning fossil fuels, deforestation, and industrial processes. The described effects—global warming, rising sea levels, melting glaciers, extreme weather events, biodiversity loss, and impacts on human health and agriculture—are all well-supported by current scientific consensus (e.g., IPCC reports). The mention of the Paris Agreement and its temperature goals is also factually accurate. There is no misinformation or misleading content in the response."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "sum-03",
+			"caseName": "REST API explanation",
+			"model": "qwen2.5-coder:7b",
+			"tags": ["simple", "summarisation", "conciseness"],
+			"output": {
+				"status": "failure",
+				"summary": "",
+				"details": "",
+				"durationMs": 213898,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": false
+				},
+				{
+					"name": "Summary under 300 chars",
+					"passed": false
+				},
+				{
+					"name": "Total output under 500 chars",
+					"passed": false
+				},
+				{
+					"name": "Mentions REST or API",
+					"passed": false
+				}
+			],
+			"passed": false
+		}
+	]
 }

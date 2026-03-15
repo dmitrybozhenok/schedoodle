@@ -97,7 +97,8 @@ async function fetchWithSizeLimit(url: string): Promise<{ content: string; conte
 	}
 
 	const decoder = new TextDecoder();
-	const body = chunks.map((chunk) => decoder.decode(chunk, { stream: true })).join("") + decoder.decode();
+	const body =
+		chunks.map((chunk) => decoder.decode(chunk, { stream: true })).join("") + decoder.decode();
 
 	return { content: body, contentType };
 }

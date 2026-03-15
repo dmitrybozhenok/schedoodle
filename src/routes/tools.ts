@@ -16,7 +16,7 @@ function zodErrorHook(
 	c: { json: (data: unknown, status: number) => Response },
 ) {
 	if (!result.success) {
-		const details = result.error!.issues.map((issue) => ({
+		const details = result.error?.issues.map((issue) => ({
 			field: issue.path.join("."),
 			message: issue.message,
 		}));

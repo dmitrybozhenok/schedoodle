@@ -196,8 +196,16 @@ describe("scheduler", () => {
 
 		it("startAll with zero disabled agents logs without disabled suffix", () => {
 			const spy = vi.spyOn(console, "log");
-			const enabled1 = makeAgent(db, { name: "OnlyEnabled1", cronSchedule: "0 * * * *", enabled: 1 });
-			const enabled2 = makeAgent(db, { name: "OnlyEnabled2", cronSchedule: "0 * * * *", enabled: 1 });
+			const enabled1 = makeAgent(db, {
+				name: "OnlyEnabled1",
+				cronSchedule: "0 * * * *",
+				enabled: 1,
+			});
+			const enabled2 = makeAgent(db, {
+				name: "OnlyEnabled2",
+				cronSchedule: "0 * * * *",
+				enabled: 1,
+			});
 
 			startAll([enabled1, enabled2], db);
 			expect(spy).toHaveBeenCalledWith("[cron] Scheduled 2 agent(s)");

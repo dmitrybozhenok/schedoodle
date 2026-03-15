@@ -14,17 +14,15 @@ function getClientIp(c: Context): string {
 		return forwarded.split(",")[0].trim();
 	}
 	return (
-		(c.env as Record<string, unknown>)?.incoming as
-			| { socket?: { remoteAddress?: string } }
-			| undefined
-	)?.socket?.remoteAddress ?? "127.0.0.1";
+		(
+			(c.env as Record<string, unknown>)?.incoming as
+				| { socket?: { remoteAddress?: string } }
+				| undefined
+		)?.socket?.remoteAddress ?? "127.0.0.1"
+	);
 }
 
-function isRateLimited(
-	ip: string,
-	windowMs: number,
-	maxRequests: number,
-): boolean {
+function isRateLimited(ip: string, windowMs: number, maxRequests: number): boolean {
 	const now = Date.now();
 	const timestamps = requestLog.get(ip) ?? [];
 	const windowStart = now - windowMs;
@@ -42,9 +40,7 @@ export function rateLimiterMiddleware(): MiddlewareHandler {
 	return async (c, next) => {
 		const ip = getClientIp(c);
 		const path = c.req.path;
-		const maxRequests = isLlmEndpoint(path)
-			? LLM_MAX_REQUESTS
-			: GENERAL_MAX_REQUESTS;
+		const maxRequests = isLlmEndpoint(path) ? LLM_MAX_REQUESTS : GENERAL_MAX_REQUESTS;
 
 		if (isRateLimited(ip, WINDOW_MS, maxRequests)) {
 			return c.json({ error: "Rate limit exceeded" }, 429);

@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as schema from "../src/db/schema.js";
 
 // Mock AI SDK modules before any imports that use them
@@ -46,7 +46,14 @@ vi.mock("../src/services/notifier.js", () => ({
 	sendFailureNotification: (...args: unknown[]) => mockSendFailureNotification(...args),
 }));
 
-import { _resetLlmBreaker, _resetLlmSemaphore, drainLlmSemaphore, executeAgent, executeAgents, getLlmSemaphoreStatus } from "../src/services/executor.js";
+import {
+	_resetLlmBreaker,
+	_resetLlmSemaphore,
+	drainLlmSemaphore,
+	executeAgent,
+	executeAgents,
+	getLlmSemaphoreStatus,
+} from "../src/services/executor.js";
 import { buildPrompt, prefetchUrls } from "../src/services/prefetch.js";
 
 const CREATE_AGENTS_SQL = `
@@ -190,7 +197,7 @@ describe("executeAgent", () => {
 		expect(rows[0].status).toBe("running");
 
 		// Resolve so the promise completes
-		resolveCall!(makeLlmResult());
+		resolveCall?.(makeLlmResult());
 		await promise;
 	});
 
@@ -709,7 +716,7 @@ describe("tool-enabled execution", () => {
 
 		expect(capturedSignal).toBeDefined();
 		// The signal should not be aborted immediately
-		expect(capturedSignal!.aborted).toBe(false);
+		expect(capturedSignal?.aborted).toBe(false);
 	});
 
 	it("uses default 60000ms timeout when agent.maxExecutionMs is null", async () => {
@@ -726,7 +733,7 @@ describe("tool-enabled execution", () => {
 		// Just verify signal exists -- we can't directly inspect the timeout value
 		// but the abort controller was created (signal is not null)
 		expect(capturedSignal).toBeDefined();
-		expect(capturedSignal!.aborted).toBe(false);
+		expect(capturedSignal?.aborted).toBe(false);
 	});
 
 	it("clears timeout in finally block (no leaked timers)", async () => {
@@ -742,8 +749,12 @@ describe("tool-enabled execution", () => {
 		const agent = makeAgent(db);
 
 		// Insert a custom tool into the DB
-		sqlite.exec(`INSERT INTO tools (name, description, url, input_schema) VALUES ('My API', 'Call my api', 'https://api.example.com', '{"type":"object","properties":{"q":{"type":"string"}}}')`);
-		const toolRow = sqlite.prepare("SELECT id FROM tools WHERE name = 'My API'").get() as { id: number };
+		sqlite.exec(
+			`INSERT INTO tools (name, description, url, input_schema) VALUES ('My API', 'Call my api', 'https://api.example.com', '{"type":"object","properties":{"q":{"type":"string"}}}')`,
+		);
+		const toolRow = sqlite.prepare("SELECT id FROM tools WHERE name = 'My API'").get() as {
+			id: number;
+		};
 
 		// Link it to the agent
 		sqlite.exec(`INSERT INTO agent_tools (agent_id, tool_id) VALUES (${agent.id}, ${toolRow.id})`);
@@ -767,16 +778,18 @@ describe("tool-enabled execution", () => {
 		const fakeToolSet = { web_fetch: { execute: vi.fn() } };
 		mockBuildToolSet.mockReturnValue(fakeToolSet);
 
-		mockGenerateText.mockImplementation(async (opts: { onStepFinish?: (step: unknown) => void }) => {
-			// Simulate tool call steps
-			if (opts.onStepFinish) {
-				opts.onStepFinish({
-					toolCalls: [{ toolName: "web_fetch", args: { url: "https://example.com" } }],
-					toolResults: [{ result: "fetched content" }],
-				});
-			}
-			return makeLlmResult();
-		});
+		mockGenerateText.mockImplementation(
+			async (opts: { onStepFinish?: (step: unknown) => void }) => {
+				// Simulate tool call steps
+				if (opts.onStepFinish) {
+					opts.onStepFinish({
+						toolCalls: [{ toolName: "web_fetch", args: { url: "https://example.com" } }],
+						toolResults: [{ result: "fetched content" }],
+					});
+				}
+				return makeLlmResult();
+			},
+		);
 
 		const agent = makeAgent(db);
 		await executeAgent(agent, db);
@@ -788,7 +801,12 @@ describe("tool-enabled execution", () => {
 			.all();
 
 		expect(rows[0].toolCalls).not.toBeNull();
-		const toolCalls = rows[0].toolCalls as Array<{ toolName: string; input: unknown; output: string; durationMs: number }>;
+		const toolCalls = rows[0].toolCalls as Array<{
+			toolName: string;
+			input: unknown;
+			output: string;
+			durationMs: number;
+		}>;
 		expect(toolCalls).toHaveLength(1);
 		expect(toolCalls[0].toolName).toBe("web_fetch");
 		expect(toolCalls[0].input).toEqual({ url: "https://example.com" });
@@ -962,7 +980,7 @@ describe("semaphore concurrency wrapping", () => {
 
 		// During execution, one slot should be active
 		expect(statusDuringExec).not.toBeNull();
-		expect(statusDuringExec!.active).toBe(1);
+		expect(statusDuringExec?.active).toBe(1);
 
 		// After execution, slot should be released
 		const statusAfter = getLlmSemaphoreStatus();
@@ -990,7 +1008,9 @@ describe("semaphore concurrency wrapping", () => {
 			callCount++;
 			if (callCount <= 3) {
 				// First 3 block
-				return new Promise((r) => { resolvers.push(r); });
+				return new Promise((r) => {
+					resolvers.push(r);
+				});
 			}
 			// Subsequent calls resolve immediately
 			return Promise.resolve(makeLlmResult());
@@ -1013,12 +1033,8 @@ describe("semaphore concurrency wrapping", () => {
 		const p4 = executeAgent(agent4, db);
 		await new Promise((r) => setTimeout(r, 20));
 
-		expect(logSpy).toHaveBeenCalledWith(
-			expect.stringContaining("[concurrency] Slot full"),
-		);
-		expect(logSpy).toHaveBeenCalledWith(
-			expect.stringContaining('agent "Agent4" queued'),
-		);
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("[concurrency] Slot full"));
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('agent "Agent4" queued'));
 
 		// Clean up: resolve all blocked calls so promises settle
 		for (const r of resolvers) r(makeLlmResult());

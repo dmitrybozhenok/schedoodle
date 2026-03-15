@@ -318,14 +318,10 @@ describe("database schema", () => {
 			.returning()
 			.get();
 
-		db.insert(schema.agentTools)
-			.values({ agentId: agent.id, toolId: tool.id })
-			.run();
+		db.insert(schema.agentTools).values({ agentId: agent.id, toolId: tool.id }).run();
 
 		expect(() => {
-			db.insert(schema.agentTools)
-				.values({ agentId: agent.id, toolId: tool.id })
-				.run();
+			db.insert(schema.agentTools).values({ agentId: agent.id, toolId: tool.id }).run();
 		}).toThrow();
 	});
 
@@ -351,9 +347,7 @@ describe("database schema", () => {
 			.returning()
 			.get();
 
-		db.insert(schema.agentTools)
-			.values({ agentId: agent.id, toolId: tool.id })
-			.run();
+		db.insert(schema.agentTools).values({ agentId: agent.id, toolId: tool.id }).run();
 
 		// Delete the tool
 		const { eq } = require("drizzle-orm");
@@ -386,9 +380,7 @@ describe("database schema", () => {
 			.returning()
 			.get();
 
-		db.insert(schema.agentTools)
-			.values({ agentId: agent.id, toolId: tool.id })
-			.run();
+		db.insert(schema.agentTools).values({ agentId: agent.id, toolId: tool.id }).run();
 
 		// Delete the agent
 		const { eq } = require("drizzle-orm");
@@ -479,7 +471,12 @@ describe("database schema", () => {
 			.get();
 
 		const toolCallsData = [
-			{ toolName: "web_fetch", input: { url: "https://example.com" }, output: "content", durationMs: 150 },
+			{
+				toolName: "web_fetch",
+				input: { url: "https://example.com" },
+				output: "content",
+				durationMs: 150,
+			},
 		];
 
 		const exec = db

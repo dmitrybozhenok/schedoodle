@@ -3,8 +3,8 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Database } from "../db/index.js";
 import { agents, agentTools, executionHistory, tools } from "../db/schema.js";
-import { enrichAgent } from "../helpers/enrich-agent.js";
 import { isCronExpression } from "../helpers/cron-detect.js";
+import { enrichAgent } from "../helpers/enrich-agent.js";
 import { createAgentSchema, updateAgentSchema } from "../schemas/agent-input.js";
 import { executeAgent } from "../services/executor.js";
 import { parseSchedule } from "../services/schedule-parser.js";
@@ -15,7 +15,9 @@ import { removeAgent, scheduleAgent } from "../services/scheduler.js";
  * Otherwise, parse it as natural language via the LLM.
  * Returns { cronSchedule, humanReadable } on success, or throws on failure.
  */
-async function resolveSchedule(input: string): Promise<{ cronSchedule: string; humanReadable: string }> {
+async function resolveSchedule(
+	input: string,
+): Promise<{ cronSchedule: string; humanReadable: string }> {
 	if (isCronExpression(input)) {
 		return { cronSchedule: input, humanReadable: "" };
 	}
@@ -34,7 +36,7 @@ function zodErrorHook(
 	c: { json: (data: unknown, status: number) => Response },
 ) {
 	if (!result.success) {
-		const details = result.error!.issues.map((issue) => ({
+		const details = result.error?.issues.map((issue) => ({
 			field: issue.path.join("."),
 			message: issue.message,
 		}));
@@ -122,14 +124,12 @@ export function createAgentRoutes(db: Database, isShuttingDown: () => boolean = 
 	// GET / - List all agents (supports ?enabled=true/false filtering)
 	app.get("/", (c) => {
 		const enabledParam = c.req.query("enabled");
-		let list;
-		if (enabledParam === "true") {
-			list = db.select().from(agents).where(eq(agents.enabled, 1)).all();
-		} else if (enabledParam === "false") {
-			list = db.select().from(agents).where(eq(agents.enabled, 0)).all();
-		} else {
-			list = db.select().from(agents).all();
-		}
+		const list =
+			enabledParam === "true"
+				? db.select().from(agents).where(eq(agents.enabled, 1)).all()
+				: enabledParam === "false"
+					? db.select().from(agents).where(eq(agents.enabled, 0)).all()
+					: db.select().from(agents).all();
 		return c.json(list.map((a) => enrichAgent(a, db)));
 	});
 
@@ -198,12 +198,7 @@ export function createAgentRoutes(db: Database, isShuttingDown: () => boolean = 
 			updateSet.enabled = data.enabled ? 1 : 0;
 		}
 
-		const updated = db
-			.update(agents)
-			.set(updateSet)
-			.where(eq(agents.id, id))
-			.returning()
-			.get();
+		const updated = db.update(agents).set(updateSet).where(eq(agents.id, id)).returning().get();
 
 		// Reschedule/remove if enabled or cronSchedule changed
 		if (data.enabled !== undefined || data.cronSchedule !== undefined) {
@@ -251,7 +246,10 @@ export function createAgentRoutes(db: Database, isShuttingDown: () => boolean = 
 
 		if (agent.enabled === 0) {
 			return c.json(
-				{ error: "Agent is disabled", message: "Enable the agent before triggering manual execution" },
+				{
+					error: "Agent is disabled",
+					message: "Enable the agent before triggering manual execution",
+				},
 				409,
 			);
 		}

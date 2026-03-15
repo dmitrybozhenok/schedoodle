@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	CircuitBreakerOpenError,
-	type CircuitBreakerStatus,
-	type CircuitState,
-	createCircuitBreaker,
-} from "../src/services/circuit-breaker.js";
+import { CircuitBreakerOpenError, createCircuitBreaker } from "../src/services/circuit-breaker.js";
 
 describe("createCircuitBreaker", () => {
 	beforeEach(() => {

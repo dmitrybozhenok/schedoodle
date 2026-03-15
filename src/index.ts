@@ -3,21 +3,22 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { env } from "./config/env.js";
-import { authMiddleware } from "./middleware/auth.js";
-import {
-	rateLimiterMiddleware,
-	stopRateLimiterCleanup,
-} from "./middleware/rate-limiter.js";
-import { corsMiddleware, securityHeaders } from "./middleware/security.js";
 import { db } from "./db/index.js";
 import { agents } from "./db/schema.js";
+import { authMiddleware } from "./middleware/auth.js";
+import { rateLimiterMiddleware, stopRateLimiterCleanup } from "./middleware/rate-limiter.js";
+import { corsMiddleware, securityHeaders } from "./middleware/security.js";
 import { createAgentRoutes } from "./routes/agents.js";
 import { createDashboardRoute } from "./routes/dashboard.js";
 import { createHealthRoute } from "./routes/health.js";
 import { createManageRoute } from "./routes/manage.js";
 import { createScheduleRoutes } from "./routes/schedules.js";
 import { createToolRoutes } from "./routes/tools.js";
-import { getLlmCircuitStatus, drainLlmSemaphore, getLlmSemaphoreStatus } from "./services/executor.js";
+import {
+	drainLlmSemaphore,
+	getLlmCircuitStatus,
+	getLlmSemaphoreStatus,
+} from "./services/executor.js";
 import { getScheduledJobs, startAll, stopAll } from "./services/scheduler.js";
 import {
 	cleanupStaleExecutions,
@@ -61,7 +62,17 @@ app.notFound((c) => {
 
 // Mount routes
 app.route("/agents", createAgentRoutes(db, isShuttingDown));
-app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt, getScheduledJobs, getLlmSemaphoreStatus, isShuttingDown));
+app.route(
+	"/health",
+	createHealthRoute(
+		db,
+		getLlmCircuitStatus,
+		startedAt,
+		getScheduledJobs,
+		getLlmSemaphoreStatus,
+		isShuttingDown,
+	),
+);
 app.route("/manage", createManageRoute());
 app.route("/schedules", createScheduleRoutes());
 app.route("/dashboard", createDashboardRoute());
@@ -70,9 +81,7 @@ app.route("/tools", createToolRoutes(db));
 // Boot sequence: stale cleanup -> pruning -> scheduler
 const staleCount = cleanupStaleExecutions(db);
 if (staleCount > 0) {
-	console.log(
-		`[startup] Cleaned up ${staleCount} stale running executions`,
-	);
+	console.log(`[startup] Cleaned up ${staleCount} stale running executions`);
 }
 
 const prunedCount = pruneOldExecutions(db, env.RETENTION_DAYS);
@@ -105,7 +114,9 @@ async function shutdown() {
 
 	const status = getLlmSemaphoreStatus();
 	if (status.active > 0) {
-		console.log(`[shutdown] Waiting for ${status.active} in-flight executions to complete (30s timeout)...`);
+		console.log(
+			`[shutdown] Waiting for ${status.active} in-flight executions to complete (30s timeout)...`,
+		);
 		const deadline = Date.now() + 30_000;
 		while (getLlmSemaphoreStatus().active > 0 && Date.now() < deadline) {
 			await new Promise((r) => setTimeout(r, 500));

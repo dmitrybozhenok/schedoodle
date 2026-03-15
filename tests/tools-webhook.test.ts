@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/config/env.js", () => ({
 	env: {
@@ -59,7 +59,7 @@ describe("createWebhookTool", () => {
 			text: vi.fn().mockResolvedValue("OK"),
 		});
 
-		await webhookTool.execute!(
+		await webhookTool.execute?.(
 			{ message: "hello" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -79,7 +79,7 @@ describe("createWebhookTool", () => {
 			text: vi.fn().mockResolvedValue('{"result": "processed"}'),
 		});
 
-		const result = await webhookTool.execute!(
+		const result = await webhookTool.execute?.(
 			{ message: "hello" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -93,7 +93,7 @@ describe("createWebhookTool", () => {
 
 		globalThis.fetch = vi.fn().mockRejectedValue(new Error("Connection refused"));
 
-		const result = await webhookTool.execute!(
+		const result = await webhookTool.execute?.(
 			{ message: "hello" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -109,9 +109,11 @@ describe("createWebhookTool", () => {
 		const controller = new AbortController();
 		controller.abort();
 
-		globalThis.fetch = vi.fn().mockRejectedValue(new DOMException("The operation was aborted", "AbortError"));
+		globalThis.fetch = vi
+			.fn()
+			.mockRejectedValue(new DOMException("The operation was aborted", "AbortError"));
 
-		const result = await webhookTool.execute!(
+		const result = await webhookTool.execute?.(
 			{ message: "hello" },
 			{ abortSignal: controller.signal, toolCallId: "test", messages: [] },
 		);
@@ -130,7 +132,7 @@ describe("createWebhookTool", () => {
 			text: vi.fn().mockResolvedValue("OK"),
 		});
 
-		await webhookTool.execute!(
+		await webhookTool.execute?.(
 			{ message: "hello" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -151,7 +153,7 @@ describe("createWebhookTool", () => {
 			text: vi.fn().mockResolvedValue("response"),
 		});
 
-		await webhookTool.execute!(
+		await webhookTool.execute?.(
 			{ message: "hello" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);

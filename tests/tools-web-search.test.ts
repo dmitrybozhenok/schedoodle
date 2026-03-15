@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // vi.hoisted runs before vi.mock, so mockEnv is available in the factory
 const { mockEnv } = vi.hoisted(() => {
@@ -41,8 +41,16 @@ describe("webSearchTool", () => {
 		const braveResponse = {
 			web: {
 				results: [
-					{ title: "Result One", url: "https://one.example.com", description: "First result description" },
-					{ title: "Result Two", url: "https://two.example.com", description: "Second result description" },
+					{
+						title: "Result One",
+						url: "https://one.example.com",
+						description: "First result description",
+					},
+					{
+						title: "Result Two",
+						url: "https://two.example.com",
+						description: "Second result description",
+					},
 				],
 			},
 		};
@@ -52,7 +60,7 @@ describe("webSearchTool", () => {
 			json: vi.fn().mockResolvedValue(braveResponse),
 		});
 
-		const result = await webSearchTool.execute!(
+		const result = await webSearchTool.execute?.(
 			{ query: "test query" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -70,7 +78,7 @@ describe("webSearchTool", () => {
 	it("returns unavailable message when BRAVE_API_KEY is not configured", async () => {
 		mockEnv.BRAVE_API_KEY = undefined;
 
-		const result = await webSearchTool.execute!(
+		const result = await webSearchTool.execute?.(
 			{ query: "test query" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -84,7 +92,7 @@ describe("webSearchTool", () => {
 			status: 429,
 		});
 
-		const result = await webSearchTool.execute!(
+		const result = await webSearchTool.execute?.(
 			{ query: "rate limited query" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -95,7 +103,7 @@ describe("webSearchTool", () => {
 	it("returns error message on network error (does not throw)", async () => {
 		globalThis.fetch = vi.fn().mockRejectedValue(new Error("DNS resolution failed"));
 
-		const result = await webSearchTool.execute!(
+		const result = await webSearchTool.execute?.(
 			{ query: "broken query" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -110,7 +118,7 @@ describe("webSearchTool", () => {
 			json: vi.fn().mockResolvedValue({ web: { results: [] } }),
 		});
 
-		await webSearchTool.execute!(
+		await webSearchTool.execute?.(
 			{ query: "test", count: 3 },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -134,7 +142,7 @@ describe("webSearchTool", () => {
 			json: vi.fn().mockResolvedValue({ web: { results: [] } }),
 		});
 
-		const result = await webSearchTool.execute!(
+		const result = await webSearchTool.execute?.(
 			{ query: "no results" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -148,7 +156,7 @@ describe("webSearchTool", () => {
 			json: vi.fn().mockResolvedValue({}),
 		});
 
-		const result = await webSearchTool.execute!(
+		const result = await webSearchTool.execute?.(
 			{ query: "empty response" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);

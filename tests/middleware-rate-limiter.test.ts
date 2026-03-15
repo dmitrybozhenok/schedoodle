@@ -1,11 +1,5 @@
 import { Hono } from "hono";
-import {
-	afterAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-} from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	_resetRateLimiter,
 	rateLimiterMiddleware,

@@ -43,7 +43,7 @@ async function apiPatch(path: string, body: unknown) {
 
 // ── Case Execution ───────────────────────────────────────────────
 
-async function executeCase(evalCase: EvalCase, agentId: number): Promise<EvalOutput> {
+async function executeCase(_evalCase: EvalCase, agentId: number): Promise<EvalOutput> {
 	const execResult = (await apiPost(`/agents/${agentId}/execute`)) as {
 		status: string;
 		executionId?: number;
@@ -98,7 +98,8 @@ export async function evaluateCase(
 
 		// Layer 1: Deterministic checks (skip if execution failed, except for cases that expect failure)
 		const expectsFailure = evalCase.checks.some(
-			(c) => c.type === "regex" && c.field === "status" && String(c.params?.pattern).includes("failure"),
+			(c) =>
+				c.type === "regex" && c.field === "status" && String(c.params?.pattern).includes("failure"),
 		);
 		const checkResults = evalCase.checks.map((check) => ({
 			name: check.name,
@@ -107,7 +108,12 @@ export async function evaluateCase(
 
 		// Layer 2: AI-as-judge (skip if execution failed — no output to judge)
 		let judgeScores: { criterion: string; score: number; reasoning: string }[] | undefined;
-		if (options.enableJudge && !executionFailed && evalCase.judgeCriteria && evalCase.judgeCriteria.length > 0) {
+		if (
+			options.enableJudge &&
+			!executionFailed &&
+			evalCase.judgeCriteria &&
+			evalCase.judgeCriteria.length > 0
+		) {
 			judgeScores = await scoreAllCriteria(
 				evalCase.judgeCriteria,
 				{

@@ -74,7 +74,11 @@ function mockIsShuttingDown(value = false) {
 	return vi.fn(() => value);
 }
 
-function insertAgent(db: ReturnType<typeof createTestDb>, name: string, cronSchedule = "0 * * * *") {
+function insertAgent(
+	db: ReturnType<typeof createTestDb>,
+	name: string,
+	cronSchedule = "0 * * * *",
+) {
 	const now = new Date().toISOString();
 	return db
 		.insert(schema.agents)
@@ -120,7 +124,14 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now() - 5000;
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+		const app = createHealthRoute(
+			db,
+			getCircuitStatus,
+			startedAt,
+			mockGetScheduledJobs(),
+			mockGetConcurrencyStatus(),
+			mockIsShuttingDown(),
+		);
 
 		const res = await app.request("/");
 		expect(res.status).toBe(200);
@@ -139,7 +150,14 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+		const app = createHealthRoute(
+			db,
+			getCircuitStatus,
+			startedAt,
+			mockGetScheduledJobs(),
+			mockGetConcurrencyStatus(),
+			mockIsShuttingDown(),
+		);
 
 		insertAgent(db, "Agent1");
 		insertAgent(db, "Agent2");
@@ -153,7 +171,14 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+		const app = createHealthRoute(
+			db,
+			getCircuitStatus,
+			startedAt,
+			mockGetScheduledJobs(),
+			mockGetConcurrencyStatus(),
+			mockIsShuttingDown(),
+		);
 
 		const agent = insertAgent(db, "Agent1");
 
@@ -171,7 +196,14 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+		const app = createHealthRoute(
+			db,
+			getCircuitStatus,
+			startedAt,
+			mockGetScheduledJobs(),
+			mockGetConcurrencyStatus(),
+			mockIsShuttingDown(),
+		);
 
 		const agent = insertAgent(db, "Agent1");
 
@@ -195,7 +227,14 @@ describe("GET /health", () => {
 		};
 		const getCircuitStatus = vi.fn(() => openStatus);
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+		const app = createHealthRoute(
+			db,
+			getCircuitStatus,
+			startedAt,
+			mockGetScheduledJobs(),
+			mockGetConcurrencyStatus(),
+			mockIsShuttingDown(),
+		);
 
 		const res = await app.request("/");
 		const body = await res.json();
@@ -212,7 +251,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent1 = insertAgent(db, "AgentA");
 			const agent2 = insertAgent(db, "AgentB");
@@ -245,7 +291,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "MixedAgent");
 			const recentTime = new Date().toISOString();
@@ -256,7 +309,9 @@ describe("GET /health", () => {
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "MixedAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "MixedAgent",
+			);
 			// 2 success / 3 total = 66.67%
 			expect(agentStats.successRate).toBeCloseTo(66.67, 1);
 		});
@@ -265,14 +320,23 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			insertAgent(db, "NoExecAgent");
 
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "NoExecAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "NoExecAgent",
+			);
 			expect(agentStats.successRate).toBe(100);
 		});
 
@@ -280,7 +344,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "RunningAgent");
 			const recentTime = new Date().toISOString();
@@ -290,7 +361,9 @@ describe("GET /health", () => {
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "RunningAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "RunningAgent",
+			);
 			// 1 success / 1 completed (running excluded) = 100%
 			expect(agentStats.successRate).toBe(100);
 		});
@@ -301,7 +374,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "DurAgent");
 			const recentTime = new Date().toISOString();
@@ -311,7 +391,9 @@ describe("GET /health", () => {
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "DurAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "DurAgent",
+			);
 			expect(agentStats.avgDurationMs).toBe(2000);
 		});
 
@@ -319,14 +401,23 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			insertAgent(db, "NoDurAgent");
 
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "NoDurAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "NoDurAgent",
+			);
 			expect(agentStats.avgDurationMs).toBe(0);
 		});
 	});
@@ -336,7 +427,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "HealthyAgent");
 			const recentTime = new Date().toISOString();
@@ -351,7 +449,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent1 = insertAgent(db, "HealthyAgent1");
 			const agent2 = insertAgent(db, "UnhealthyAgent");
@@ -382,7 +487,14 @@ describe("GET /health", () => {
 			};
 			const getCircuitStatus = vi.fn(() => openStatus);
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "OkAgent");
 			const recentTime = new Date().toISOString();
@@ -397,7 +509,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent1 = insertAgent(db, "Bad1");
 			const agent2 = insertAgent(db, "Bad2");
@@ -424,7 +543,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -448,7 +574,14 @@ describe("GET /health", () => {
 			mockJobs.set(agent3.id, { nextRun: () => new Date("2026-03-15T10:00:00Z") });
 
 			const getScheduledJobs = vi.fn(() => mockJobs);
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>, mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>,
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -476,11 +609,20 @@ describe("GET /health", () => {
 
 			const mockJobs = new Map<number, { nextRun: () => Date | null }>();
 			for (let i = 0; i < 7; i++) {
-				mockJobs.set(agentIds[i], { nextRun: () => new Date(`2026-03-15T${String(i + 8).padStart(2, "0")}:00:00Z`) });
+				mockJobs.set(agentIds[i], {
+					nextRun: () => new Date(`2026-03-15T${String(i + 8).padStart(2, "0")}:00:00Z`),
+				});
 			}
 
 			const getScheduledJobs = vi.fn(() => mockJobs);
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>, mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>,
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -501,7 +643,14 @@ describe("GET /health", () => {
 			mockJobs.set(agent2.id, { nextRun: () => null }); // paused/stopped
 
 			const getScheduledJobs = vi.fn(() => mockJobs);
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>, mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>,
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -516,7 +665,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "LongResultAgent");
 			const longResult = "A".repeat(300);
@@ -528,7 +684,9 @@ describe("GET /health", () => {
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "LongResultAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "LongResultAgent",
+			);
 			expect(agentStats.lastResult).toHaveLength(203); // 200 + "..."
 			expect(agentStats.lastResult).toMatch(/\.\.\.$/);
 		});
@@ -537,7 +695,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "LongErrorAgent");
 			const longError = "E".repeat(300);
@@ -549,7 +714,9 @@ describe("GET /health", () => {
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "LongErrorAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "LongErrorAgent",
+			);
 			expect(agentStats.lastError).toHaveLength(203);
 			expect(agentStats.lastError).toMatch(/\.\.\.$/);
 		});
@@ -558,7 +725,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "ShortAgent");
 			insertExecution(db, agent.id, "success", {
@@ -569,7 +743,9 @@ describe("GET /health", () => {
 			const res = await app.request("/");
 			const body = await res.json();
 
-			const agentStats = body.agents.find((a: Record<string, unknown>) => a.agentName === "ShortAgent");
+			const agentStats = body.agents.find(
+				(a: Record<string, unknown>) => a.agentName === "ShortAgent",
+			);
 			expect(agentStats.lastResult).toBe("short result");
 		});
 	});
@@ -579,7 +755,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const agent = insertAgent(db, "AggAgent");
 			const recentTime = new Date().toISOString();
@@ -602,7 +785,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -617,7 +807,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now() - 10000;
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
 
 			insertAgent(db, "PreserveAgent");
 
@@ -642,7 +839,14 @@ describe("GET /health", () => {
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
 			const concurrencyMock = mockGetConcurrencyStatus({ active: 2, queued: 1, limit: 3 });
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), concurrencyMock, mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				concurrencyMock,
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -657,7 +861,14 @@ describe("GET /health", () => {
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
 			const concurrencyMock = mockGetConcurrencyStatus({ active: 0, queued: 0, limit: 5 });
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), concurrencyMock, mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				concurrencyMock,
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -671,7 +882,14 @@ describe("GET /health", () => {
 			const startedAt = Date.now();
 			// All slots full (active === limit)
 			const concurrencyMock = mockGetConcurrencyStatus({ active: 3, queued: 2, limit: 3 });
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), concurrencyMock, mockIsShuttingDown());
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				concurrencyMock,
+				mockIsShuttingDown(),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -685,7 +903,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown(false));
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(false),
+			);
 
 			const res = await app.request("/");
 			expect(res.status).toBe(200);
@@ -698,7 +923,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown(true));
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(true),
+			);
 
 			const res = await app.request("/");
 			expect(res.status).toBe(503);
@@ -711,7 +943,14 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown(true));
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(true),
+			);
 
 			const res = await app.request("/");
 			const body = await res.json();

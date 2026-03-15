@@ -235,7 +235,11 @@ describe("sendFailureNotification", () => {
 
 	it("skips when no transport is configured", async () => {
 		const { sendFailureNotification } = await import("../src/services/notifier.js");
-		const result = await sendFailureNotification("Test Agent", "2026-03-14T10:00:00Z", "some error");
+		const result = await sendFailureNotification(
+			"Test Agent",
+			"2026-03-14T10:00:00Z",
+			"some error",
+		);
 		expect(result.status).toBe("skipped");
 	});
 
@@ -243,7 +247,11 @@ describe("sendFailureNotification", () => {
 		setEnv(smtpEnv);
 		mockSmtpSend.mockResolvedValue({ messageId: "fail_1" });
 		const { sendFailureNotification } = await import("../src/services/notifier.js");
-		const result = await sendFailureNotification("Broken Agent", "2026-03-14T10:00:00Z", "model not found");
+		const result = await sendFailureNotification(
+			"Broken Agent",
+			"2026-03-14T10:00:00Z",
+			"model not found",
+		);
 		expect(result.status).toBe("sent");
 		const callArgs = mockSmtpSend.mock.calls[0][0];
 		expect(callArgs.subject).toBe("[Schedoodle] FAILED: Broken Agent");

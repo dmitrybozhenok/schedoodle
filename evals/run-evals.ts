@@ -448,7 +448,7 @@ async function main() {
 	const testCol = 28;
 	const header = ["Test".padEnd(testCol), ...models.map((m) => m.padEnd(colWidth))].join("│ ");
 	console.log(header);
-	console.log("─".repeat(testCol) + ("┼" + "─".repeat(colWidth + 1)).repeat(models.length));
+	console.log("─".repeat(testCol) + `┼${"─".repeat(colWidth + 1)}`.repeat(models.length));
 
 	// Rows per test
 	for (const tc of TEST_CASES) {
@@ -462,7 +462,7 @@ async function main() {
 	}
 
 	// Totals row
-	console.log("─".repeat(testCol) + ("┼" + "─".repeat(colWidth + 1)).repeat(models.length));
+	console.log("─".repeat(testCol) + `┼${"─".repeat(colWidth + 1)}`.repeat(models.length));
 	const totalCols = models.map((model) => {
 		const modelResults = allResults.filter((r) => r.model === model);
 		const passed = modelResults.reduce((s, r) => s + r.passed, 0);

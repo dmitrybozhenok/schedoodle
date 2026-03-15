@@ -70,12 +70,8 @@ describe("shutdown", () => {
 				.returning()
 				.get();
 
-			db.insert(schema.executionHistory)
-				.values({ agentId: agent.id, status: "running" })
-				.run();
-			db.insert(schema.executionHistory)
-				.values({ agentId: agent.id, status: "running" })
-				.run();
+			db.insert(schema.executionHistory).values({ agentId: agent.id, status: "running" }).run();
+			db.insert(schema.executionHistory).values({ agentId: agent.id, status: "running" }).run();
 
 			const count = markRunningAsShutdownTimeout(db);
 			expect(count).toBe(2);
@@ -98,9 +94,7 @@ describe("shutdown", () => {
 				.returning()
 				.get();
 
-			db.insert(schema.executionHistory)
-				.values({ agentId: agent.id, status: "running" })
-				.run();
+			db.insert(schema.executionHistory).values({ agentId: agent.id, status: "running" }).run();
 
 			const count = markRunningAsShutdownTimeout(db);
 			expect(count).toBe(1);

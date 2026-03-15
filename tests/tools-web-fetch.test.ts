@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Stub the env module before importing the tool
 vi.mock("../src/config/env.js", () => ({
@@ -28,14 +28,15 @@ describe("webFetchTool", () => {
 	});
 
 	it("converts HTML response to plain text using html-to-text with wordwrap 120", async () => {
-		const htmlContent = "<html><body><h1>Hello World</h1><p>This is a paragraph with some text.</p></body></html>";
+		const htmlContent =
+			"<html><body><h1>Hello World</h1><p>This is a paragraph with some text.</p></body></html>";
 
 		globalThis.fetch = vi.fn().mockResolvedValue({
 			headers: new Headers({ "content-type": "text/html; charset=utf-8" }),
 			text: vi.fn().mockResolvedValue(htmlContent),
 		});
 
-		const result = await webFetchTool.execute!(
+		const result = await webFetchTool.execute?.(
 			{ url: "https://example.com/page" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -55,7 +56,7 @@ describe("webFetchTool", () => {
 			text: vi.fn().mockResolvedValue(jsonContent),
 		});
 
-		const result = await webFetchTool.execute!(
+		const result = await webFetchTool.execute?.(
 			{ url: "https://api.example.com/data" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -66,7 +67,7 @@ describe("webFetchTool", () => {
 	it("returns failure message on network error (does not throw)", async () => {
 		globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network unreachable"));
 
-		const result = await webFetchTool.execute!(
+		const result = await webFetchTool.execute?.(
 			{ url: "https://unreachable.example.com" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
@@ -80,9 +81,11 @@ describe("webFetchTool", () => {
 		const controller = new AbortController();
 		controller.abort();
 
-		globalThis.fetch = vi.fn().mockRejectedValue(new DOMException("The operation was aborted", "AbortError"));
+		globalThis.fetch = vi
+			.fn()
+			.mockRejectedValue(new DOMException("The operation was aborted", "AbortError"));
 
-		const result = await webFetchTool.execute!(
+		const result = await webFetchTool.execute?.(
 			{ url: "https://slow.example.com" },
 			{ abortSignal: controller.signal, toolCallId: "test", messages: [] },
 		);
@@ -97,7 +100,7 @@ describe("webFetchTool", () => {
 			text: vi.fn().mockResolvedValue("plain text"),
 		});
 
-		await webFetchTool.execute!(
+		await webFetchTool.execute?.(
 			{ url: "https://example.com" },
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);

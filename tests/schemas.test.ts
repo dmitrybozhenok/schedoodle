@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { type AgentOutput, agentOutputSchema } from "../src/schemas/agent-output.js";
 import { createAgentSchema, updateAgentSchema } from "../src/schemas/agent-input.js";
+import { type AgentOutput, agentOutputSchema } from "../src/schemas/agent-output.js";
 
 describe("agentOutputSchema", () => {
 	it("parses valid { summary, details } successfully", () => {

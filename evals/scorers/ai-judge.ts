@@ -100,11 +100,7 @@ function parseJudgeResponse(response: string): {
 
 // ── Provider-specific API calls ──────────────────────────────────
 
-async function callGemini(
-	prompt: string,
-	apiKey: string,
-	model: string,
-): Promise<string> {
+async function callGemini(prompt: string, apiKey: string, model: string): Promise<string> {
 	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
 	const response = await fetch(apiUrl, {
@@ -130,16 +126,10 @@ async function callGemini(
 		}>;
 	};
 
-	return data.candidates?.[0]?.content?.parts
-		?.map((p) => p.text)
-		.join("") ?? "";
+	return data.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
 }
 
-async function callAnthropic(
-	prompt: string,
-	apiKey: string,
-	model: string,
-): Promise<string> {
+async function callAnthropic(prompt: string, apiKey: string, model: string): Promise<string> {
 	const response = await fetch("https://api.anthropic.com/v1/messages", {
 		method: "POST",
 		headers: {

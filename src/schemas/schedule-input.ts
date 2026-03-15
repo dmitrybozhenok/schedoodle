@@ -19,9 +19,7 @@ export const scheduleParseSchema = z.object({
 		.describe(
 			"high if the input clearly maps to a single cron schedule, low if ambiguous, refused if the input is not a recognizable schedule description",
 		),
-	interpretation: z
-		.string()
-		.describe("Brief explanation of how the input was interpreted"),
+	interpretation: z.string().describe("Brief explanation of how the input was interpreted"),
 });
 
 export type ScheduleParseResult = z.infer<typeof scheduleParseSchema>;

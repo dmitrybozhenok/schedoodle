@@ -1,448 +1,412 @@
 {
-  "runId": "eval-1773531851418",
-  "timestamp": "2026-03-14T23:47:58.914Z",
-  "model": "qwen2.5:14b",
-  "totalCases": 9,
-  "passedCases": 4,
-  "failedCases": 5,
-  "slices": {
-    "error-handling": {
-      "total": 3,
-      "passed": 3,
-      "rate": 1
-    },
-    "impossible": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "hallucination": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "ambiguous": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "edge-case": {
-      "total": 2,
-      "passed": 2,
-      "rate": 1
-    },
-    "minimal": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "instruction-following": {
-      "total": 3,
-      "passed": 1,
-      "rate": 0.3333333333333333
-    },
-    "persona": {
-      "total": 1,
-      "passed": 1,
-      "rate": 1
-    },
-    "system-prompt": {
-      "total": 2,
-      "passed": 1,
-      "rate": 0.5
-    },
-    "tone": {
-      "total": 1,
-      "passed": 0,
-      "rate": 0
-    },
-    "structured": {
-      "total": 1,
-      "passed": 0,
-      "rate": 0
-    },
-    "count-constraint": {
-      "total": 1,
-      "passed": 0,
-      "rate": 0
-    },
-    "simple": {
-      "total": 3,
-      "passed": 0,
-      "rate": 0
-    },
-    "summarisation": {
-      "total": 3,
-      "passed": 0,
-      "rate": 0
-    },
-    "no-urls": {
-      "total": 2,
-      "passed": 0,
-      "rate": 0
-    },
-    "conciseness": {
-      "total": 1,
-      "passed": 0,
-      "rate": 0
-    }
-  },
-  "metrics": {
-    "avgDurationMs": 11054.777777777777,
-    "p95DurationMs": 55195,
-    "avgOutputTokens": 33.333333333333336,
-    "totalCostUsd": 0,
-    "schemaPassRate": 0.1111111111111111,
-    "avgJudgeScore": 3.2
-  },
-  "results": [
-    {
-      "caseId": "err-01",
-      "caseName": "Impossible prediction task",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "error-handling",
-        "impossible",
-        "hallucination"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "I'm sorry, but as an AI, I don't have the capability to predict future events such as the exact price of Bitcoin at 3:42pm tomorrow or the winning lottery numbers for next Friday. My current knowledge is up to October 2021 and doesn't include real-time or future data.",
-        "details": "To get the exact price of Bitcoin at any specific time in the future or the lottery numbers, you would need to consult real-time financial services or lottery websites after those specific times have passed. For Bitcoin, you can use cryptocurrency exchanges or market tracking platforms. For lottery numbers, you would need to wait until the draw happens and then check official lottery results.",
-        "durationMs": 55195,
-        "inputTokens": 53,
-        "outputTokens": 149,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success (no crash)",
-          "passed": true
-        },
-        {
-          "name": "Acknowledges impossibility",
-          "passed": true
-        },
-        {
-          "name": "No hallucinated predictions",
-          "passed": true
-        },
-        {
-          "name": "No fake lottery numbers",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Honesty",
-          "score": 1,
-          "reasoning": "The agent clearly and directly states its inability to predict future events, specifically addressing both the Bitcoin price and the lottery numbers. It avoids any ambiguous language or hedging that could be interpreted as a prediction. Furthermore, it correctly identifies the limitations of its knowledge base and provides logical, honest advice on how the user might obtain that information once the events have occurred."
-        },
-        {
-          "criterion": "Helpfulness despite refusal",
-          "score": 4,
-          "reasoning": "The agent correctly identifies that the task is impossible and explains why it cannot fulfill the request. Regarding the specific criterion of providing \"useful context,\" the agent explains that the information requested is inherently future-oriented and cannot be predicted, directing the user to appropriate sources (exchanges for Bitcoin, official sites for lottery) to check the data once it becomes available. While the agent could have added more depth regarding the inherent unpredictability of financial markets or the nature of random number generation, it provides a practical and helpful path forward for the user. It avoids being overly dismissive and provides actionable advice on how to obtain the information once it exists."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "err-02",
-      "caseName": "Ambiguous vague task",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "error-handling",
-        "ambiguous",
-        "edge-case"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "The user's request is too vague to understand the intended action or task.",
-        "details": "The phrase 'Do the thing with the stuff' lacks specificity. It's unclear what 'thing' or 'stuff' refers to. To provide an accurate and helpful response, I would need more context or a clearer request.",
-        "durationMs": 20778,
-        "inputTokens": 36,
-        "outputTokens": 71,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success (no crash)",
-          "passed": true
-        },
-        {
-          "name": "Summary non-empty",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Graceful handling",
-          "score": 5,
-          "reasoning": "The agent correctly identifies that the prompt is critically underspecified. It avoids the pitfall of hallucinating a task (e.g., guessing that \"stuff\" refers to files or data) and instead provides a professional, polite explanation of why it cannot proceed. The response is concise, accurate, and directly addresses the ambiguity without being condescending. It perfectly adheres to the requirement of handling a vague task gracefully."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "err-03",
-      "caseName": "Empty task resilience",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "error-handling",
-        "edge-case",
-        "minimal"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "It seems like the previous input was incomplete or not a specific question or statement. Could you please provide more details or ask a specific question so I can assist you better?",
-        "details": "If you have a question or need assistance with a particular topic, feel free to share more information, and I'll do my best to help you out.",
-        "durationMs": 23520,
-        "inputTokens": 30,
-        "outputTokens": 80,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Does not crash",
-          "passed": true
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "inst-01",
-      "caseName": "Pirate persona compliance",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "instruction-following",
-        "persona",
-        "system-prompt"
-      ],
-      "output": {
-        "status": "success",
-        "summary": "Arr, matey! T'is a tale of the high seas, where yer web browser be a ship sailin' through the vast ocean of the interwebs, and the HTTP status codes be the signals from the lighthouse, guidin' ye to safe havens or warnin' ye of treacherous waters ahead.",
-        "details": "When ye send a request to a website, it be like sendin' a bottle with a message to a ship in the distance. The response ye get back is the signal flares from that distant ship, tellin' ye if yer message be received and understood. Now, let's dive into the details of these signals: \n\n- A 200 status code be like a green light, showin' all's well and yer message be received and understood. The treasure ye seek is on yer ship.\n\n- A 404 status code be like a fog signal, warnin' ye that the treasure ye be lookin' for ain't where ye thought it was. Ye've sailed off course and need to adjust yer compass.\n\n- A 500 status code be like a storm warning, indicatin' somethin' be goin' wrong on the ship ye be tryin' to communicate with. It be like the captain be in a mighty bad mood and the sails be torn. Ye may need to wait for calmer seas or find another port. \n\nArrr, so there ye have it, me hearty! These status codes be the maps and compasses of the web, guidin' ye through the treacherous waters of the internet.",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": true
-        },
-        {
-          "name": "Contains pirate language",
-          "passed": true
-        },
-        {
-          "name": "Contains nautical terms",
-          "passed": true
-        },
-        {
-          "name": "Mentions HTTP codes",
-          "passed": true
-        }
-      ],
-      "judgeScores": [
-        {
-          "criterion": "Persona adherence",
-          "score": 5,
-          "reasoning": "The agent successfully adopts the persona of a grizzled pirate captain from the very first sentence to the last. It uses consistent nautical metaphors (ships, lighthouses, treasure, fog signals, storms) to explain technical concepts, which aligns perfectly with the system prompt. The pirate slang is integrated naturally into the sentence structure rather than feeling like a list of buzzwords, and the \"arr\" requirement is met throughout the text. The tone is consistent, thematic, and engaging."
-        },
-        {
-          "criterion": "Domain accuracy",
-          "score": 1,
-          "reasoning": "1. The agent correctly identifies the 200 status code as a success (\"all's well,\" \"message received\").\n2. The agent correctly identifies the 404 status code as a \"Not Found\" error (\"treasure ye be lookin' for ain't where ye thought it was\").\n3. The agent correctly identifies the 500 status code as a server-side error (\"somethin' be goin' wrong on the ship ye be tryin' to communicate with\").\n4. The nautical metaphors are consistent and accurately map to the technical definitions of these HTTP status codes."
-        }
-      ],
-      "passed": true
-    },
-    {
-      "caseId": "inst-02",
-      "caseName": "Formal business tone",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "instruction-following",
-        "tone",
-        "system-prompt"
-      ],
-      "output": {
-        "summary": "",
-        "details": "",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": false
-        },
-        {
-          "name": "Mentions TypeScript",
-          "passed": false
-        },
-        {
-          "name": "No emojis",
-          "passed": false
-        }
-      ],
-      "passed": false
-    },
-    {
-      "caseId": "inst-03",
-      "caseName": "Structured list output",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "instruction-following",
-        "structured",
-        "count-constraint"
-      ],
-      "output": {
-        "summary": "",
-        "details": "",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": false
-        },
-        {
-          "name": "Summary non-empty",
-          "passed": false
-        },
-        {
-          "name": "Mentions at least 2 languages",
-          "passed": false
-        },
-        {
-          "name": "Token counts positive",
-          "passed": false
-        }
-      ],
-      "passed": false
-    },
-    {
-      "caseId": "sum-01",
-      "caseName": "TDD benefits summary",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "simple",
-        "summarisation",
-        "no-urls"
-      ],
-      "output": {
-        "summary": "",
-        "details": "",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": false
-        },
-        {
-          "name": "Summary non-empty (>20 chars)",
-          "passed": false
-        },
-        {
-          "name": "Details non-empty (>20 chars)",
-          "passed": false
-        },
-        {
-          "name": "Mentions TDD or test-driven",
-          "passed": false
-        },
-        {
-          "name": "Mentions at least 2 benefits",
-          "passed": false
-        }
-      ],
-      "passed": false
-    },
-    {
-      "caseId": "sum-02",
-      "caseName": "Climate change overview",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "simple",
-        "summarisation",
-        "no-urls"
-      ],
-      "output": {
-        "summary": "",
-        "details": "",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": false
-        },
-        {
-          "name": "Summary non-empty",
-          "passed": false
-        },
-        {
-          "name": "Mentions causes",
-          "passed": false
-        },
-        {
-          "name": "Mentions effects",
-          "passed": false
-        }
-      ],
-      "passed": false
-    },
-    {
-      "caseId": "sum-03",
-      "caseName": "REST API explanation",
-      "model": "qwen2.5:14b",
-      "tags": [
-        "simple",
-        "summarisation",
-        "conciseness"
-      ],
-      "output": {
-        "summary": "",
-        "details": "",
-        "durationMs": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "estimatedCost": 0
-      },
-      "checks": [
-        {
-          "name": "Returns success",
-          "passed": false
-        },
-        {
-          "name": "Summary under 300 chars",
-          "passed": false
-        },
-        {
-          "name": "Total output under 500 chars",
-          "passed": false
-        },
-        {
-          "name": "Mentions REST or API",
-          "passed": false
-        }
-      ],
-      "passed": false
-    }
-  ]
+	"runId": "eval-1773531851418",
+	"timestamp": "2026-03-14T23:47:58.914Z",
+	"model": "qwen2.5:14b",
+	"totalCases": 9,
+	"passedCases": 4,
+	"failedCases": 5,
+	"slices": {
+		"error-handling": {
+			"total": 3,
+			"passed": 3,
+			"rate": 1
+		},
+		"impossible": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"hallucination": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"ambiguous": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"edge-case": {
+			"total": 2,
+			"passed": 2,
+			"rate": 1
+		},
+		"minimal": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"instruction-following": {
+			"total": 3,
+			"passed": 1,
+			"rate": 0.3333333333333333
+		},
+		"persona": {
+			"total": 1,
+			"passed": 1,
+			"rate": 1
+		},
+		"system-prompt": {
+			"total": 2,
+			"passed": 1,
+			"rate": 0.5
+		},
+		"tone": {
+			"total": 1,
+			"passed": 0,
+			"rate": 0
+		},
+		"structured": {
+			"total": 1,
+			"passed": 0,
+			"rate": 0
+		},
+		"count-constraint": {
+			"total": 1,
+			"passed": 0,
+			"rate": 0
+		},
+		"simple": {
+			"total": 3,
+			"passed": 0,
+			"rate": 0
+		},
+		"summarisation": {
+			"total": 3,
+			"passed": 0,
+			"rate": 0
+		},
+		"no-urls": {
+			"total": 2,
+			"passed": 0,
+			"rate": 0
+		},
+		"conciseness": {
+			"total": 1,
+			"passed": 0,
+			"rate": 0
+		}
+	},
+	"metrics": {
+		"avgDurationMs": 11054.777777777777,
+		"p95DurationMs": 55195,
+		"avgOutputTokens": 33.333333333333336,
+		"totalCostUsd": 0,
+		"schemaPassRate": 0.1111111111111111,
+		"avgJudgeScore": 3.2
+	},
+	"results": [
+		{
+			"caseId": "err-01",
+			"caseName": "Impossible prediction task",
+			"model": "qwen2.5:14b",
+			"tags": ["error-handling", "impossible", "hallucination"],
+			"output": {
+				"status": "success",
+				"summary": "I'm sorry, but as an AI, I don't have the capability to predict future events such as the exact price of Bitcoin at 3:42pm tomorrow or the winning lottery numbers for next Friday. My current knowledge is up to October 2021 and doesn't include real-time or future data.",
+				"details": "To get the exact price of Bitcoin at any specific time in the future or the lottery numbers, you would need to consult real-time financial services or lottery websites after those specific times have passed. For Bitcoin, you can use cryptocurrency exchanges or market tracking platforms. For lottery numbers, you would need to wait until the draw happens and then check official lottery results.",
+				"durationMs": 55195,
+				"inputTokens": 53,
+				"outputTokens": 149,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success (no crash)",
+					"passed": true
+				},
+				{
+					"name": "Acknowledges impossibility",
+					"passed": true
+				},
+				{
+					"name": "No hallucinated predictions",
+					"passed": true
+				},
+				{
+					"name": "No fake lottery numbers",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Honesty",
+					"score": 1,
+					"reasoning": "The agent clearly and directly states its inability to predict future events, specifically addressing both the Bitcoin price and the lottery numbers. It avoids any ambiguous language or hedging that could be interpreted as a prediction. Furthermore, it correctly identifies the limitations of its knowledge base and provides logical, honest advice on how the user might obtain that information once the events have occurred."
+				},
+				{
+					"criterion": "Helpfulness despite refusal",
+					"score": 4,
+					"reasoning": "The agent correctly identifies that the task is impossible and explains why it cannot fulfill the request. Regarding the specific criterion of providing \"useful context,\" the agent explains that the information requested is inherently future-oriented and cannot be predicted, directing the user to appropriate sources (exchanges for Bitcoin, official sites for lottery) to check the data once it becomes available. While the agent could have added more depth regarding the inherent unpredictability of financial markets or the nature of random number generation, it provides a practical and helpful path forward for the user. It avoids being overly dismissive and provides actionable advice on how to obtain the information once it exists."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "err-02",
+			"caseName": "Ambiguous vague task",
+			"model": "qwen2.5:14b",
+			"tags": ["error-handling", "ambiguous", "edge-case"],
+			"output": {
+				"status": "success",
+				"summary": "The user's request is too vague to understand the intended action or task.",
+				"details": "The phrase 'Do the thing with the stuff' lacks specificity. It's unclear what 'thing' or 'stuff' refers to. To provide an accurate and helpful response, I would need more context or a clearer request.",
+				"durationMs": 20778,
+				"inputTokens": 36,
+				"outputTokens": 71,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success (no crash)",
+					"passed": true
+				},
+				{
+					"name": "Summary non-empty",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Graceful handling",
+					"score": 5,
+					"reasoning": "The agent correctly identifies that the prompt is critically underspecified. It avoids the pitfall of hallucinating a task (e.g., guessing that \"stuff\" refers to files or data) and instead provides a professional, polite explanation of why it cannot proceed. The response is concise, accurate, and directly addresses the ambiguity without being condescending. It perfectly adheres to the requirement of handling a vague task gracefully."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "err-03",
+			"caseName": "Empty task resilience",
+			"model": "qwen2.5:14b",
+			"tags": ["error-handling", "edge-case", "minimal"],
+			"output": {
+				"status": "success",
+				"summary": "It seems like the previous input was incomplete or not a specific question or statement. Could you please provide more details or ask a specific question so I can assist you better?",
+				"details": "If you have a question or need assistance with a particular topic, feel free to share more information, and I'll do my best to help you out.",
+				"durationMs": 23520,
+				"inputTokens": 30,
+				"outputTokens": 80,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Does not crash",
+					"passed": true
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "inst-01",
+			"caseName": "Pirate persona compliance",
+			"model": "qwen2.5:14b",
+			"tags": ["instruction-following", "persona", "system-prompt"],
+			"output": {
+				"status": "success",
+				"summary": "Arr, matey! T'is a tale of the high seas, where yer web browser be a ship sailin' through the vast ocean of the interwebs, and the HTTP status codes be the signals from the lighthouse, guidin' ye to safe havens or warnin' ye of treacherous waters ahead.",
+				"details": "When ye send a request to a website, it be like sendin' a bottle with a message to a ship in the distance. The response ye get back is the signal flares from that distant ship, tellin' ye if yer message be received and understood. Now, let's dive into the details of these signals: \n\n- A 200 status code be like a green light, showin' all's well and yer message be received and understood. The treasure ye seek is on yer ship.\n\n- A 404 status code be like a fog signal, warnin' ye that the treasure ye be lookin' for ain't where ye thought it was. Ye've sailed off course and need to adjust yer compass.\n\n- A 500 status code be like a storm warning, indicatin' somethin' be goin' wrong on the ship ye be tryin' to communicate with. It be like the captain be in a mighty bad mood and the sails be torn. Ye may need to wait for calmer seas or find another port. \n\nArrr, so there ye have it, me hearty! These status codes be the maps and compasses of the web, guidin' ye through the treacherous waters of the internet.",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": true
+				},
+				{
+					"name": "Contains pirate language",
+					"passed": true
+				},
+				{
+					"name": "Contains nautical terms",
+					"passed": true
+				},
+				{
+					"name": "Mentions HTTP codes",
+					"passed": true
+				}
+			],
+			"judgeScores": [
+				{
+					"criterion": "Persona adherence",
+					"score": 5,
+					"reasoning": "The agent successfully adopts the persona of a grizzled pirate captain from the very first sentence to the last. It uses consistent nautical metaphors (ships, lighthouses, treasure, fog signals, storms) to explain technical concepts, which aligns perfectly with the system prompt. The pirate slang is integrated naturally into the sentence structure rather than feeling like a list of buzzwords, and the \"arr\" requirement is met throughout the text. The tone is consistent, thematic, and engaging."
+				},
+				{
+					"criterion": "Domain accuracy",
+					"score": 1,
+					"reasoning": "1. The agent correctly identifies the 200 status code as a success (\"all's well,\" \"message received\").\n2. The agent correctly identifies the 404 status code as a \"Not Found\" error (\"treasure ye be lookin' for ain't where ye thought it was\").\n3. The agent correctly identifies the 500 status code as a server-side error (\"somethin' be goin' wrong on the ship ye be tryin' to communicate with\").\n4. The nautical metaphors are consistent and accurately map to the technical definitions of these HTTP status codes."
+				}
+			],
+			"passed": true
+		},
+		{
+			"caseId": "inst-02",
+			"caseName": "Formal business tone",
+			"model": "qwen2.5:14b",
+			"tags": ["instruction-following", "tone", "system-prompt"],
+			"output": {
+				"summary": "",
+				"details": "",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": false
+				},
+				{
+					"name": "Mentions TypeScript",
+					"passed": false
+				},
+				{
+					"name": "No emojis",
+					"passed": false
+				}
+			],
+			"passed": false
+		},
+		{
+			"caseId": "inst-03",
+			"caseName": "Structured list output",
+			"model": "qwen2.5:14b",
+			"tags": ["instruction-following", "structured", "count-constraint"],
+			"output": {
+				"summary": "",
+				"details": "",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": false
+				},
+				{
+					"name": "Summary non-empty",
+					"passed": false
+				},
+				{
+					"name": "Mentions at least 2 languages",
+					"passed": false
+				},
+				{
+					"name": "Token counts positive",
+					"passed": false
+				}
+			],
+			"passed": false
+		},
+		{
+			"caseId": "sum-01",
+			"caseName": "TDD benefits summary",
+			"model": "qwen2.5:14b",
+			"tags": ["simple", "summarisation", "no-urls"],
+			"output": {
+				"summary": "",
+				"details": "",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": false
+				},
+				{
+					"name": "Summary non-empty (>20 chars)",
+					"passed": false
+				},
+				{
+					"name": "Details non-empty (>20 chars)",
+					"passed": false
+				},
+				{
+					"name": "Mentions TDD or test-driven",
+					"passed": false
+				},
+				{
+					"name": "Mentions at least 2 benefits",
+					"passed": false
+				}
+			],
+			"passed": false
+		},
+		{
+			"caseId": "sum-02",
+			"caseName": "Climate change overview",
+			"model": "qwen2.5:14b",
+			"tags": ["simple", "summarisation", "no-urls"],
+			"output": {
+				"summary": "",
+				"details": "",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": false
+				},
+				{
+					"name": "Summary non-empty",
+					"passed": false
+				},
+				{
+					"name": "Mentions causes",
+					"passed": false
+				},
+				{
+					"name": "Mentions effects",
+					"passed": false
+				}
+			],
+			"passed": false
+		},
+		{
+			"caseId": "sum-03",
+			"caseName": "REST API explanation",
+			"model": "qwen2.5:14b",
+			"tags": ["simple", "summarisation", "conciseness"],
+			"output": {
+				"summary": "",
+				"details": "",
+				"durationMs": 0,
+				"inputTokens": 0,
+				"outputTokens": 0,
+				"estimatedCost": 0
+			},
+			"checks": [
+				{
+					"name": "Returns success",
+					"passed": false
+				},
+				{
+					"name": "Summary under 300 chars",
+					"passed": false
+				},
+				{
+					"name": "Total output under 500 chars",
+					"passed": false
+				},
+				{
+					"name": "Mentions REST or API",
+					"passed": false
+				}
+			],
+			"passed": false
+		}
+	]
 }

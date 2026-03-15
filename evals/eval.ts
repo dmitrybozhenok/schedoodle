@@ -20,10 +20,10 @@
  */
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
-import type { JudgeProvider } from "./scorers/ai-judge.js";
 import { loadAllFixtures, loadFixturesByTags } from "./lib/fixtures.js";
 import { printReport, toJson } from "./lib/reporter.js";
 import { runEvalSuite } from "./lib/runner.js";
+import type { JudgeProvider } from "./scorers/ai-judge.js";
 
 function parseArgs(): {
 	model?: string;

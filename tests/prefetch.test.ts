@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildPrompt, extractUrls, prefetchUrls, isPrivateUrl } from "../src/services/prefetch.js";
+import { buildPrompt, extractUrls, prefetchUrls } from "../src/services/prefetch.js";
 
 vi.mock("html-to-text", () => ({
 	convert: vi.fn((html: string) => `plain: ${html}`),
@@ -122,9 +122,7 @@ describe("SSRF and size limits", () => {
 		);
 
 		const results = await prefetchUrls("Check https://example.com/large");
-		expect(results.get("https://example.com/large")).toMatch(
-			/Content truncated at 1MB/,
-		);
+		expect(results.get("https://example.com/large")).toMatch(/Content truncated at 1MB/);
 	});
 
 	it("truncates response when body stream exceeds 1MB", async () => {
@@ -137,9 +135,7 @@ describe("SSRF and size limits", () => {
 		);
 
 		const results = await prefetchUrls("Check https://example.com/stream");
-		expect(results.get("https://example.com/stream")).toMatch(
-			/Content truncated at 1MB/,
-		);
+		expect(results.get("https://example.com/stream")).toMatch(/Content truncated at 1MB/);
 	});
 
 	it("returns full content for responses under 1MB", async () => {

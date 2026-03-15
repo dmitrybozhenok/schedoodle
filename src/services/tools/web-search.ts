@@ -28,16 +28,13 @@ export const webSearchTool = tool({
 			const signals = [AbortSignal.timeout(10_000)];
 			if (abortSignal) signals.push(abortSignal);
 			const combinedSignal = AbortSignal.any(signals);
-			const response = await fetch(
-				`https://api.search.brave.com/res/v1/web/search?${params}`,
-				{
-					signal: combinedSignal,
-					headers: {
-						Accept: "application/json",
-						"X-Subscription-Token": apiKey,
-					},
+			const response = await fetch(`https://api.search.brave.com/res/v1/web/search?${params}`, {
+				signal: combinedSignal,
+				headers: {
+					Accept: "application/json",
+					"X-Subscription-Token": apiKey,
 				},
-			);
+			});
 			if (!response.ok) {
 				return `[Search failed: HTTP ${response.status}]`;
 			}

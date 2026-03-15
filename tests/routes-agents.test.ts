@@ -15,7 +15,9 @@ vi.mock("../src/services/scheduler.js", () => ({
 }));
 
 // Mock executor for manual execution tests
-const mockExecuteAgent = vi.fn().mockResolvedValue({ status: "success", result: { summary: "done" } });
+const mockExecuteAgent = vi
+	.fn()
+	.mockResolvedValue({ status: "success", result: { summary: "done" } });
 
 vi.mock("../src/services/executor.js", () => ({
 	executeAgent: (...args: unknown[]) => mockExecuteAgent(...args),
@@ -23,7 +25,7 @@ vi.mock("../src/services/executor.js", () => ({
 
 // Mock schedule parser to avoid real LLM calls
 vi.mock("../src/services/schedule-parser.js", () => ({
-	parseSchedule: (input: string) => {
+	parseSchedule: (_input: string) => {
 		// Simulate refusal for nonsensical input
 		throw new Error("Input is not a recognizable schedule description");
 	},

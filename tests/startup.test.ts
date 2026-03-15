@@ -2,10 +2,7 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../src/db/schema.js";
-import {
-	cleanupStaleExecutions,
-	pruneOldExecutions,
-} from "../src/services/startup.js";
+import { cleanupStaleExecutions, pruneOldExecutions } from "../src/services/startup.js";
 
 const CREATE_AGENTS_SQL = `
 CREATE TABLE agents (
@@ -151,9 +148,7 @@ describe("startup tasks", () => {
 				.get();
 
 			// Insert an old execution (60 days ago)
-			const oldDate = new Date(
-				Date.now() - 60 * 24 * 60 * 60 * 1000,
-			).toISOString();
+			const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
 			db.insert(schema.executionHistory)
 				.values({
 					agentId: agent.id,
@@ -163,9 +158,7 @@ describe("startup tasks", () => {
 				.run();
 
 			// Insert a recent execution (10 days ago)
-			const recentDate = new Date(
-				Date.now() - 10 * 24 * 60 * 60 * 1000,
-			).toISOString();
+			const recentDate = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString();
 			db.insert(schema.executionHistory)
 				.values({
 					agentId: agent.id,
@@ -195,9 +188,7 @@ describe("startup tasks", () => {
 				.get();
 
 			// Insert only recent records
-			const recentDate = new Date(
-				Date.now() - 5 * 24 * 60 * 60 * 1000,
-			).toISOString();
+			const recentDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
 			db.insert(schema.executionHistory)
 				.values({
 					agentId: agent.id,

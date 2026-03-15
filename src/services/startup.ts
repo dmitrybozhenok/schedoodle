@@ -30,16 +30,8 @@ export function markRunningAsShutdownTimeout(db: Database): number {
 	return result.changes;
 }
 
-export function pruneOldExecutions(
-	db: Database,
-	retentionDays: number,
-): number {
-	const cutoff = new Date(
-		Date.now() - retentionDays * 24 * 60 * 60 * 1000,
-	).toISOString();
-	const result = db
-		.delete(executionHistory)
-		.where(lt(executionHistory.startedAt, cutoff))
-		.run();
+export function pruneOldExecutions(db: Database, retentionDays: number): number {
+	const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
+	const result = db.delete(executionHistory).where(lt(executionHistory.startedAt, cutoff)).run();
 	return result.changes;
 }

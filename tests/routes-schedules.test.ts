@@ -119,9 +119,7 @@ describe("POST /schedules/parse", () => {
 		expect(res.status).toBe(200);
 		const body = await res.json();
 		expect(body.confidence).toBe("low");
-		expect(body.warning).toBe(
-			"This interpretation may not match your intent. Please verify.",
-		);
+		expect(body.warning).toBe("This interpretation may not match your intent. Please verify.");
 	});
 
 	it("returns 422 with guidance when parseSchedule throws generic Error", async () => {

@@ -8,7 +8,7 @@
  *   - Failed case details
  *   - AI judge reasoning (when available)
  */
-import type { EvalResult, EvalRunSummary } from "./types.js";
+import type { EvalRunSummary } from "./types.js";
 
 function bar(rate: number, width = 20): string {
 	const filled = Math.round(rate * width);

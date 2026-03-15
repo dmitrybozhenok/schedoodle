@@ -1,4 +1,4 @@
-import { generateText, NoObjectGeneratedError, Output, stepCountIs, type Tool as AiTool } from "ai";
+import { type Tool as AiTool, generateText, NoObjectGeneratedError, Output, stepCountIs } from "ai";
 import { eq, inArray } from "drizzle-orm";
 import { env } from "../config/env.js";
 import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
@@ -120,10 +120,7 @@ async function callLlmWithRetry(
 				toolCallLog.push({
 					toolName: toolCalls[i].toolName,
 					input: toolCalls[i].args,
-					output: truncate(
-						String(toolResults?.[i]?.result ?? ""),
-						2000,
-					),
+					output: truncate(String(toolResults?.[i]?.result ?? ""), 2000),
 					durationMs: 0,
 				});
 			}
@@ -148,8 +145,7 @@ async function callLlmWithRetry(
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			// Retry once with validation error appended as feedback
-			const errorMsg =
-				error instanceof Error ? error.message : String(error);
+			const errorMsg = error instanceof Error ? error.message : String(error);
 			const retryPrompt = `${userMessage}\n\n[Previous attempt failed validation: ${errorMsg}]\nPlease provide a valid response matching the required schema.`;
 
 			const result = await callGenerateText(retryPrompt);
@@ -209,15 +205,8 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 
 		// Call LLM with retry, wrapped in circuit breaker
 		const modelId = agent.model ?? DEFAULT_MODEL;
-		const { result, retryCount, toolCallLog } = await llmBreaker.execute(
-			() =>
-				callLlmWithRetry(
-					modelId,
-					agent.systemPrompt,
-					userMessage,
-					toolSet,
-					controller.signal,
-				),
+		const { result, retryCount, toolCallLog } = await llmBreaker.execute(() =>
+			callLlmWithRetry(modelId, agent.systemPrompt, userMessage, toolSet, controller.signal),
 		);
 
 		const durationMs = Date.now() - startTime;
@@ -227,11 +216,7 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 		const usage = result.totalUsage ?? result.usage;
 
 		// Compute estimated cost from token usage
-		const cost = estimateCost(
-			modelId,
-			usage.inputTokens ?? 0,
-			usage.outputTokens ?? 0,
-		);
+		const cost = estimateCost(modelId, usage.inputTokens ?? 0, usage.outputTokens ?? 0);
 
 		// Update execution to success
 		db.update(executionHistory)
@@ -284,8 +269,7 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 	} catch (error) {
 		const durationMs = Date.now() - startTime;
 		const isCircuitOpen = error instanceof CircuitBreakerOpenError;
-		const isAbort =
-			error instanceof Error && error.name === "AbortError";
+		const isAbort = error instanceof Error && error.name === "AbortError";
 		const errorMsg = isAbort
 			? `Execution timed out after ${timeoutMs}ms`
 			: isCircuitOpen
@@ -341,7 +325,9 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteResult> {
 	const status = llmSemaphore.getStatus();
 	if (status.active >= status.limit) {
-		console.log(`[concurrency] Slot full (${status.active}/${status.limit} active), agent "${agent.name}" queued`);
+		console.log(
+			`[concurrency] Slot full (${status.active}/${status.limit} active), agent "${agent.name}" queued`,
+		);
 	}
 	await llmSemaphore.acquire();
 	try {

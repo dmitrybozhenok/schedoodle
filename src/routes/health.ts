@@ -15,7 +15,7 @@ function truncate(value: unknown, maxLength = 200): string | null {
 	if (value === null || value === undefined) return null;
 	const str = typeof value === "string" ? value : JSON.stringify(value);
 	if (str.length <= maxLength) return str;
-	return str.slice(0, maxLength) + "...";
+	return `${str.slice(0, maxLength)}...`;
 }
 
 /**
@@ -34,11 +34,14 @@ export function createHealthRoute(
 
 	app.get("/", (c) => {
 		if (isShuttingDown()) {
-			return c.json({
-				status: "shutting_down",
-				shutting_down: true,
-				concurrency: getConcurrencyStatus(),
-			}, 503);
+			return c.json(
+				{
+					status: "shutting_down",
+					shutting_down: true,
+					concurrency: getConcurrencyStatus(),
+				},
+				503,
+			);
 		}
 
 		const uptimeMs = Date.now() - startedAt;
@@ -97,8 +100,11 @@ export function createHealthRoute(
 			const successCount = completed.filter((e) => e.status === "success").length;
 			const successRate = completed.length > 0 ? (successCount / completed.length) * 100 : 100;
 
-			const durValues = agentExecs.filter((e) => e.durationMs !== null).map((e) => e.durationMs as number);
-			const avgDurationMs = durValues.length > 0 ? durValues.reduce((a, b) => a + b, 0) / durValues.length : 0;
+			const durValues = agentExecs
+				.filter((e) => e.durationMs !== null)
+				.map((e) => e.durationMs as number);
+			const avgDurationMs =
+				durValues.length > 0 ? durValues.reduce((a, b) => a + b, 0) / durValues.length : 0;
 
 			// Health flags
 			const consecutiveFailures = getConsecutiveFailures(agent.id, db);
@@ -128,7 +134,8 @@ export function createHealthRoute(
 			if (row.durationMs !== null) allDurations.push(row.durationMs);
 		}
 		const completedTotal = success + failure;
-		const systemSuccessRate = completedTotal > 0 ? Math.round((success / completedTotal) * 100 * 100) / 100 : 100;
+		const systemSuccessRate =
+			completedTotal > 0 ? Math.round((success / completedTotal) * 100 * 100) / 100 : 100;
 		const systemAvgDurationMs =
 			allDurations.length > 0
 				? Math.round(allDurations.reduce((a, b) => a + b, 0) / allDurations.length)

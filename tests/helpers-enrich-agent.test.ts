@@ -1,9 +1,14 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../src/db/schema.js";
 
-import { enrichAgent, getNextRunAt, getLastRunAt, getConsecutiveFailures } from "../src/helpers/enrich-agent.js";
+import {
+	enrichAgent,
+	getConsecutiveFailures,
+	getLastRunAt,
+	getNextRunAt,
+} from "../src/helpers/enrich-agent.js";
 import { createAgentSchema } from "../src/schemas/agent-input.js";
 
 const CREATE_AGENTS_SQL = `
