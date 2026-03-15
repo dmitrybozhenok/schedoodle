@@ -16,6 +16,20 @@ export function cleanupStaleExecutions(db: Database): number {
 	return result.changes;
 }
 
+export function markRunningAsShutdownTimeout(db: Database): number {
+	const now = new Date().toISOString();
+	const result = db
+		.update(executionHistory)
+		.set({
+			status: "failure",
+			error: "Shutdown timeout exceeded",
+			completedAt: now,
+		})
+		.where(eq(executionHistory.status, "running"))
+		.run();
+	return result.changes;
+}
+
 export function pruneOldExecutions(
 	db: Database,
 	retentionDays: number,

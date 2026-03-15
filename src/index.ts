@@ -17,14 +17,21 @@ import { createHealthRoute } from "./routes/health.js";
 import { createManageRoute } from "./routes/manage.js";
 import { createScheduleRoutes } from "./routes/schedules.js";
 import { createToolRoutes } from "./routes/tools.js";
-import { getLlmCircuitStatus } from "./services/executor.js";
+import { getLlmCircuitStatus, drainLlmSemaphore, getLlmSemaphoreStatus } from "./services/executor.js";
 import { getScheduledJobs, startAll, stopAll } from "./services/scheduler.js";
 import {
 	cleanupStaleExecutions,
+	markRunningAsShutdownTimeout,
 	pruneOldExecutions,
 } from "./services/startup.js";
 
 const startedAt = Date.now();
+
+let shuttingDown = false;
+
+export function isShuttingDown(): boolean {
+	return shuttingDown;
+}
 
 // Create Hono app
 const app = new Hono();
@@ -53,7 +60,7 @@ app.notFound((c) => {
 });
 
 // Mount routes
-app.route("/agents", createAgentRoutes(db));
+app.route("/agents", createAgentRoutes(db, isShuttingDown));
 app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt, getScheduledJobs));
 app.route("/manage", createManageRoute());
 app.route("/schedules", createScheduleRoutes());
@@ -83,11 +90,33 @@ const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
 });
 
 // Graceful shutdown
-function shutdown() {
+async function shutdown() {
+	if (shuttingDown) return;
+	shuttingDown = true;
 	console.log("Schedoodle shutting down...");
 	stopRateLimiterCleanup();
 	stopAll();
 	server.close();
+
+	const dropped = drainLlmSemaphore();
+	if (dropped > 0) {
+		console.log(`[shutdown] Dropped ${dropped} queued execution(s)`);
+	}
+
+	const status = getLlmSemaphoreStatus();
+	if (status.active > 0) {
+		console.log(`[shutdown] Waiting for ${status.active} in-flight executions to complete (30s timeout)...`);
+		const deadline = Date.now() + 30_000;
+		while (getLlmSemaphoreStatus().active > 0 && Date.now() < deadline) {
+			await new Promise((r) => setTimeout(r, 500));
+		}
+		if (getLlmSemaphoreStatus().active > 0) {
+			const staleCount = markRunningAsShutdownTimeout(db);
+			console.log(`[shutdown] Timeout exceeded, marked ${staleCount} execution(s) as failed`);
+		} else {
+			console.log("[shutdown] All executions complete, exiting");
+		}
+	}
 	process.exit(0);
 }
 

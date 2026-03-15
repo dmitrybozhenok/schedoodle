@@ -55,7 +55,7 @@ function parseId(raw: string): number | null {
  * Factory function to create agent routes with injected dependencies.
  * Makes testing possible with in-memory DB and mocked scheduler.
  */
-export function createAgentRoutes(db: Database): Hono {
+export function createAgentRoutes(db: Database, isShuttingDown: () => boolean = () => false): Hono {
 	const app = new Hono();
 
 	// POST / - Create agent
@@ -254,6 +254,10 @@ export function createAgentRoutes(db: Database): Hono {
 				{ error: "Agent is disabled", message: "Enable the agent before triggering manual execution" },
 				409,
 			);
+		}
+
+		if (isShuttingDown()) {
+			return c.json({ error: "Service is shutting down" }, 503);
 		}
 
 		const result = await executeAgent(agent, db);
