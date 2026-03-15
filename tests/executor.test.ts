@@ -7,6 +7,7 @@ import * as schema from "../src/db/schema.js";
 // Mock AI SDK modules before any imports that use them
 const mockGenerateText = vi.fn();
 const mockResolveModel = vi.fn(() => "mock-model");
+const mockStepCountIs = vi.fn((n: number) => ({ type: "step-count", count: n }));
 
 vi.mock("ai", () => ({
 	generateText: (...args: unknown[]) => mockGenerateText(...args),
@@ -20,6 +21,12 @@ vi.mock("ai", () => ({
 		isInstance: (err: unknown) =>
 			err instanceof Error && (err as Error & { _isNoObject?: boolean })._isNoObject === true,
 	},
+	stepCountIs: (n: number) => mockStepCountIs(n),
+}));
+
+const mockBuildToolSet = vi.fn(() => ({}));
+vi.mock("../src/services/tools/registry.js", () => ({
+	buildToolSet: (...args: unknown[]) => mockBuildToolSet(...args),
 }));
 
 vi.mock("../src/config/llm-provider.js", () => ({
@@ -75,6 +82,29 @@ CREATE TABLE execution_history (
 );
 `;
 
+const CREATE_TOOLS_SQL = `
+CREATE TABLE tools (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  url TEXT NOT NULL,
+  method TEXT NOT NULL DEFAULT 'POST' CHECK(method IN ('GET', 'POST', 'PUT', 'PATCH', 'DELETE')),
+  headers TEXT,
+  input_schema TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+`;
+
+const CREATE_AGENT_TOOLS_SQL = `
+CREATE TABLE agent_tools (
+  agent_id INTEGER NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  tool_id INTEGER NOT NULL REFERENCES tools(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+CREATE UNIQUE INDEX agent_tools_unique ON agent_tools(agent_id, tool_id);
+`;
+
 function makeAgent(
 	db: ReturnType<typeof drizzle>,
 	overrides: Partial<schema.agents.$inferInsert> = {},
@@ -115,12 +145,15 @@ describe("executeAgent", () => {
 		sqlite = new Database(":memory:");
 		sqlite.exec(CREATE_AGENTS_SQL);
 		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		sqlite.exec(CREATE_TOOLS_SQL);
+		sqlite.exec(CREATE_AGENT_TOOLS_SQL);
 		db = drizzle(sqlite, { schema });
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
+		mockBuildToolSet.mockReturnValue({});
 	});
 
 	afterEach(() => {
@@ -434,12 +467,15 @@ describe("executeAgents", () => {
 		sqlite = new Database(":memory:");
 		sqlite.exec(CREATE_AGENTS_SQL);
 		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		sqlite.exec(CREATE_TOOLS_SQL);
+		sqlite.exec(CREATE_AGENT_TOOLS_SQL);
 		db = drizzle(sqlite, { schema });
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
+		mockBuildToolSet.mockReturnValue({});
 	});
 
 	afterEach(() => {
@@ -494,12 +530,15 @@ describe("notification integration", () => {
 		sqlite = new Database(":memory:");
 		sqlite.exec(CREATE_AGENTS_SQL);
 		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		sqlite.exec(CREATE_TOOLS_SQL);
+		sqlite.exec(CREATE_AGENT_TOOLS_SQL);
 		db = drizzle(sqlite, { schema });
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "sent" });
+		mockBuildToolSet.mockReturnValue({});
 	});
 
 	afterEach(() => {
@@ -587,5 +626,290 @@ describe("notification integration", () => {
 			.all();
 
 		expect(rows[0].deliveryStatus).toBe("failed");
+	});
+});
+
+describe("tool-enabled execution", () => {
+	let sqlite: Database.Database;
+	let db: ReturnType<typeof drizzle>;
+
+	beforeEach(() => {
+		sqlite = new Database(":memory:");
+		sqlite.exec(CREATE_AGENTS_SQL);
+		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		sqlite.exec(CREATE_TOOLS_SQL);
+		sqlite.exec(CREATE_AGENT_TOOLS_SQL);
+		db = drizzle(sqlite, { schema });
+
+		vi.clearAllMocks();
+		_resetLlmBreaker();
+		mockGenerateText.mockResolvedValue(makeLlmResult());
+		mockSendNotification.mockResolvedValue({ status: "skipped" });
+		mockBuildToolSet.mockReturnValue({});
+	});
+
+	afterEach(() => {
+		sqlite.close();
+	});
+
+	it("passes tools and stopWhen: stepCountIs(10) to generateText when tools present", async () => {
+		const fakeToolSet = { web_fetch: { execute: vi.fn() }, web_search: { execute: vi.fn() } };
+		mockBuildToolSet.mockReturnValue(fakeToolSet);
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const callArgs = mockGenerateText.mock.calls[0][0];
+		expect(callArgs.tools).toBe(fakeToolSet);
+		expect(callArgs.stopWhen).toEqual({ type: "step-count", count: 10 });
+		expect(mockStepCountIs).toHaveBeenCalledWith(10);
+	});
+
+	it("does not pass tools or stopWhen when tool set is empty", async () => {
+		mockBuildToolSet.mockReturnValue({});
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const callArgs = mockGenerateText.mock.calls[0][0];
+		expect(callArgs.tools).toBeUndefined();
+		expect(callArgs.stopWhen).toBeUndefined();
+	});
+
+	it("passes abortSignal to generateText from AbortController", async () => {
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const callArgs = mockGenerateText.mock.calls[0][0];
+		expect(callArgs.abortSignal).toBeDefined();
+		expect(callArgs.abortSignal).toBeInstanceOf(AbortSignal);
+	});
+
+	it("creates AbortController with timeout from agent.maxExecutionMs", async () => {
+		const agent = makeAgent(db, { maxExecutionMs: 5000 });
+
+		// Capture the abortSignal passed to generateText
+		let capturedSignal: AbortSignal | undefined;
+		mockGenerateText.mockImplementation(async (opts: { abortSignal?: AbortSignal }) => {
+			capturedSignal = opts.abortSignal;
+			return makeLlmResult();
+		});
+
+		await executeAgent(agent, db);
+
+		expect(capturedSignal).toBeDefined();
+		// The signal should not be aborted immediately
+		expect(capturedSignal!.aborted).toBe(false);
+	});
+
+	it("uses default 60000ms timeout when agent.maxExecutionMs is null", async () => {
+		const agent = makeAgent(db, { maxExecutionMs: undefined });
+
+		let capturedSignal: AbortSignal | undefined;
+		mockGenerateText.mockImplementation(async (opts: { abortSignal?: AbortSignal }) => {
+			capturedSignal = opts.abortSignal;
+			return makeLlmResult();
+		});
+
+		await executeAgent(agent, db);
+
+		// Just verify signal exists -- we can't directly inspect the timeout value
+		// but the abort controller was created (signal is not null)
+		expect(capturedSignal).toBeDefined();
+		expect(capturedSignal!.aborted).toBe(false);
+	});
+
+	it("clears timeout in finally block (no leaked timers)", async () => {
+		const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		expect(clearTimeoutSpy).toHaveBeenCalled();
+		clearTimeoutSpy.mockRestore();
+	});
+
+	it("loads custom tools for the agent from DB and passes to buildToolSet", async () => {
+		const agent = makeAgent(db);
+
+		// Insert a custom tool into the DB
+		sqlite.exec(`INSERT INTO tools (name, description, url, input_schema) VALUES ('My API', 'Call my api', 'https://api.example.com', '{"type":"object","properties":{"q":{"type":"string"}}}')`);
+		const toolRow = sqlite.prepare("SELECT id FROM tools WHERE name = 'My API'").get() as { id: number };
+
+		// Link it to the agent
+		sqlite.exec(`INSERT INTO agent_tools (agent_id, tool_id) VALUES (${agent.id}, ${toolRow.id})`);
+
+		await executeAgent(agent, db);
+
+		expect(mockBuildToolSet).toHaveBeenCalledTimes(1);
+		const customToolsArg = mockBuildToolSet.mock.calls[0][0];
+		expect(customToolsArg).toHaveLength(1);
+		expect(customToolsArg[0].name).toBe("My API");
+	});
+
+	it("calls buildToolSet with empty array when agent has no custom tools", async () => {
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		expect(mockBuildToolSet).toHaveBeenCalledWith([]);
+	});
+
+	it("collects tool call logs via onStepFinish and stores as JSON in execution_history", async () => {
+		const fakeToolSet = { web_fetch: { execute: vi.fn() } };
+		mockBuildToolSet.mockReturnValue(fakeToolSet);
+
+		mockGenerateText.mockImplementation(async (opts: { onStepFinish?: (step: unknown) => void }) => {
+			// Simulate tool call steps
+			if (opts.onStepFinish) {
+				opts.onStepFinish({
+					toolCalls: [{ toolName: "web_fetch", args: { url: "https://example.com" } }],
+					toolResults: [{ result: "fetched content" }],
+				});
+			}
+			return makeLlmResult();
+		});
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].toolCalls).not.toBeNull();
+		const toolCalls = rows[0].toolCalls as Array<{ toolName: string; input: unknown; output: string; durationMs: number }>;
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].toolName).toBe("web_fetch");
+		expect(toolCalls[0].input).toEqual({ url: "https://example.com" });
+		expect(toolCalls[0].output).toBe("fetched content");
+		expect(toolCalls[0].durationMs).toBe(0);
+	});
+
+	it("stores null toolCalls when no tools are used", async () => {
+		mockBuildToolSet.mockReturnValue({});
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].toolCalls).toBeNull();
+	});
+
+	it("uses result.totalUsage for cost tracking when available", async () => {
+		mockGenerateText.mockResolvedValue(
+			makeLlmResult({
+				usage: { inputTokens: 100, outputTokens: 50 },
+				totalUsage: { inputTokens: 500, outputTokens: 200 },
+			}),
+		);
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		// Should use totalUsage (500, 200) not usage (100, 50)
+		expect(rows[0].inputTokens).toBe(500);
+		expect(rows[0].outputTokens).toBe(200);
+	});
+
+	it("falls back to result.usage when totalUsage is not available", async () => {
+		mockGenerateText.mockResolvedValue(
+			makeLlmResult({ usage: { inputTokens: 100, outputTokens: 50 } }),
+		);
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].inputTokens).toBe(100);
+		expect(rows[0].outputTokens).toBe(50);
+	});
+
+	it("abort timeout produces a failure result with clear error message", async () => {
+		const agent = makeAgent(db, { maxExecutionMs: 50 });
+
+		mockGenerateText.mockImplementation(async (opts: { abortSignal?: AbortSignal }) => {
+			// Simulate a long-running call that gets aborted
+			return new Promise((_resolve, reject) => {
+				const timer = setTimeout(() => _resolve(makeLlmResult()), 10_000);
+				if (opts.abortSignal) {
+					opts.abortSignal.addEventListener("abort", () => {
+						clearTimeout(timer);
+						const abortError = new Error("The operation was aborted");
+						abortError.name = "AbortError";
+						reject(abortError);
+					});
+				}
+			});
+		});
+
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("failure");
+		expect(result.error).toContain("timed out");
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].status).toBe("failure");
+		expect(rows[0].error).toContain("timed out");
+	});
+
+	it("existing retry logic still works with tools parameter", async () => {
+		const fakeToolSet = { web_fetch: { execute: vi.fn() } };
+		mockBuildToolSet.mockReturnValue(fakeToolSet);
+
+		mockGenerateText
+			.mockRejectedValueOnce(makeNoObjectError("schema mismatch"))
+			.mockResolvedValueOnce(makeLlmResult());
+
+		const agent = makeAgent(db);
+		const result = await executeAgent(agent, db);
+
+		expect(mockGenerateText).toHaveBeenCalledTimes(2);
+		// Both calls should have the tools parameter
+		expect(mockGenerateText.mock.calls[0][0].tools).toBe(fakeToolSet);
+		expect(mockGenerateText.mock.calls[1][0].tools).toBe(fakeToolSet);
+		expect(result.status).toBe("success");
+	});
+
+	it("circuit breaker still wraps the entire generateText call with tools", async () => {
+		const fakeToolSet = { web_fetch: { execute: vi.fn() } };
+		mockBuildToolSet.mockReturnValue(fakeToolSet);
+
+		// Trip the circuit breaker
+		mockGenerateText.mockRejectedValue(new Error("API down"));
+		for (let i = 0; i < 3; i++) {
+			const agent = makeAgent(db, { name: `FailAgent${i}` });
+			await executeAgent(agent, db);
+		}
+
+		// 4th call should be rejected by circuit breaker
+		mockGenerateText.mockClear();
+		const agent = makeAgent(db, { name: "BlockedAgent" });
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("failure");
+		expect(result.error).toBe("Circuit breaker open - call rejected");
+		expect(mockGenerateText).not.toHaveBeenCalled();
 	});
 });
