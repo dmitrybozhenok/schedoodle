@@ -51,6 +51,19 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **NLP-06**: POST /schedules/parse endpoint accepts natural language and returns structured parse result
 - [x] **NLP-07**: LLM unavailability (circuit breaker open) returns a 503 with fallback guidance to use raw cron
 
+### Enhanced Health Monitoring
+
+- [ ] **HLTH-01**: Execution history records retryCount (number of LLM validation retries per execution)
+- [ ] **HLTH-02**: Each agent has a healthy boolean flag computed from consecutive failure count
+- [ ] **HLTH-03**: An agent with 3 consecutive failures is flagged unhealthy; auto-recovers on next success
+- [ ] **HLTH-04**: Health endpoint includes per-agent breakdown with lastRunAt, lastStatus, successRate, avgDurationMs, healthy, consecutiveFailures
+- [ ] **HLTH-05**: Health endpoint includes next 5 upcoming scheduled runs across all agents
+- [ ] **HLTH-06**: Agent API responses (GET /agents, GET /agents/:id) include healthy and consecutiveFailures via enrichAgent
+- [ ] **HLTH-07**: GET /agents/:id/executions defaults to 100 results (max 200)
+- [ ] **HLTH-08**: Health endpoint top-level status reflects system health: ok / degraded / unhealthy
+- [ ] **HLTH-09**: Scheduler exposes its job registry for external consumers (upcoming runs)
+- [ ] **HLTH-10**: Health endpoint includes system-wide successRate and avgDurationMs aggregates (24h window)
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -126,12 +139,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NLP-05 | Phase 7 | Complete |
 | NLP-06 | Phase 7 | Complete |
 | NLP-07 | Phase 7 | Complete |
+| HLTH-01 | Phase 8 | Planned |
+| HLTH-02 | Phase 8 | Planned |
+| HLTH-03 | Phase 8 | Planned |
+| HLTH-04 | Phase 8 | Planned |
+| HLTH-05 | Phase 8 | Planned |
+| HLTH-06 | Phase 8 | Planned |
+| HLTH-07 | Phase 8 | Planned |
+| HLTH-08 | Phase 8 | Planned |
+| HLTH-09 | Phase 8 | Planned |
+| HLTH-10 | Phase 8 | Planned |
 
 **Coverage:**
-- v1 requirements: 23 total
-- Mapped to phases: 23
+- v1 requirements: 33 total
+- Mapped to phases: 33
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 7 completion*
+*Last updated: 2026-03-15 after Phase 8 planning*

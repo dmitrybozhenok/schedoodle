@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -103,6 +103,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 5. Notification | 2/2 | Complete   | 2026-03-14 |
 | 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2026-03-14 |
 | 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2026-03-15 |
+| 8. Enhanced Health Monitoring | 0/2 | Planned | - |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -137,3 +138,22 @@ Plans:
 Plans:
 - [x] 07-01-PLAN.md — Cron detection helper, schedule parse schemas, NL-to-cron parser service with LLM + cronstrue, and unit tests
 - [x] 07-02-PLAN.md — POST /schedules/parse route, wire into index.ts, and route-level tests
+
+### Phase 8: Enhanced Health Monitoring
+
+**Goal:** The system provides per-agent health visibility with unhealthy detection, execution diagnostics (retryCount), aggregate statistics, and upcoming scheduled runs through an enhanced /health endpoint
+**Requirements**: HLTH-01, HLTH-02, HLTH-03, HLTH-04, HLTH-05, HLTH-06, HLTH-07, HLTH-08, HLTH-09, HLTH-10
+**Depends on:** Phase 7
+**Success Criteria** (what must be TRUE):
+  1. Each execution records the number of LLM validation retries (retryCount) in the database
+  2. Agents are flagged unhealthy after 3 consecutive failures and auto-recover on next success
+  3. Health endpoint returns per-agent breakdown with lastRunAt, lastStatus, successRate, avgDurationMs, healthy, consecutiveFailures
+  4. Health endpoint returns next 5 upcoming scheduled runs across all agents
+  5. Health endpoint top-level status reflects system health: ok / degraded / unhealthy
+  6. Agent API responses include healthy and consecutiveFailures via enrichAgent
+  7. GET /agents/:id/executions defaults to 100 results (max 200)
+  8. Health endpoint includes system-wide successRate and avgDurationMs aggregates (24h window)
+**Plans:** 2 plans
+Plans:
+- [ ] 08-01-PLAN.md — Schema retryCount, executor tracking, scheduler getScheduledJobs, enrichAgent healthy flag, agents route limit, and tests
+- [ ] 08-02-PLAN.md — Enhanced /health endpoint with per-agent breakdown, aggregates, upcoming runs, status levels, and tests
