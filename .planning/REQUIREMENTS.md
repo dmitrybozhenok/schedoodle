@@ -126,11 +126,11 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TGRAM-05**: Telegram messages use MarkdownV2 with bold agent name, timestamp, summary, details sections
 - [x] **TGRAM-06**: Telegram messages truncated at ~3800 chars with truncation notice
 - [x] **TGRAM-07**: Failure messages use warning emoji prefix and "FAILED:" header
-- [ ] **TGRAM-08**: Both email and Telegram dispatch in parallel via Promise.allSettled after each execution
-- [ ] **TGRAM-09**: Per-channel delivery status tracked independently (emailDeliveryStatus, telegramDeliveryStatus)
-- [ ] **TGRAM-10**: test_telegram MCP tool sends test message to verify bot configuration
-- [ ] **TGRAM-11**: Health endpoint includes per-channel delivery stats (email and Telegram sent/failed counts)
-- [ ] **TGRAM-12**: Telegram silently skipped when either env var is missing (matches email skip pattern)
+- [x] **TGRAM-08**: Both email and Telegram dispatch in parallel via Promise.allSettled after each execution
+- [x] **TGRAM-09**: Per-channel delivery status tracked independently (emailDeliveryStatus, telegramDeliveryStatus)
+- [x] **TGRAM-10**: test_telegram MCP tool sends test message to verify bot configuration
+- [x] **TGRAM-11**: Health endpoint includes per-channel delivery stats (email and Telegram sent/failed counts)
+- [x] **TGRAM-12**: Telegram silently skipped when either env var is missing (matches email skip pattern)
 
 ## v2 Requirements
 
