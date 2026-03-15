@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildPrompt, extractUrls, prefetchUrls } from "../src/services/prefetch.js";
+import { buildPrompt, extractUrls, prefetchUrls, isPrivateUrl } from "../src/services/prefetch.js";
 
 vi.mock("html-to-text", () => ({
 	convert: vi.fn((html: string) => `plain: ${html}`),
@@ -86,6 +86,72 @@ describe("prefetchUrls", () => {
 
 		const results = await prefetchUrls("Check https://example.com for data");
 		expect(results.get("https://example.com")).toMatch(/\[Failed to fetch.*aborted\]/i);
+	});
+});
+
+describe("SSRF and size limits", () => {
+	const originalFetch = globalThis.fetch;
+
+	beforeEach(() => {
+		globalThis.fetch = vi.fn();
+	});
+
+	afterEach(() => {
+		globalThis.fetch = originalFetch;
+		vi.restoreAllMocks();
+	});
+
+	it("skips private URL and records SSRF-blocked message", async () => {
+		const results = await prefetchUrls(
+			"Check http://127.0.0.1/internal and https://example.com/public",
+		);
+		// The private URL should be blocked without fetch
+		expect(results.get("http://127.0.0.1/internal")).toMatch(/SSRF blocked/);
+		// fetch should only have been called for the public URL
+		expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+	});
+
+	it("truncates response when Content-Length exceeds 1MB", async () => {
+		vi.mocked(globalThis.fetch).mockResolvedValue(
+			new Response("small body", {
+				headers: {
+					"content-type": "text/plain",
+					"content-length": String(2 * 1024 * 1024),
+				},
+			}),
+		);
+
+		const results = await prefetchUrls("Check https://example.com/large");
+		expect(results.get("https://example.com/large")).toMatch(
+			/Content truncated at 1MB/,
+		);
+	});
+
+	it("truncates response when body stream exceeds 1MB", async () => {
+		// Create a body larger than 1MB without Content-Length header
+		const largeBody = "x".repeat(1_048_576 + 100);
+		vi.mocked(globalThis.fetch).mockResolvedValue(
+			new Response(largeBody, {
+				headers: { "content-type": "text/plain" },
+			}),
+		);
+
+		const results = await prefetchUrls("Check https://example.com/stream");
+		expect(results.get("https://example.com/stream")).toMatch(
+			/Content truncated at 1MB/,
+		);
+	});
+
+	it("returns full content for responses under 1MB", async () => {
+		const smallBody = "Hello, this is under 1MB";
+		vi.mocked(globalThis.fetch).mockResolvedValue(
+			new Response(smallBody, {
+				headers: { "content-type": "text/plain" },
+			}),
+		);
+
+		const results = await prefetchUrls("Check https://example.com/small");
+		expect(results.get("https://example.com/small")).toBe(smallBody);
 	});
 });
 
