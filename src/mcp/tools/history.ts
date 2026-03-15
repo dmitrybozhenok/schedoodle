@@ -1,6 +1,6 @@
-import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { desc, eq } from "drizzle-orm";
+import { z } from "zod";
 import type { Database } from "../../db/index.js";
 import { agents, executionHistory } from "../../db/schema.js";
 import { errorResponse, jsonResponse } from "../helpers.js";
@@ -14,14 +14,10 @@ export function registerHistoryTools(server: McpServer, db: Database): void {
 		"get_execution_history",
 		{
 			title: "Get Execution History",
-			description:
-				"Get execution history for an agent. Returns most recent executions first.",
+			description: "Get execution history for an agent. Returns most recent executions first.",
 			inputSchema: z.object({
 				agentId: z.number().describe("Agent ID"),
-				limit: z
-					.number()
-					.default(100)
-					.describe("Max results (default 100, max 200)"),
+				limit: z.number().default(100).describe("Max results (default 100, max 200)"),
 			}),
 		},
 		async ({ agentId, limit }) => {

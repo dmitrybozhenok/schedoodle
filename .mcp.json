@@ -1,0 +1,10 @@
+{
+	"mcpServers": {
+		"schedoodle": {
+			"type": "stdio",
+			"command": "npx",
+			"args": ["tsx", "C:/Users/dmitr/Dev/Schedoodle/src/mcp.ts"],
+			"cwd": "C:/Users/dmitr/Dev/Schedoodle"
+		}
+	}
+}

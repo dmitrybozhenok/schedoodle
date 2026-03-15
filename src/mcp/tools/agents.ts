@@ -1,6 +1,6 @@
-import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import type { Database } from "../../db/index.js";
 import { agents } from "../../db/schema.js";
 import { isCronExpression } from "../../helpers/cron-detect.js";
@@ -75,15 +75,10 @@ export function registerAgentTools(server: McpServer, db: Database): void {
 				taskDescription: z.string().describe("What the agent should do"),
 				cronSchedule: z
 					.string()
-					.describe(
-						"Cron expression or natural language schedule (e.g., 'every weekday at 9am')",
-					),
+					.describe("Cron expression or natural language schedule (e.g., 'every weekday at 9am')"),
 				systemPrompt: z.string().optional().describe("System prompt to shape LLM behavior"),
 				model: z.string().optional().describe("LLM model ID"),
-				enabled: z
-					.boolean()
-					.default(true)
-					.describe("Whether the agent should be enabled"),
+				enabled: z.boolean().default(true).describe("Whether the agent should be enabled"),
 			}),
 		},
 		async ({ name, taskDescription, cronSchedule, systemPrompt, model, enabled }) => {
@@ -147,9 +142,7 @@ export function registerAgentTools(server: McpServer, db: Database): void {
 				cronSchedule: z
 					.string()
 					.optional()
-					.describe(
-						"New cron expression or natural language schedule",
-					),
+					.describe("New cron expression or natural language schedule"),
 				systemPrompt: z.string().optional().describe("New system prompt"),
 				model: z.string().optional().describe("New LLM model ID"),
 				enabled: z.boolean().optional().describe("Enable or disable the agent"),
@@ -189,12 +182,7 @@ export function registerAgentTools(server: McpServer, db: Database): void {
 			if (model !== undefined) updateSet.model = model;
 			if (enabled !== undefined) updateSet.enabled = enabled ? 1 : 0;
 
-			const updated = db
-				.update(agents)
-				.set(updateSet)
-				.where(eq(agents.id, id))
-				.returning()
-				.get();
+			const updated = db.update(agents).set(updateSet).where(eq(agents.id, id)).returning().get();
 
 			return jsonResponse(enrichAgent(updated, db));
 		},

@@ -102,10 +102,7 @@ CREATE UNIQUE INDEX agent_tools_unique ON agent_tools(agent_id, tool_id);
 
 type DB = ReturnType<typeof drizzle>;
 
-function makeAgent(
-	db: DB,
-	overrides: Partial<schema.agents.$inferInsert> = {},
-) {
+function makeAgent(db: DB, overrides: Partial<schema.agents.$inferInsert> = {}) {
 	return db
 		.insert(schema.agents)
 		.values({

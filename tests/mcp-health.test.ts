@@ -45,9 +45,9 @@ vi.mock("../src/services/notifier.js", () => ({
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { CircuitBreakerOpenError } from "../src/services/circuit-breaker.js";
 import { registerHealthTools } from "../src/mcp/tools/health.js";
 import { registerScheduleTools } from "../src/mcp/tools/schedules.js";
+import { CircuitBreakerOpenError } from "../src/services/circuit-breaker.js";
 
 const CREATE_AGENTS_SQL = `
 CREATE TABLE agents (
@@ -213,9 +213,9 @@ describe("MCP Health Tools", () => {
 		});
 
 		it("returns degraded status with some unhealthy agents", async () => {
-			const healthyAgent = makeAgent(db, { name: "HealthyAgent" });
+			const _healthyAgent = makeAgent(db, { name: "HealthyAgent" });
 			const unhealthyAgent = makeAgent(db, { name: "UnhealthyAgent" });
-			const anotherHealthy = makeAgent(db, { name: "AnotherHealthy" });
+			const _anotherHealthy = makeAgent(db, { name: "AnotherHealthy" });
 
 			// Make unhealthyAgent have 3 consecutive failures
 			const recentTime = new Date(Date.now() - 1000 * 60 * 30).toISOString();
@@ -356,7 +356,9 @@ describe("MCP Schedule Tools", () => {
 		});
 
 		it("returns error with guidance on parse failure", async () => {
-			mockParseSchedule.mockRejectedValue(new Error("Input is not a recognizable schedule description"));
+			mockParseSchedule.mockRejectedValue(
+				new Error("Input is not a recognizable schedule description"),
+			);
 
 			const result = await client.callTool({
 				name: "parse_schedule",

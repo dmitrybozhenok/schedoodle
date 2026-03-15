@@ -1,8 +1,8 @@
-import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { and, eq, inArray } from "drizzle-orm";
+import { z } from "zod";
 import type { Database } from "../../db/index.js";
-import { agentTools, agents, tools } from "../../db/schema.js";
+import { agents, agentTools, tools } from "../../db/schema.js";
 import { errorResponse, jsonResponse } from "../helpers.js";
 
 /**
@@ -16,7 +16,8 @@ export function registerToolTools(server: McpServer, db: Database): void {
 		"list_tools",
 		{
 			title: "List Tools",
-			description: "List all custom tools. Returns tool definitions with their schemas and configurations.",
+			description:
+				"List all custom tools. Returns tool definitions with their schemas and configurations.",
 			inputSchema: z.object({}),
 		},
 		async () => {
@@ -107,10 +108,7 @@ export function registerToolTools(server: McpServer, db: Database): void {
 					.enum(["GET", "POST", "PUT", "PATCH", "DELETE"])
 					.optional()
 					.describe("New HTTP method"),
-				headers: z
-					.record(z.string(), z.string())
-					.optional()
-					.describe("New HTTP headers"),
+				headers: z.record(z.string(), z.string()).optional().describe("New HTTP headers"),
 				inputSchema: z
 					.record(z.string(), z.any())
 					.optional()
@@ -136,12 +134,7 @@ export function registerToolTools(server: McpServer, db: Database): void {
 			if (headers !== undefined) updateSet.headers = headers;
 			if (schema !== undefined) updateSet.inputSchema = schema;
 
-			const updated = db
-				.update(tools)
-				.set(updateSet)
-				.where(eq(tools.id, id))
-				.returning()
-				.get();
+			const updated = db.update(tools).set(updateSet).where(eq(tools.id, id)).returning().get();
 
 			return jsonResponse(updated);
 		},
@@ -156,10 +149,7 @@ export function registerToolTools(server: McpServer, db: Database): void {
 				"Delete a custom tool. First call shows what will be deleted. Call again with confirm=true to execute deletion.",
 			inputSchema: z.object({
 				id: z.number().describe("Tool ID to delete"),
-				confirm: z
-					.boolean()
-					.default(false)
-					.describe("Set to true to confirm deletion"),
+				confirm: z.boolean().default(false).describe("Set to true to confirm deletion"),
 			}),
 			annotations: {
 				destructiveHint: true,
@@ -224,11 +214,7 @@ export function registerToolTools(server: McpServer, db: Database): void {
 
 			// Fetch full tool records
 			const toolIds = links.map((l) => l.toolId);
-			const attachedTools = db
-				.select()
-				.from(tools)
-				.where(inArray(tools.id, toolIds))
-				.all();
+			const attachedTools = db.select().from(tools).where(inArray(tools.id, toolIds)).all();
 
 			return jsonResponse(attachedTools);
 		},
