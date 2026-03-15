@@ -10,7 +10,7 @@ import { agentOutputSchema } from "../schemas/agent-output.js";
 import { buildPrompt, prefetchUrls } from "../services/prefetch.js";
 import type { Agent } from "../types/index.js";
 import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
-import { sendNotification } from "./notifier.js";
+import { sendFailureNotification, sendNotification } from "./notifier.js";
 
 const BREAKER_NAME = env.LLM_PROVIDER === "ollama" ? "ollama" : "anthropic";
 
@@ -188,6 +188,27 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 			})
 			.where(eq(executionHistory.id, executionId))
 			.run();
+
+		// --- Failure notification (fire-and-forget) ---
+		try {
+			const notifyResult = await sendFailureNotification(
+				agent.name,
+				new Date().toISOString(),
+				errorMsg,
+			);
+			if (notifyResult.status !== "skipped") {
+				db.update(executionHistory)
+					.set({ deliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
+					.where(eq(executionHistory.id, executionId))
+					.run();
+			}
+		} catch (err) {
+			console.error(`[notify] Unexpected error on failure notification: ${err}`);
+			db.update(executionHistory)
+				.set({ deliveryStatus: "failed" })
+				.where(eq(executionHistory.id, executionId))
+				.run();
+		}
 
 		return { status: "failure", executionId, error: errorMsg };
 	}

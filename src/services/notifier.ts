@@ -43,6 +43,25 @@ export function buildEmailHtml(agentName: string, executedAt: string, output: Ag
 </html>`;
 }
 
+function buildFailureEmailHtml(agentName: string, executedAt: string, errorMsg: string): string {
+	const timestamp = new Date(executedAt).toLocaleString();
+
+	return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+  <div style="border-bottom:2px solid #c0392b;padding-bottom:12px;margin-bottom:20px;">
+    <h1 style="margin:0;font-size:20px;color:#c0392b;">FAILED: ${escapeHtml(agentName)}</h1>
+    <p style="margin:4px 0 0;color:#666;font-size:14px;">${timestamp}</p>
+  </div>
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:16px;margin:0 0 8px;">Error</h2>
+    <pre style="background:#fdf2f2;padding:12px;border-radius:4px;border-left:4px solid #c0392b;overflow-x:auto;white-space:pre-wrap;">${escapeHtml(errorMsg)}</pre>
+  </div>
+</body>
+</html>`;
+}
+
 function buildSubject(agentName: string, summary: string): string {
 	const truncated = summary.length > 80 ? `${summary.slice(0, 80)}...` : summary;
 	return `[Schedoodle] ${agentName} \u2014 ${truncated}`;
@@ -112,6 +131,36 @@ export async function sendNotification(
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		console.error(`[notify] Unexpected error for ${agentName}: ${message}`);
+		return { status: "failed", error: message };
+	}
+}
+
+export async function sendFailureNotification(
+	agentName: string,
+	executedAt: string,
+	errorMsg: string,
+): Promise<NotifyResult> {
+	const useSmtp = env.SMTP_HOST;
+	const useResend = env.RESEND_API_KEY;
+
+	if (!env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) {
+		return { status: "skipped" };
+	}
+	if (!useSmtp && !useResend) {
+		return { status: "skipped" };
+	}
+
+	const html = buildFailureEmailHtml(agentName, executedAt, errorMsg);
+	const subject = `[Schedoodle] FAILED: ${agentName}`;
+
+	try {
+		if (useSmtp) {
+			return await sendViaSmtp(env.NOTIFICATION_EMAIL, env.NOTIFICATION_FROM, subject, html);
+		}
+		return await sendViaResend(env.NOTIFICATION_EMAIL, env.NOTIFICATION_FROM, subject, html);
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error(`[notify] Unexpected error for ${agentName} failure: ${message}`);
 		return { status: "failed", error: message };
 	}
 }

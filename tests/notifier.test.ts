@@ -226,3 +226,50 @@ describe("sendNotification", () => {
 		});
 	});
 });
+
+describe("sendFailureNotification", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		setEnv();
+	});
+
+	it("skips when no transport is configured", async () => {
+		const { sendFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendFailureNotification("Test Agent", "2026-03-14T10:00:00Z", "some error");
+		expect(result.status).toBe("skipped");
+	});
+
+	it("sends failure email via SMTP", async () => {
+		setEnv(smtpEnv);
+		mockSmtpSend.mockResolvedValue({ messageId: "fail_1" });
+		const { sendFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendFailureNotification("Broken Agent", "2026-03-14T10:00:00Z", "model not found");
+		expect(result.status).toBe("sent");
+		const callArgs = mockSmtpSend.mock.calls[0][0];
+		expect(callArgs.subject).toBe("[Schedoodle] FAILED: Broken Agent");
+		expect(callArgs.html).toContain("FAILED: Broken Agent");
+		expect(callArgs.html).toContain("model not found");
+		expect(callArgs.html).toContain("c0392b");
+	});
+
+	it("sends failure email via Resend", async () => {
+		setEnv(resendEnv);
+		mockResendSend.mockResolvedValue({ data: { id: "fail_2" }, error: null });
+		const { sendFailureNotification } = await import("../src/services/notifier.js");
+		const result = await sendFailureNotification("Broken Agent", "2026-03-14T10:00:00Z", "timeout");
+		expect(result.status).toBe("sent");
+		const callArgs = mockResendSend.mock.calls[0][0];
+		expect(callArgs.subject).toBe("[Schedoodle] FAILED: Broken Agent");
+		expect(callArgs.html).toContain("timeout");
+	});
+
+	it("escapes HTML in error messages", async () => {
+		setEnv(resendEnv);
+		mockResendSend.mockResolvedValue({ data: { id: "fail_3" }, error: null });
+		const { sendFailureNotification } = await import("../src/services/notifier.js");
+		await sendFailureNotification("Test", "2026-03-14T10:00:00Z", '<script>alert("xss")</script>');
+		const html = mockResendSend.mock.calls[0][0].html;
+		expect(html).toContain("&lt;script&gt;");
+		expect(html).not.toContain("<script>alert");
+	});
+});
