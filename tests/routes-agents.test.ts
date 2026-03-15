@@ -718,8 +718,22 @@ describe("Agent CRUD routes", () => {
 			expect(mockRemoveAgent).toHaveBeenCalledWith(agent.id);
 		});
 
-		it("POST /:id/execute works on disabled agent", async () => {
+		it("POST /:id/execute returns 409 for disabled agent", async () => {
 			const agent = makeAgent(db, { name: "ManualExec", enabled: 0 });
+
+			const res = await app.request(`/agents/${agent.id}/execute`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(409);
+			const body = await res.json();
+			expect(body.error).toBe("Agent is disabled");
+			expect(body.message).toBe("Enable the agent before triggering manual execution");
+			expect(mockExecuteAgent).not.toHaveBeenCalled();
+		});
+
+		it("POST /:id/execute works on enabled agent", async () => {
+			const agent = makeAgent(db, { name: "EnabledExec", enabled: 1 });
 
 			const res = await app.request(`/agents/${agent.id}/execute`, {
 				method: "POST",
