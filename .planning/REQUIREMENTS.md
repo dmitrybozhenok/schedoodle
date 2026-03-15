@@ -53,15 +53,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Enhanced Health Monitoring
 
-- [ ] **HLTH-01**: Execution history records retryCount (number of LLM validation retries per execution)
-- [ ] **HLTH-02**: Each agent has a healthy boolean flag computed from consecutive failure count
-- [ ] **HLTH-03**: An agent with 3 consecutive failures is flagged unhealthy; auto-recovers on next success
+- [x] **HLTH-01**: Execution history records retryCount (number of LLM validation retries per execution)
+- [x] **HLTH-02**: Each agent has a healthy boolean flag computed from consecutive failure count
+- [x] **HLTH-03**: An agent with 3 consecutive failures is flagged unhealthy; auto-recovers on next success
 - [ ] **HLTH-04**: Health endpoint includes per-agent breakdown with lastRunAt, lastStatus, successRate, avgDurationMs, healthy, consecutiveFailures
 - [ ] **HLTH-05**: Health endpoint includes next 5 upcoming scheduled runs across all agents
-- [ ] **HLTH-06**: Agent API responses (GET /agents, GET /agents/:id) include healthy and consecutiveFailures via enrichAgent
-- [ ] **HLTH-07**: GET /agents/:id/executions defaults to 100 results (max 200)
+- [x] **HLTH-06**: Agent API responses (GET /agents, GET /agents/:id) include healthy and consecutiveFailures via enrichAgent
+- [x] **HLTH-07**: GET /agents/:id/executions defaults to 100 results (max 200)
 - [ ] **HLTH-08**: Health endpoint top-level status reflects system health: ok / degraded / unhealthy
-- [ ] **HLTH-09**: Scheduler exposes its job registry for external consumers (upcoming runs)
+- [x] **HLTH-09**: Scheduler exposes its job registry for external consumers (upcoming runs)
 - [ ] **HLTH-10**: Health endpoint includes system-wide successRate and avgDurationMs aggregates (24h window)
 
 ## v2 Requirements
