@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { env } from "../config/env.js";
 import type { AgentOutput } from "../schemas/agent-output.js";
@@ -15,7 +16,7 @@ function escapeHtml(str: string): string {
 		.replace(/"/g, "&quot;");
 }
 
-function buildEmailHtml(agentName: string, executedAt: string, output: AgentOutput): string {
+export function buildEmailHtml(agentName: string, executedAt: string, output: AgentOutput): string {
 	const timestamp = new Date(executedAt).toLocaleString();
 	const dataSection = output.data
 		? `<h2 style="font-size:16px;margin:0 0 8px;">Data</h2><pre style="background:#f4f4f4;padding:12px;border-radius:4px;overflow-x:auto;">${escapeHtml(JSON.stringify(output.data, null, 2))}</pre>`
@@ -42,36 +43,72 @@ function buildEmailHtml(agentName: string, executedAt: string, output: AgentOutp
 </html>`;
 }
 
+function buildSubject(agentName: string, summary: string): string {
+	const truncated = summary.length > 80 ? `${summary.slice(0, 80)}...` : summary;
+	return `[Schedoodle] ${agentName} \u2014 ${truncated}`;
+}
+
+async function sendViaSmtp(
+	to: string,
+	from: string,
+	subject: string,
+	html: string,
+): Promise<NotifyResult> {
+	const transport = nodemailer.createTransport({
+		host: env.SMTP_HOST,
+		port: env.SMTP_PORT ?? 1025,
+		secure: false,
+	});
+
+	try {
+		await transport.sendMail({ from, to, subject, html });
+		return { status: "sent" };
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error(`[notify] SMTP error: ${message}`);
+		return { status: "failed", error: message };
+	}
+}
+
+async function sendViaResend(
+	to: string,
+	from: string,
+	subject: string,
+	html: string,
+): Promise<NotifyResult> {
+	const resend = new Resend(env.RESEND_API_KEY);
+	const { error } = await resend.emails.send({ from, to, subject, html });
+
+	if (error) {
+		console.error(`[notify] Resend error: ${error.message}`);
+		return { status: "failed", error: error.message };
+	}
+	return { status: "sent" };
+}
+
 export async function sendNotification(
 	agentName: string,
 	executedAt: string,
 	output: AgentOutput,
 ): Promise<NotifyResult> {
-	if (!env.RESEND_API_KEY || !env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) {
+	const useSmtp = env.SMTP_HOST;
+	const useResend = env.RESEND_API_KEY;
+
+	if (!env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) {
+		return { status: "skipped" };
+	}
+	if (!useSmtp && !useResend) {
 		return { status: "skipped" };
 	}
 
+	const html = buildEmailHtml(agentName, executedAt, output);
+	const subject = buildSubject(agentName, output.summary);
+
 	try {
-		const resend = new Resend(env.RESEND_API_KEY);
-		const html = buildEmailHtml(agentName, executedAt, output);
-
-		const truncatedSummary =
-			output.summary.length > 80 ? `${output.summary.slice(0, 80)}...` : output.summary;
-		const subject = `[Schedoodle] ${agentName} \u2014 ${truncatedSummary}`;
-
-		const { error } = await resend.emails.send({
-			from: env.NOTIFICATION_FROM,
-			to: env.NOTIFICATION_EMAIL,
-			subject,
-			html,
-		});
-
-		if (error) {
-			console.error(`[notify] Failed to send email for ${agentName}: ${error.message}`);
-			return { status: "failed", error: error.message };
+		if (useSmtp) {
+			return await sendViaSmtp(env.NOTIFICATION_EMAIL, env.NOTIFICATION_FROM, subject, html);
 		}
-
-		return { status: "sent" };
+		return await sendViaResend(env.NOTIFICATION_EMAIL, env.NOTIFICATION_FROM, subject, html);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		console.error(`[notify] Unexpected error for ${agentName}: ${message}`);

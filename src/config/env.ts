@@ -11,6 +11,8 @@ export const envSchema = z
 		RESEND_API_KEY: z.string().optional(),
 		NOTIFICATION_EMAIL: z.string().email().optional(),
 		NOTIFICATION_FROM: z.string().optional(),
+		SMTP_HOST: z.string().optional(),
+		SMTP_PORT: z.coerce.number().optional(),
 	})
 	.refine(
 		(data) =>
