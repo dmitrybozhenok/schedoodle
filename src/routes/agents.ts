@@ -267,9 +267,9 @@ export function createAgentRoutes(db: Database): Hono {
 			return c.json({ error: "Agent not found" }, 404);
 		}
 
-		// Parse limit (default 50, cap at 200)
+		// Parse limit (default 100, cap at 200)
 		const rawLimit = c.req.query("limit");
-		let limit = 50;
+		let limit = 100;
 		if (rawLimit !== undefined) {
 			const parsed = Number(rawLimit);
 			if (!Number.isNaN(parsed) && parsed > 0) {

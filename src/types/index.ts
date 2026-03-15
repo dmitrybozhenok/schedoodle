@@ -9,4 +9,6 @@ export type AgentResponse = Omit<Agent, "enabled"> & {
 	enabled: boolean;
 	nextRunAt: string | null;
 	lastRunAt: string | null;
+	healthy: boolean;
+	consecutiveFailures: number;
 };

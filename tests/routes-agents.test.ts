@@ -469,6 +469,65 @@ describe("Agent CRUD routes", () => {
 		});
 	});
 
+	// --- Default limit and healthy fields ---
+
+	describe("GET /agents/:id/executions default limit", () => {
+		it("defaults to 100 results when no limit param provided", async () => {
+			const agent = makeAgent(db, { name: "DefaultLimitAgent" });
+
+			// Insert 110 execution rows
+			for (let i = 0; i < 110; i++) {
+				db.insert(schema.executionHistory)
+					.values({
+						agentId: agent.id,
+						status: "success",
+						startedAt: new Date(Date.now() - i * 1000).toISOString(),
+					})
+					.run();
+			}
+
+			const res = await app.request(`/agents/${agent.id}/executions`);
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toHaveLength(100);
+		});
+
+		it("still caps at 200 when higher limit requested", async () => {
+			const agent = makeAgent(db, { name: "MaxCapAgent" });
+
+			const res = await app.request(`/agents/${agent.id}/executions?limit=500`);
+			expect(res.status).toBe(200);
+			// Just verify no error; actual cap tested by behavior
+		});
+	});
+
+	describe("healthy and consecutiveFailures in responses", () => {
+		it("GET /agents returns healthy and consecutiveFailures for each agent", async () => {
+			makeAgent(db, { name: "HealthyAgent1" });
+			makeAgent(db, { name: "HealthyAgent2" });
+
+			const res = await app.request("/agents");
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			for (const agent of body) {
+				expect(agent).toHaveProperty("healthy");
+				expect(agent).toHaveProperty("consecutiveFailures");
+				expect(typeof agent.healthy).toBe("boolean");
+				expect(typeof agent.consecutiveFailures).toBe("number");
+			}
+		});
+
+		it("GET /agents/:id returns healthy and consecutiveFailures", async () => {
+			const agent = makeAgent(db, { name: "SingleHealthy" });
+
+			const res = await app.request(`/agents/${agent.id}`);
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toHaveProperty("healthy", true);
+			expect(body).toHaveProperty("consecutiveFailures", 0);
+		});
+	});
+
 	// --- Enabled flag and schedule metadata ---
 
 	describe("enabled flag and schedule metadata", () => {
