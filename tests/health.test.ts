@@ -103,6 +103,8 @@ function insertExecution(
 		durationMs?: number;
 		result?: string;
 		error?: string;
+		emailDeliveryStatus?: string | null;
+		telegramDeliveryStatus?: string | null;
 	} = {},
 ) {
 	const startedAt = opts.startedAt ?? new Date().toISOString();
@@ -115,6 +117,8 @@ function insertExecution(
 			durationMs: opts.durationMs ?? null,
 			result: opts.result ?? null,
 			error: opts.error ?? null,
+			emailDeliveryStatus: opts.emailDeliveryStatus ?? null,
+			telegramDeliveryStatus: opts.telegramDeliveryStatus ?? null,
 		})
 		.returning()
 		.get();
@@ -958,6 +962,110 @@ describe("GET /health", () => {
 
 			expect(body).toHaveProperty("shutting_down", true);
 			expect(body).toHaveProperty("concurrency");
+		});
+	});
+
+	describe("per-channel delivery stats", () => {
+		it("includes deliveryStats with per-channel sent/failed counts", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
+
+			const agent = insertAgent(db, "DeliveryAgent");
+			const recentTime = new Date().toISOString();
+
+			insertExecution(db, agent.id, "success", {
+				startedAt: recentTime,
+				emailDeliveryStatus: "sent",
+				telegramDeliveryStatus: "sent",
+			});
+			insertExecution(db, agent.id, "success", {
+				startedAt: recentTime,
+				emailDeliveryStatus: "sent",
+				telegramDeliveryStatus: "failed",
+			});
+			insertExecution(db, agent.id, "failure", {
+				startedAt: recentTime,
+				emailDeliveryStatus: "failed",
+				telegramDeliveryStatus: "sent",
+			});
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body).toHaveProperty("deliveryStats");
+			expect(body.deliveryStats).toEqual({
+				email: { sent: 2, failed: 1 },
+				telegram: { sent: 2, failed: 1 },
+			});
+		});
+
+		it("deliveryStats shows zeros when no deliveries in 24h window", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body).toHaveProperty("deliveryStats");
+			expect(body.deliveryStats).toEqual({
+				email: { sent: 0, failed: 0 },
+				telegram: { sent: 0, failed: 0 },
+			});
+		});
+
+		it("deliveryStats excludes null delivery statuses from counts", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const app = createHealthRoute(
+				db,
+				getCircuitStatus,
+				startedAt,
+				mockGetScheduledJobs(),
+				mockGetConcurrencyStatus(),
+				mockIsShuttingDown(),
+			);
+
+			const agent = insertAgent(db, "NullAgent");
+			const recentTime = new Date().toISOString();
+
+			// null statuses (skipped/not configured)
+			insertExecution(db, agent.id, "success", {
+				startedAt: recentTime,
+				emailDeliveryStatus: null,
+				telegramDeliveryStatus: null,
+			});
+			insertExecution(db, agent.id, "success", {
+				startedAt: recentTime,
+				emailDeliveryStatus: "sent",
+				telegramDeliveryStatus: null,
+			});
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body.deliveryStats).toEqual({
+				email: { sent: 1, failed: 0 },
+				telegram: { sent: 0, failed: 0 },
+			});
 		});
 	});
 });
