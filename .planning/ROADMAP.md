@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -102,6 +102,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
 | 5. Notification | 2/2 | Complete   | 2026-03-14 |
 | 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2026-03-14 |
+| 7. Natural Language Schedule Parsing | 0/2 | Planning   | - |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -120,12 +121,19 @@ Plans:
 - [x] 06-01-PLAN.md — Schema enabled column, input schemas, enrichAgent helper, scheduler enable/disable logic, and tests
 - [x] 06-02-PLAN.md — API routes with enabled toggle, filtering, enriched responses, startup filtering, and route tests
 
-### Phase 7: Natural language schedule parsing
+### Phase 7: Natural Language Schedule Parsing
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Users can describe when they want an agent to run in plain English, and the system translates it to a cron expression with a human-readable confirmation before saving
+**Requirements**: NLP-01, NLP-02, NLP-03, NLP-04, NLP-05, NLP-06, NLP-07
 **Depends on:** Phase 6
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. Natural language input like "every weekday at 9am" is translated to a valid cron expression
+  2. The response includes both the cron expression and a human-readable description (e.g., "At 09:00, Monday through Friday")
+  3. If input is already a valid cron expression, it is described without an LLM call
+  4. Ambiguous input returns a low-confidence warning so users can verify
+  5. Unparseable input returns a 422 with guidance and example suggestions
+  6. LLM unavailability returns a 503 with fallback guidance to use raw cron
+**Plans:** 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 7 to break down)
+- [ ] 07-01-PLAN.md — Cron detection helper, schedule parse schemas, NL-to-cron parser service with LLM + cronstrue, and unit tests
+- [ ] 07-02-PLAN.md — POST /schedules/parse route, wire into index.ts, and route-level tests
