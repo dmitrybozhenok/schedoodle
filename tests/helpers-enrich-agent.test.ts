@@ -15,6 +15,7 @@ CREATE TABLE agents (
   system_prompt TEXT,
   model TEXT,
   enabled INTEGER NOT NULL DEFAULT 1,
+  max_execution_ms INTEGER,
   created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -34,6 +35,7 @@ CREATE TABLE execution_history (
   delivery_status TEXT,
   estimated_cost REAL,
   retry_count INTEGER DEFAULT 0,
+  tool_calls TEXT,
   started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   completed_at TEXT
 );

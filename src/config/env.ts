@@ -13,6 +13,7 @@ export const envSchema = z
 		NOTIFICATION_FROM: z.string().optional(),
 		SMTP_HOST: z.string().optional(),
 		SMTP_PORT: z.coerce.number().optional(),
+		BRAVE_API_KEY: z.string().optional(),
 	})
 	.refine(
 		(data) =>
