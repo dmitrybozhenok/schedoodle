@@ -1,4 +1,4 @@
-import { generateText, NoObjectGeneratedError, Output, stepCountIs } from "ai";
+import { generateText, NoObjectGeneratedError, Output, stepCountIs, type Tool as AiTool } from "ai";
 import { eq, inArray } from "drizzle-orm";
 import { env } from "../config/env.js";
 import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
@@ -72,11 +72,14 @@ type ToolCallLogEntry = {
  * Call the LLM with structured output and one retry on validation failure.
  * Accepts a tool set and abort signal for multi-step tool calling.
  */
+// biome-ignore lint/suspicious/noExplicitAny: AI SDK tools have heterogeneous input types
+type AnyTool = AiTool<any, any>;
+
 async function callLlmWithRetry(
 	modelId: string,
 	systemPrompt: string | null,
 	userMessage: string,
-	toolSet: Record<string, unknown>,
+	toolSet: Record<string, AnyTool>,
 	abortSignal: AbortSignal,
 ) {
 	const model = await resolveModel(modelId);
@@ -84,13 +87,10 @@ async function callLlmWithRetry(
 
 	const toolCallLog: ToolCallLogEntry[] = [];
 
-	const onStepFinish = ({
-		toolCalls,
-		toolResults,
-	}: {
-		toolCalls: Array<{ toolName: string; args: unknown }>;
-		toolResults: Array<{ result?: unknown }>;
-	}) => {
+	// biome-ignore lint/suspicious/noExplicitAny: AI SDK step events have complex generic types
+	const onStepFinish = (event: any) => {
+		const toolCalls = event.toolCalls as Array<{ toolName: string; args: unknown }> | undefined;
+		const toolResults = event.toolResults as Array<{ result?: unknown }> | undefined;
 		if (toolCalls) {
 			for (let i = 0; i < toolCalls.length; i++) {
 				toolCallLog.push({
@@ -106,21 +106,20 @@ async function callLlmWithRetry(
 		}
 	};
 
-	const baseOptions = {
-		model,
-		system: systemPrompt ?? undefined,
-		output: Output.object({ schema: agentOutputSchema }),
-		tools: hasTools ? toolSet : undefined,
-		stopWhen: hasTools ? stepCountIs(10) : undefined,
-		abortSignal,
-		onStepFinish,
-	};
+	const callGenerateText = (prompt: string) =>
+		generateText({
+			model,
+			system: systemPrompt ?? undefined,
+			output: Output.object({ schema: agentOutputSchema }),
+			tools: hasTools ? toolSet : undefined,
+			stopWhen: hasTools ? stepCountIs(10) : undefined,
+			abortSignal,
+			onStepFinish,
+			prompt,
+		});
 
 	try {
-		const result = await generateText({
-			...baseOptions,
-			prompt: userMessage,
-		});
+		const result = await callGenerateText(userMessage);
 		return { result, retryCount: 0, toolCallLog };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
@@ -129,10 +128,7 @@ async function callLlmWithRetry(
 				error instanceof Error ? error.message : String(error);
 			const retryPrompt = `${userMessage}\n\n[Previous attempt failed validation: ${errorMsg}]\nPlease provide a valid response matching the required schema.`;
 
-			const result = await generateText({
-				...baseOptions,
-				prompt: retryPrompt,
-			});
+			const result = await callGenerateText(retryPrompt);
 			return { result, retryCount: 1, toolCallLog };
 		}
 		throw error;
