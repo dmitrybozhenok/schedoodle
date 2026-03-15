@@ -1,11 +1,31 @@
 {
-  "runId": "eval-1773533345619",
-  "timestamp": "2026-03-15T00:10:33.532Z",
-  "model": "qwen2.5-coder:14b-precise",
-  "totalCases": 9,
-  "passedCases": 8,
-  "failedCases": 1,
+  "runId": "eval-1773540765001",
+  "timestamp": "2026-03-15T02:15:28.830Z",
+  "model": "default",
+  "totalCases": 18,
+  "passedCases": 18,
+  "failedCases": 0,
   "slices": {
+    "data-reasoning": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "numerical": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "comparison": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "calculation": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
     "error-handling": {
       "total": 3,
       "passed": 3,
@@ -42,8 +62,8 @@
       "rate": 1
     },
     "persona": {
-      "total": 1,
-      "passed": 1,
+      "total": 3,
+      "passed": 3,
       "rate": 1
     },
     "system-prompt": {
@@ -57,8 +77,8 @@
       "rate": 1
     },
     "structured": {
-      "total": 1,
-      "passed": 1,
+      "total": 2,
+      "passed": 2,
       "rate": 1
     },
     "count-constraint": {
@@ -66,15 +86,40 @@
       "passed": 1,
       "rate": 1
     },
+    "long-form": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "multi-section": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "tutorial": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "multi-step": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "technical": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
     "simple": {
       "total": 3,
-      "passed": 2,
-      "rate": 0.6666666666666666
+      "passed": 3,
+      "rate": 1
     },
     "summarisation": {
       "total": 3,
-      "passed": 2,
-      "rate": 0.6666666666666666
+      "passed": 3,
+      "rate": 1
     },
     "no-urls": {
       "total": 2,
@@ -82,24 +127,157 @@
       "rate": 1
     },
     "conciseness": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "system-prompt-advanced": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "multi-constraint": {
       "total": 1,
-      "passed": 0,
-      "rate": 0
+      "passed": 1,
+      "rate": 1
+    },
+    "negative-constraint": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "knowledge-boundary": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
     }
   },
   "metrics": {
-    "avgDurationMs": 8394.888888888889,
-    "p95DurationMs": 17877,
-    "avgOutputTokens": 228.11111111111111,
+    "avgDurationMs": 9087.111111111111,
+    "p95DurationMs": 22174,
+    "avgOutputTokens": 252.5,
     "totalCostUsd": 0,
-    "schemaPassRate": 0.6666666666666666,
-    "avgJudgeScore": 3.1818181818181817
+    "schemaPassRate": 0.8333333333333334
   },
   "results": [
     {
+      "caseId": "data-01",
+      "caseName": "Numerical comparison",
+      "model": "default",
+      "tags": [
+        "data-reasoning",
+        "numerical",
+        "comparison"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Tokyo has the largest population among the three cities with approximately 13.9 million people. New York City is the second largest with around 8.4 million people. London has the smallest population among the three with approximately 8.9 million people.",
+        "details": "Tokyo, the capital of Japan, is the largest city in the world by population, with an approximate population of 13.9 million people. London, the capital of the United Kingdom, has a population of around 8.9 million people. New York City, one of the most populous cities in the United States, has a population of approximately 8.4 million people.",
+        "durationMs": 5390,
+        "inputTokens": 57,
+        "outputTokens": 147,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Mentions all three cities",
+          "passed": true
+        },
+        {
+          "name": "Contains population numbers",
+          "passed": true
+        },
+        {
+          "name": "Identifies Tokyo as largest",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "data-02",
+      "caseName": "Unit conversion reasoning",
+      "model": "default",
+      "tags": [
+        "data-reasoning",
+        "numerical",
+        "calculation"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "The recipe calls for 2.5 cups of flour. To convert this to grams, we use the conversion factor that 1 cup of all-purpose flour is approximately 120 grams. Therefore, 2.5 cups of flour is approximately 2.5 * 120 = 300 grams. To convert cups to tablespoons, we use the conversion factor that 1 cup is equal to 16 tablespoons. Thus, 2.5 cups of flour is equal to 2.5 * 16 = 40 tablespoons.",
+        "details": "To convert cups to grams, we use the conversion factor that 1 cup of all-purpose flour is approximately 120 grams. Therefore, 2.5 cups of flour is approximately 2.5 * 120 = 300 grams. To convert cups to tablespoons, we use the conversion factor that 1 cup is equal to 16 tablespoons. Thus, 2.5 cups of flour is equal to 2.5 * 16 = 40 tablespoons.",
+        "durationMs": 8189,
+        "inputTokens": 56,
+        "outputTokens": 233,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Contains gram figure",
+          "passed": true
+        },
+        {
+          "name": "Contains tablespoon figure",
+          "passed": true
+        },
+        {
+          "name": "Shows reasoning",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "data-03",
+      "caseName": "Percentage and ranking",
+      "model": "default",
+      "tags": [
+        "data-reasoning",
+        "numerical",
+        "calculation"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "The team completed 47 out of 60 tasks this sprint. Their completion percentage is 78.33%. This is below a typical target of 80%. To hit exactly 80%, they would have needed to complete 48 tasks.",
+        "details": "To calculate the completion percentage, we divide the number of tasks completed by the total number of tasks and then multiply by 100. In this case, (47/60) * 100 = 78.33%. This is below the typical target of 80%. To find out how many more tasks they would have needed to complete to reach 80%, we calculate 80% of 60, which is 0.80 * 60 = 48 tasks. Therefore, they would have needed to complete 48 - 47 = 1 more task to hit exactly 80%.",
+        "durationMs": 7567,
+        "inputTokens": 80,
+        "outputTokens": 210,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Contains percentage",
+          "passed": true
+        },
+        {
+          "name": "Identifies below target",
+          "passed": true
+        },
+        {
+          "name": "Contains needed tasks count",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
       "caseId": "err-01",
       "caseName": "Impossible prediction task",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "error-handling",
         "impossible",
@@ -107,11 +285,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "I'm sorry, but I can't provide real-time financial information or lottery numbers. Please check the latest updates from a reliable financial news source or lottery website for the most accurate and up-to-date information.",
-        "details": "As an AI, I don't have the capability to predict future financial market prices or lottery outcomes. It's important to rely on current data and trends for making informed decisions. For Bitcoin prices, you can check exchanges like Coinbase, Binance, or Kraken. For lottery numbers, always check the official website of the lottery you're interested in.",
-        "durationMs": 4682,
+        "summary": "I'm sorry, but I can't provide real-time prices or future lottery numbers. Please check a financial news site or a lottery website for the most up-to-date information.",
+        "details": "As an AI, I don't have access to real-time market data or the ability to predict future events. It's important to use reliable sources for such information to make informed decisions.",
+        "durationMs": 3138,
         "inputTokens": 53,
-        "outputTokens": 127,
+        "outputTokens": 87,
         "estimatedCost": 0
       },
       "checks": [
@@ -132,24 +310,12 @@
           "passed": true
         }
       ],
-      "judgeScores": [
-        {
-          "criterion": "Honesty",
-          "score": 1,
-          "reasoning": "The agent clearly and directly states that it cannot provide the requested information. It explicitly identifies its limitations regarding predicting future financial market prices and lottery outcomes. It avoids any ambiguous language or hedging that could be interpreted as a prediction, and instead directs the user to reliable, real-world sources for information. The response is honest and adheres to the constraints of its capabilities."
-        },
-        {
-          "criterion": "Helpfulness despite refusal",
-          "score": 5,
-          "reasoning": "The agent correctly identifies that the request is impossible to fulfill. Regarding the helpfulness criterion, the agent explains *why* it cannot fulfill the request (lack of predictive capability) and provides actionable, relevant alternatives for the user to find the information they need (exchanges for Bitcoin, official websites for lottery numbers). While it does not go into deep technical detail about the nature of randomness or market volatility, it provides sufficient context to manage user expectations and directs them to legitimate sources. It is a professional and helpful refusal."
-        }
-      ],
       "passed": true
     },
     {
       "caseId": "err-02",
       "caseName": "Ambiguous vague task",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "error-handling",
         "ambiguous",
@@ -157,11 +323,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "I'm sorry, but I need more context to understand what you're asking me to do with the stuff. Can you please provide me with more information or details about the task you have in mind?",
-        "details": "I'm an AI language model created by Alibaba Cloud, and I'm designed to assist with a wide range of tasks, such as answering questions, providing information, generating text, and more. However, I need more information about the specific task you have in mind before I can provide you with the appropriate assistance.",
-        "durationMs": 4196,
+        "summary": "I'm sorry, but your request is not clear. Could you please provide more details or context about what you would like me to do with the 'stuff'?",
+        "details": "I'm designed to assist with a wide range of tasks, including answering questions, providing information, and helping with problem-solving. If you could give me more information about the specific task or problem you're facing, I'll do my best to assist you.",
+        "durationMs": 3472,
         "inputTokens": 36,
-        "outputTokens": 115,
+        "outputTokens": 97,
         "estimatedCost": 0
       },
       "checks": [
@@ -174,19 +340,12 @@
           "passed": true
         }
       ],
-      "judgeScores": [
-        {
-          "criterion": "Graceful handling",
-          "score": 5,
-          "reasoning": "The agent correctly identifies that the prompt \"Do the thing with the stuff\" is critically underspecified. It avoids the pitfall of hallucinating a task (e.g., assuming the user wanted a summary or a creative writing piece) and instead explicitly asks for clarification. The tone is professional and helpful. While the \"Details\" section is slightly repetitive and includes a boilerplate introduction about the AI's identity that wasn't strictly necessary, the core requirement of handling ambiguity gracefully is fully met."
-        }
-      ],
       "passed": true
     },
     {
       "caseId": "err-03",
       "caseName": "Empty task resilience",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "error-handling",
         "edge-case",
@@ -194,11 +353,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "I'm sorry, I didn't understand your question. Could you please provide more context or clarify your question?",
-        "details": "I'm Qwen, an AI assistant created by Alibaba Cloud. I'm here to help you with any questions or tasks you might have. If you could provide more information about what you're asking, I'd be happy to assist you further.",
-        "durationMs": 3062,
+        "summary": "I am Qwen, a large language model created by Alibaba Cloud. I am designed to assist users with a wide range of tasks, including answering questions, providing information, and engaging in conversations on various topics. How can I assist you today?",
+        "details": "As an AI language model, I am capable of understanding and generating human-like text based on the input I receive. I have been trained on a diverse dataset that includes a wide range of topics, allowing me to provide information and insights on various subjects. Whether you have a specific question, need assistance with a task, or simply want to have a conversation, I am here to help. How may I assist you?",
+        "durationMs": 5090,
         "inputTokens": 30,
-        "outputTokens": 84,
+        "outputTokens": 142,
         "estimatedCost": 0
       },
       "checks": [
@@ -212,7 +371,7 @@
     {
       "caseId": "inst-01",
       "caseName": "Pirate persona compliance",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "instruction-following",
         "persona",
@@ -220,11 +379,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "HTTP status codes are like the signals we give on the high seas to let other ships know how our voyage is going. Just as we use flags to communicate, servers use these codes to tell browsers and other clients about the status of their requests. Here's how it works, matey: A 200 OK code is like a green light, signaling that all is well and the request has been successfully received and processed. A 404 Not Found is like running aground, where the server can't find the page or resource the client is looking for. And a 500 Internal Server Error is akin to a storm on the deck, where something has gone wrong on the server's end. These codes help us navigate the digital seas smoothly, ensuring we reach our destination without running aground or encountering unexpected storms.",
-        "details": "Ahoy, matey! When ye be sailin' the vast ocean of the internet, ye be relyin' on these mystical codes to guide ye through the treacherous waters. Let's break 'em down, shall we? First up, we have the 200 OK. This is like a beacon of hope, a green light that shines bright, tellin' ye that yer request has been received and processed without any issues. It's like havin' a smooth sailin' day, with no clouds on the horizon. Next, we have the 404 Not Found. This is like runnin' aground, where ye be lookin' for a treasure map, but the map has gone missing. The server can't find the page or resource ye be seekin', and ye be left with a sense of disappointment, like havin' yer treasure chest empty. Lastly, we have the 500 Internal Server Error. This is like a storm on the deck, where something has gone wrong on the server's end. It's like havin' a sudden squall that disrupts yer voyage, and ye be left wonderin' what went wrong. These codes be essential for navigatin' the digital seas, helpin' us to avoid runnin' aground or encounterin' unexpected storms. So, next time ye be out there, keep an eye on these codes, and ye'll be sailin' smoothly, like a seasoned pirate!",
-        "durationMs": 17877,
+        "summary": "HTTP status codes are like the signals a ship sends back to the captain after trying to dock at a port. Each code tells the captain (or in this case, the client) something about the journey and the state of the port (or server). Let's break down the three main codes you mentioned: 200, 404, and 500.",
+        "details": "200 is like a hearty 'Arrr, we've made it to the port!' It means the request was successful, and the server has given us what we asked for. It's like finding the treasure map we were looking for.\n\n404 is like a puzzled 'Arrr, I can't find the port you're talking about!' This code means the server couldn't find the page or resource we were looking for. It's like trying to find a treasure on a map, but the map is old and the treasure has moved.\n\n500 is like a frustrated 'Arrr, something's broken on the ship!' This code means there was an error on the server side. It's like the ship's engine broke down, and we can't continue our journey. The server is having trouble processing the request, and it's not our fault.",
+        "durationMs": 9750,
         "inputTokens": 59,
-        "outputTokens": 485,
+        "outputTokens": 272,
         "estimatedCost": 0
       },
       "checks": [
@@ -245,24 +404,12 @@
           "passed": true
         }
       ],
-      "judgeScores": [
-        {
-          "criterion": "Persona adherence",
-          "score": 3,
-          "reasoning": "The agent successfully adopts the persona of a grizzled pirate captain, using appropriate nautical metaphors (sailing the digital seas, running aground, storms on deck) and pirate-themed vocabulary (matey, ahoy, ye). However, the agent failed to follow the specific instruction to \"Say arr frequently.\" While the tone is consistent, the specific constraint regarding the frequency of the word \"arr\" was completely ignored, as the word does not appear in the text at all."
-        },
-        {
-          "criterion": "Domain accuracy",
-          "score": 1,
-          "reasoning": "The agent correctly identifies the functional meaning of the three HTTP status codes requested. \n- 200 OK is correctly identified as a successful request.\n- 404 Not Found is correctly identified as a resource that cannot be located.\n- 500 Internal Server Error is correctly identified as a server-side failure.\nThe explanations are accurate in a technical sense, despite the heavy use of nautical metaphors. However, the agent failed to follow the negative constraint/instruction to \"Say arr frequently.\" While the persona is present, the specific instruction to use the word \"arr\" was ignored entirely. Despite this, the domain accuracy criterion is met."
-        }
-      ],
       "passed": true
     },
     {
       "caseId": "inst-02",
       "caseName": "Formal business tone",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "instruction-following",
         "tone",
@@ -270,11 +417,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "Adopting TypeScript in a Node.js project is a strategic decision that enhances code quality, maintainability, and scalability. TypeScript, as a superset of JavaScript, introduces static typing and other advanced features that can significantly improve the development process. By integrating TypeScript, the development team can catch errors early in the development cycle, leading to more robust applications. Additionally, TypeScript's type system aids in documentation and improves the onboarding process for new developers, ensuring a consistent codebase. This transition not only supports the current project but also sets a foundation for future enhancements and expansions, making it a worthwhile investment for any Node.js application.",
-        "details": "TypeScript's static typing helps in identifying type-related errors at compile time, which are common in JavaScript. This early detection of errors can save significant time and resources that would otherwise be spent on debugging at runtime. Furthermore, TypeScript's support for interfaces and types allows for more expressive and maintainable code, which is particularly beneficial in large-scale applications. The community support for TypeScript is also strong, with a vast ecosystem of libraries and tools that are compatible with TypeScript, facilitating integration with existing Node.js projects. In conclusion, adopting TypeScript in a Node.js project is a proactive measure that aligns with best practices in software development, offering long-term benefits in terms of code quality and developer productivity.",
-        "durationMs": 9968,
+        "summary": "Adopting TypeScript in a Node.js project can significantly enhance code quality, maintainability, and scalability. TypeScript, as a statically typed superset of JavaScript, introduces robust type systems, interfaces, and classes, which facilitate better code organization and error detection during development. This leads to more predictable and reliable applications, reducing runtime errors and improving developer productivity. Additionally, TypeScript's compatibility with JavaScript ensures a smooth transition and integration with existing Node.js ecosystems. It supports modern JavaScript features and offers excellent tooling, including IDE support, which accelerates development and debugging processes. Therefore, integrating TypeScript into a Node.js project is a strategic move towards building robust, scalable, and maintainable software solutions.",
+        "details": "TypeScript's static typing helps in catching type-related errors early in the development cycle, which can be costly and time-consuming to fix later. The use of interfaces and classes promotes cleaner and more understandable code, making it easier for new developers to onboard and for existing developers to maintain. Furthermore, TypeScript's support for asynchronous programming patterns in Node.js, such as Promises and async/await, aligns well with modern JavaScript practices, ensuring that the codebase remains up-to-date with the latest standards. The TypeScript compiler also provides detailed error messages and warnings, aiding in the identification of potential issues before they become critical. In conclusion, adopting TypeScript in a Node.js project is a proactive step towards achieving higher software quality and long-term project sustainability.",
+        "durationMs": 11444,
         "inputTokens": 55,
-        "outputTokens": 276,
+        "outputTokens": 299,
         "estimatedCost": 0
       },
       "checks": [
@@ -291,19 +438,12 @@
           "passed": true
         }
       ],
-      "judgeScores": [
-        {
-          "criterion": "Tone compliance",
-          "score": 5,
-          "reasoning": "The agent successfully adhered to the persona of a senior technical architect. The language is formal, professional, and devoid of slang, emojis, or casual phrasing. It avoids contractions (e.g., \"TypeScript's\" is used as a possessive, not a contraction of \"TypeScript is\"), and the structure is appropriate for a C-suite briefing, focusing on strategic value, risk mitigation, and long-term investment. The tone is consistent throughout the entire response."
-        }
-      ],
       "passed": true
     },
     {
       "caseId": "inst-03",
       "caseName": "Structured list output",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "instruction-following",
         "structured",
@@ -311,11 +451,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "The top 3 programming languages in 2025 are predicted to be Python, Java, and JavaScript. Each language has unique strengths that make it popular among developers.",
-        "details": "Python is expected to remain the most popular programming language in 2025 due to its simplicity and versatility, making it suitable for a wide range of applications from web development to data science. Java is anticipated to be the second most popular language, known for its robustness and portability, which makes it ideal for large-scale enterprise applications. JavaScript, the language of the web, is forecasted to be the third most popular, with its strength in creating dynamic and interactive web content.",
-        "durationMs": 5288,
+        "summary": "The three most popular programming languages in 2025 are Python, JavaScript, and Java. Python is known for its simplicity and readability, making it an excellent choice for beginners and for rapid application development. JavaScript is the backbone of web development, enabling dynamic and interactive web pages. Java, with its platform independence and strong community support, remains a cornerstone for enterprise-level applications.",
+        "details": "1. Python - Key Strength: Simplicity and Readability\n2. JavaScript - Key Strength: Web Development\n3. Java - Key Strength: Platform Independence",
+        "durationMs": 4399,
         "inputTokens": 50,
-        "outputTokens": 146,
+        "outputTokens": 123,
         "estimatedCost": 0
       },
       "checks": [
@@ -336,11 +476,142 @@
           "passed": true
         }
       ],
-      "judgeScores": [
+      "passed": true
+    },
+    {
+      "caseId": "long-01",
+      "caseName": "Multi-section analysis",
+      "model": "default",
+      "tags": [
+        "long-form",
+        "structured",
+        "multi-section"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "This analysis compares remote work and office work across four key areas: productivity, collaboration, work-life balance, and provides a final recommendation.",
+        "details": "Remote work and office work each offer unique advantages and disadvantages that can impact various aspects of professional life. Here's a detailed look at each area:\n\n**Productivity**\n- **Remote Work**: Often praised for allowing employees to work from anywhere, which can lead to increased flexibility and reduced time spent commuting. This can result in higher productivity as workers can work in environments that suit them best. However, the lack of structure and potential distractions at home can also hinder productivity for some.\n- **Office Work**: Provides a structured environment that can enhance focus and productivity. The physical presence of colleagues can also motivate and inspire employees, leading to better collaboration and innovation. However, the rigid schedule and commute can be time-consuming and may reduce overall productivity.\n\n**Collaboration**\n- **Remote Work**: While technology has improved collaboration among remote teams, it can still be challenging to build trust and rapport with colleagues who are not physically present. Communication may also be less immediate and can sometimes lead to misunderstandings.\n- **Office Work**: Facilitates face-to-face interaction, which is crucial for building strong relationships and fostering a collaborative work environment. It allows for spontaneous discussions and quick problem-solving, which can be more efficient than remote communication.\n\n**Work-Life Balance**\n- **Remote Work**: Offers greater flexibility in managing work and personal life, allowing employees to work around their personal schedules. This can lead to better work-life balance and reduced stress. However, the blurring of work and personal life boundaries can be a challenge for some, leading to longer work hours and less time for personal activities.\n- **Office Work**: Provides a clear distinction between work and personal life, with a defined work environment and end-of-day routine. This can help employees maintain a healthy work-life balance. However, the commute and rigid work schedule can make it difficult to balance work and personal life.\n\n**Final Recommendation**\nBoth remote work and office work have their merits, and the best option depends on the individual's work style, job requirements, and personal preferences. Organizations should consider offering a hybrid model that allows employees to choose the best option for their needs. This can help maximize productivity, enhance collaboration, and promote a healthy work-life balance.",
+        "durationMs": 17531,
+        "inputTokens": 63,
+        "outputTokens": 500,
+        "estimatedCost": 0
+      },
+      "checks": [
         {
-          "criterion": "Instruction compliance",
-          "score": 1,
-          "reasoning": "The agent identified exactly three programming languages (Python, Java, and JavaScript). For each language, it provided exactly one key strength: Python (simplicity and versatility), Java (robustness and portability), and JavaScript (creating dynamic and interactive web content). The output adheres strictly to the constraints provided in the task."
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Has productivity section",
+          "passed": true
+        },
+        {
+          "name": "Has collaboration section",
+          "passed": true
+        },
+        {
+          "name": "Has work-life balance section",
+          "passed": true
+        },
+        {
+          "name": "Has recommendation",
+          "passed": true
+        },
+        {
+          "name": "Details substantial length",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "long-02",
+      "caseName": "Step-by-step tutorial",
+      "model": "default",
+      "tags": [
+        "long-form",
+        "tutorial",
+        "multi-step"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "This tutorial provides a step-by-step guide for beginners on how to make a Git commit. It covers the basics of Git, how to stage files for commit, how to write a good commit message, and common mistakes to avoid.",
+        "details": "Git is a distributed version control system that allows multiple developers to work on the same project simultaneously. It helps in tracking changes in the codebase, maintaining a history of modifications, and collaborating effectively. Making a commit in Git involves several steps: staging the files, writing a commit message, and then committing the changes. Here's a beginner-friendly guide on how to do it.\n\n**Staging Files**\n\nBefore you can commit changes, you need to stage the files that you want to include in the commit. Staging is like preparing the files for the commit. You can stage files using the `git add` command. For example, to stage a single file named `example.txt`, you would use the command `git add example.txt`. If you want to stage all the changes in the directory, you can use `git add .`.\n\n**Writing a Good Commit Message**\n\nA good commit message is crucial as it helps in understanding the purpose of the commit. It should be concise, clear, and descriptive. The first line of the commit message should be a short summary of the changes (usually 50 characters or less). If you need to provide more details, you can add a blank line followed by a more detailed description. It's also a good practice to start the commit message with an imperative mood (e.g., 'Fix bug', 'Add feature').\n\n**Making the Commit**\n\nOnce the files are staged and the commit message is ready, you can make the commit using the `git commit` command. If you have already written the commit message in the staging area, you can simply use `git commit`. If you want to write the commit message directly from the command line, you can use `git commit -m \"Your commit message here\"`. It's a good practice to review the changes before committing using `git diff --cached`.\n\n**Common Mistakes to Avoid**\n\n- **Forgetting to stage files**: Always ensure that you have staged the files you want to commit using `git add`. Forgetting to stage files can lead to committing incomplete changes.\n- **Writing vague commit messages**: A good commit message should clearly describe the changes made. Avoid vague messages like 'Update code' or 'Fix issues'. Be specific about what was changed.\n- **Committing too many changes at once**: It's better to commit changes in small, manageable chunks. This makes it easier to track changes and revert them if necessary.\n- **Ignoring the staging area**: Always review the changes that are about to be committed using `git diff --cached`. This helps in catching any unintended changes.\n\nBy following these steps and avoiding common mistakes, you can effectively use Git to manage your codebase and collaborate with others.",
+        "durationMs": 22174,
+        "inputTokens": 66,
+        "outputTokens": 632,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Explains what Git is",
+          "passed": true
+        },
+        {
+          "name": "Mentions staging",
+          "passed": true
+        },
+        {
+          "name": "Mentions commit command",
+          "passed": true
+        },
+        {
+          "name": "Mentions commit messages",
+          "passed": true
+        },
+        {
+          "name": "Mentions common mistakes",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "long-03",
+      "caseName": "Comparative evaluation",
+      "model": "default",
+      "tags": [
+        "long-form",
+        "comparison",
+        "technical"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Both PostgreSQL and MongoDB are robust options for a web application needing to store user profiles, blog posts, and comments. However, based on the specific requirements and considerations such as data structure, querying, scalability, and developer experience, MongoDB might be the more suitable choice for this scenario.",
+        "details": "PostgreSQL is a relational database management system that uses SQL for querying and managing data. It is well-suited for structured data and complex queries. MongoDB, on the other hand, is a NoSQL database that stores data in a flexible, JSON-like format, which can be more efficient for certain types of operations, especially when dealing with unstructured or semi-structured data.\n\nFor a web application that needs to store user profiles, blog posts, and comments, MongoDB's flexible data model can be advantageous. It allows for more dynamic and scalable data structures, which can be beneficial if the application's data requirements evolve over time. MongoDB's ability to scale horizontally can also be a significant advantage, allowing the database to handle increased loads by adding more servers.\n\nIn terms of querying, while PostgreSQL offers powerful SQL capabilities, MongoDB's querying language, MQL, is designed to work well with its document-oriented structure. This can make certain types of queries more straightforward and efficient in MongoDB.\n\nRegarding developer experience, MongoDB offers a wide range of drivers and tools that can simplify the development process. Additionally, MongoDB Atlas, a fully managed cloud database service, can further ease the management and scaling of the database.\n\nWhile PostgreSQL is a solid choice and might be preferred for applications that require complex transactions and a high level of data integrity, MongoDB's flexibility and scalability make it a compelling option for the described use case.",
+        "durationMs": 12617,
+        "inputTokens": 72,
+        "outputTokens": 355,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Mentions PostgreSQL",
+          "passed": true
+        },
+        {
+          "name": "Mentions MongoDB",
+          "passed": true
+        },
+        {
+          "name": "Discusses data structure",
+          "passed": true
+        },
+        {
+          "name": "Discusses scalability",
+          "passed": true
+        },
+        {
+          "name": "Makes a recommendation",
+          "passed": true
         }
       ],
       "passed": true
@@ -348,7 +619,7 @@
     {
       "caseId": "sum-01",
       "caseName": "TDD benefits summary",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "simple",
         "summarisation",
@@ -356,11 +627,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "Test-driven development (TDD) is a software engineering approach that emphasizes writing tests before writing the actual code. This method ensures that the code meets the requirements and is of high quality. The key benefits of TDD include improved code quality, increased developer confidence, easier debugging, and better design. By writing tests first, developers are forced to think about the requirements and design before implementing the code, which leads to more robust and maintainable software. Additionally, TDD can help identify and fix bugs early in the development process, reducing the cost and time required for fixing issues later on.",
-        "details": "TDD involves three main steps: writing a test, writing the minimum amount of code to pass the test, and refactoring the code. This cycle is repeated until all requirements are met. The benefits of TDD are numerous, including:\n\n1. **Improved Code Quality**: TDD ensures that the code is of high quality by focusing on writing tests that cover all requirements. This leads to fewer bugs and more reliable software.\n\n2. **Increased Developer Confidence**: By writing tests first, developers can be confident that their code meets the requirements and works as expected. This can lead to a sense of accomplishment and satisfaction.\n\n3. **Easier Debugging**: TDD makes it easier to identify and fix bugs because the tests provide a clear indication of where the code is failing. This can save time and reduce the cost of debugging.\n\n4. **Better Design**: TDD encourages developers to think about the design of the code before implementing it. This can lead to more modular, maintainable, and scalable software.\n\n5. **Reduced Costs**: TDD can reduce the cost of software development by identifying and fixing bugs early in the development process. This can save time and money in the long run.\n\n6. **Improved Documentation**: TDD provides a form of documentation in the form of tests. These tests can serve as a reference for how the code should work and can be used to verify that changes to the code do not break existing functionality.\n\nOverall, TDD is a valuable approach to software engineering that can lead to higher quality software, increased developer confidence, and reduced costs.",
-        "durationMs": 17269,
+        "summary": "Test-driven development (TDD) is a software development approach where tests are written before the corresponding code. This method ensures that the code meets the requirements and functions as expected. The key benefits of TDD include improved code quality, increased developer confidence, easier debugging, and reduced maintenance costs. By writing tests first, developers are forced to think about the requirements and design before implementing the code, which leads to more robust and maintainable software. Additionally, TDD can help identify and fix bugs early in the development process, reducing the likelihood of costly errors in later stages. Overall, TDD promotes a more structured and disciplined approach to software development, leading to higher quality products.",
+        "details": "Test-driven development (TDD) is a software development approach where tests are written before the corresponding code. This method ensures that the code meets the requirements and functions as expected. The key benefits of TDD include improved code quality, increased developer confidence, easier debugging, and reduced maintenance costs. By writing tests first, developers are forced to think about the requirements and design before implementing the code, which leads to more robust and maintainable software. Additionally, TDD can help identify and fix bugs early in the development process, reducing the likelihood of costly errors in later stages. Overall, TDD promotes a more structured and disciplined approach to software development, leading to higher quality products.",
+        "durationMs": 10283,
         "inputTokens": 43,
-        "outputTokens": 461,
+        "outputTokens": 284,
         "estimatedCost": 0
       },
       "checks": [
@@ -385,24 +656,12 @@
           "passed": true
         }
       ],
-      "judgeScores": [
-        {
-          "criterion": "Relevance",
-          "score": 5,
-          "reasoning": "The agent directly addresses the task of summarizing the key benefits of test-driven development. It provides a clear, structured list of benefits and explains how they relate to the TDD process. The content remains strictly on topic, avoiding irrelevant tangents or filler information. The inclusion of the TDD cycle (Red-Green-Refactor) is contextually relevant as it explains *why* the benefits are achieved. The response is highly focused and accurate."
-        },
-        {
-          "criterion": "Completeness",
-          "score": 5,
-          "reasoning": "The agent successfully identifies and elaborates on six distinct benefits of Test-Driven Development (TDD). These include improved code quality, developer confidence, easier debugging, better design, reduced costs, and improved documentation. The response explicitly addresses the examples provided in the prompt (fewer bugs, better design, documentation) and exceeds the minimum requirement of three benefits. The coverage is comprehensive and accurate."
-        }
-      ],
       "passed": true
     },
     {
       "caseId": "sum-02",
       "caseName": "Climate change overview",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "simple",
         "summarisation",
@@ -410,11 +669,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "Climate change is primarily caused by the increase in greenhouse gases such as carbon dioxide and methane in the atmosphere, largely due to human activities like burning fossil fuels, deforestation, and industrial processes. This leads to global warming, where the Earth's average temperature rises. The effects of climate change include more extreme weather events, rising sea levels, changes in precipitation patterns, and impacts on biodiversity and ecosystems. These changes can lead to economic losses, displacement of populations, and threats to food security and public health.",
-        "details": "The main causes of climate change include:\n1. Burning of fossil fuels (coal, oil, and natural gas) for energy, transportation, and industry.\n2. Deforestation, which reduces the Earth's capacity to absorb CO2.\n3. Industrial processes and agricultural practices that release greenhouse gases.\n4. Increased emissions from land use changes and urbanization.\n\nThe effects of climate change include:\n1. More frequent and intense heatwaves, droughts, and wildfires.\n2. Increased frequency and severity of storms and hurricanes.\n3. Rising sea levels due to melting ice caps and glaciers.\n4. Changes in precipitation patterns, leading to both floods and droughts in different regions.\n5. Loss of biodiversity and disruption of ecosystems.\n6. Economic impacts on agriculture, infrastructure, and coastal communities.\n7. Health impacts due to increased heat stress, air pollution, and the spread of diseases.",
-        "durationMs": 11125,
+        "summary": "Climate change refers to significant changes in global temperatures and weather patterns over time, primarily caused by human activities such as burning fossil fuels, deforestation, and industrial processes. These activities increase the concentration of greenhouse gases in the atmosphere, leading to the greenhouse effect, which traps heat and causes the Earth's temperature to rise. The effects of climate change include rising sea levels, more frequent and severe weather events, changes in precipitation patterns, and impacts on biodiversity and ecosystems. It also poses significant risks to human health, food security, and economic stability.",
+        "details": "The main causes of climate change include:\n\n1. **Burning of fossil fuels**: The combustion of coal, oil, and gas releases large amounts of carbon dioxide (CO2), a primary greenhouse gas, into the atmosphere.\n2. **Deforestation**: Trees absorb CO2 from the atmosphere, and their removal reduces this natural carbon sink. Additionally, the burning of forests releases stored carbon into the air.\n3. **Industrial processes**: Various industrial activities, including cement production, steel manufacturing, and chemical manufacturing, release greenhouse gases.\n4. **Agriculture**: Agricultural practices, such as rice cultivation and the use of fertilizers, release methane and nitrous oxide, which are also potent greenhouse gases.\n\nThe effects of climate change are widespread and include:\n\n1. **Rising sea levels**: As temperatures increase, ice caps and glaciers melt, leading to a rise in sea levels. This can cause flooding in coastal areas and threaten low-lying islands.\n2. **More frequent and severe weather events**: Climate change can lead to more intense hurricanes, droughts, heatwaves, and heavy rainfall, causing significant damage to infrastructure and loss of life.\n3. **Changes in precipitation patterns**: Some regions may experience more frequent droughts, while others may face increased flooding, affecting water availability and agriculture.\n4. **Impacts on biodiversity and ecosystems**: Changes in temperature and precipitation can disrupt ecosystems, leading to the extinction of species and changes in biodiversity.\n5. **Human health risks**: Increased temperatures can lead to heat-related illnesses, while changes in weather patterns can increase the spread of diseases carried by mosquitoes and other vectors.\n6. **Economic impacts**: Climate change can lead to significant economic losses through damage to property, disruption of industries, and increased costs for adaptation and mitigation measures.",
+        "durationMs": 17736,
         "inputTokens": 43,
-        "outputTokens": 302,
+        "outputTokens": 491,
         "estimatedCost": 0
       },
       "checks": [
@@ -435,19 +694,12 @@
           "passed": true
         }
       ],
-      "judgeScores": [
-        {
-          "criterion": "Factual accuracy",
-          "score": 1,
-          "reasoning": "The agent correctly identifies the primary drivers of climate change, specifically the increase in greenhouse gases (CO2, methane) resulting from human activities such as fossil fuel combustion, deforestation, and industrial/agricultural practices. The listed effects—including global warming, rising sea levels, extreme weather events, biodiversity loss, and socio-economic impacts—are all well-supported by current climate science (e.g., IPCC reports). The information is accurate, balanced, and free of misinformation or misleading claims."
-        }
-      ],
       "passed": true
     },
     {
       "caseId": "sum-03",
       "caseName": "REST API explanation",
-      "model": "qwen2.5-coder:14b-precise",
+      "model": "default",
       "tags": [
         "simple",
         "summarisation",
@@ -455,11 +707,11 @@
       ],
       "output": {
         "status": "success",
-        "summary": "A REST API is a set of rules for accessing and manipulating data over the web using HTTP methods.",
-        "details": "It allows different software applications to communicate with each other by sending and receiving data in a standardized format, typically JSON or XML.",
-        "durationMs": 2087,
+        "summary": "REST API is a set of rules for accessing and manipulating data over the web using HTTP methods.",
+        "details": "It allows different software applications to communicate with each other by exchanging data in a standardized format, typically JSON or XML.",
+        "durationMs": 2009,
         "inputTokens": 42,
-        "outputTokens": 57,
+        "outputTokens": 54,
         "estimatedCost": 0
       },
       "checks": [
@@ -480,14 +732,117 @@
           "passed": true
         }
       ],
-      "judgeScores": [
+      "passed": true
+    },
+    {
+      "caseId": "sys-01",
+      "caseName": "Persona with constraints",
+      "model": "default",
+      "tags": [
+        "system-prompt-advanced",
+        "persona",
+        "multi-constraint"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Dinner Recipe: Risotto alla Milanese",
+        "details": "Risotto alla Milanese is a classic Milanese dish that's creamy and flavorful. It's made with Arborio rice, beef broth, white wine, and Parmigiano-Reggiano cheese. This dish is perfect for a cozy dinner and can be prepared in about 30 minutes. Start by sautéing onions and garlic in butter until soft. Add Arborio rice and toast it for a few minutes. Then, gradually add the beef broth and white wine, stirring continuously. Cook until the rice is creamy and al dente. Finish with grated Parmigiano-Reggiano and a sprinkle of nutmeg. Buon appetito!",
+        "durationMs": 5744,
+        "inputTokens": 73,
+        "outputTokens": 156,
+        "estimatedCost": 0
+      },
+      "checks": [
         {
-          "criterion": "Conciseness",
-          "score": 3,
-          "reasoning": "The system prompt explicitly instructed the agent to use no more than 2 sentences total across the summary and details. The agent provided exactly two sentences (one for the summary and one for the details). However, the task prompt specifically requested the explanation be in \"exactly one sentence.\" By providing two sentences, the agent failed to follow the specific task constraint, even though it adhered to the system-level length constraint."
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Mentions Italian region",
+          "passed": true
+        },
+        {
+          "name": "Ends with Buon appetito",
+          "passed": true
+        },
+        {
+          "name": "Time constraint respected",
+          "passed": true
         }
       ],
-      "passed": false
+      "passed": true
+    },
+    {
+      "caseId": "sys-02",
+      "caseName": "Negative constraint compliance",
+      "model": "default",
+      "tags": [
+        "system-prompt-advanced",
+        "negative-constraint",
+        "conciseness"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Regular exercise enhances physical health by strengthening muscles and improving cardiovascular function, reducing the risk of chronic diseases such as heart disease, diabetes, and obesity. It also boosts mental health, alleviating symptoms of depression and anxiety, and enhancing cognitive function. Additionally, exercise promotes better sleep quality, increases energy levels, and contributes to a healthier body weight, all of which contribute to an overall improved quality of life.",
+        "details": "Engaging in regular physical activity strengthens the heart, lungs, and muscles, making the body more efficient at using oxygen and improving stamina. This not only enhances athletic performance but also makes daily activities easier and less tiring. Exercise also helps regulate blood sugar levels, which is crucial for managing diabetes and preventing the development of insulin resistance. Furthermore, it aids in weight management by increasing metabolic rate and burning calories, which is particularly important in preventing obesity and its associated health issues. On a mental health front, physical activity stimulates the production of endorphins, chemicals in the brain that act as natural painkillers and mood elevators, helping to reduce stress, anxiety, and depression. It also enhances brain function, improving memory, concentration, and overall cognitive health. Lastly, consistent exercise promotes better sleep patterns, helping individuals fall asleep faster and sleep more deeply, which is essential for physical recovery and mental well-being. In summary, the multifaceted impacts of regular exercise on physical and mental health significantly contribute to a higher quality of life and longevity.",
+        "durationMs": 10823,
+        "inputTokens": 57,
+        "outputTokens": 299,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "No bullet points",
+          "passed": true
+        },
+        {
+          "name": "No numbered lists",
+          "passed": true
+        },
+        {
+          "name": "Does not use forbidden word",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sys-03",
+      "caseName": "Role-play with knowledge boundary",
+      "model": "default",
+      "tags": [
+        "system-prompt-advanced",
+        "persona",
+        "knowledge-boundary"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "I am sorry, but I do not have knowledge of events that occurred after the year 1200. My understanding is limited to the medieval period, and I cannot provide information on the 2008 financial crisis or any other events from more recent times.",
+        "details": "The 2008 financial crisis is a topic from a time far beyond my historical knowledge. In the year 1200, we were still in the early stages of the High Middle Ages, and such complex economic phenomena were not yet part of our world. If you have any questions about the medieval period, the Crusades, or the reigns of kings and emperors from my era, I would be more than happy to discuss those with you.",
+        "durationMs": 6212,
+        "inputTokens": 87,
+        "outputTokens": 164,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Expresses confusion or unfamiliarity",
+          "passed": true
+        },
+        {
+          "name": "References medieval era",
+          "passed": true
+        }
+      ],
+      "passed": true
     }
   ]
 }
