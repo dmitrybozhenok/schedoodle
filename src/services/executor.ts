@@ -11,6 +11,7 @@ import { buildPrompt, prefetchUrls } from "../services/prefetch.js";
 import type { Agent } from "../types/index.js";
 import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
 import { sendFailureNotification, sendNotification } from "./notifier.js";
+import { createSemaphore, type SemaphoreStatus } from "./semaphore.js";
 import { buildToolSet } from "./tools/registry.js";
 
 const BREAKER_NAME = env.LLM_PROVIDER === "ollama" ? "ollama" : "anthropic";
@@ -30,6 +31,29 @@ export function _resetLlmBreaker() {
 		failureThreshold: 3,
 		resetTimeoutMs: 30_000,
 	});
+}
+
+let llmSemaphore = createSemaphore(env.MAX_CONCURRENT_LLM);
+
+/**
+ * Get the current LLM concurrency semaphore status.
+ */
+export function getLlmSemaphoreStatus(): SemaphoreStatus {
+	return llmSemaphore.getStatus();
+}
+
+/**
+ * Drain queued LLM executions. Returns the count of dropped waiters.
+ */
+export function drainLlmSemaphore(): number {
+	return llmSemaphore.drain();
+}
+
+/**
+ * Reset the LLM semaphore. Intended for test isolation only.
+ */
+export function _resetLlmSemaphore(): void {
+	llmSemaphore = createSemaphore(env.MAX_CONCURRENT_LLM);
 }
 
 type ExecuteSuccess = {
@@ -138,7 +162,7 @@ async function callLlmWithRetry(
 /**
  * Execute a single agent: prefetch URLs, call LLM, record result in DB.
  */
-export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteResult> {
+async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteResult> {
 	// Insert running record
 	const inserted = db
 		.insert(executionHistory)
@@ -307,6 +331,23 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 		return { status: "failure", executionId, error: errorMsg };
 	} finally {
 		clearTimeout(timeout);
+	}
+}
+
+/**
+ * Execute a single agent with concurrency limiting via semaphore.
+ * Wraps executeAgentInner with acquire/release to enforce MAX_CONCURRENT_LLM.
+ */
+export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteResult> {
+	const status = llmSemaphore.getStatus();
+	if (status.active >= status.limit) {
+		console.log(`[concurrency] Slot full (${status.active}/${status.limit} active), agent "${agent.name}" queued`);
+	}
+	await llmSemaphore.acquire();
+	try {
+		return await executeAgentInner(agent, db);
+	} finally {
+		llmSemaphore.release();
 	}
 }
 
