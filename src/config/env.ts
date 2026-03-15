@@ -15,6 +15,7 @@ export const envSchema = z
 		SMTP_PORT: z.coerce.number().optional(),
 		BRAVE_API_KEY: z.string().optional(),
 		AUTH_TOKEN: z.string().optional(),
+		RETENTION_DAYS: z.coerce.number().min(1).default(30),
 	})
 	.refine(
 		(data) =>

@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+	index,
 	integer,
 	real,
 	sqliteTable,
@@ -24,24 +25,32 @@ export const agents = sqliteTable(
 	(table) => [uniqueIndex("agents_name_nocase").on(sql`${table.name} COLLATE NOCASE`)],
 );
 
-export const executionHistory = sqliteTable("execution_history", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	agentId: integer("agent_id").references(() => agents.id, {
-		onDelete: "set null",
-	}),
-	status: text("status", { enum: ["success", "failure", "running"] }).notNull(),
-	inputTokens: integer("input_tokens"),
-	outputTokens: integer("output_tokens"),
-	durationMs: integer("duration_ms"),
-	result: text("result", { mode: "json" }),
-	error: text("error"),
-	deliveryStatus: text("delivery_status"),
-	estimatedCost: real("estimated_cost"),
-	retryCount: integer("retry_count").default(0),
-	toolCalls: text("tool_calls", { mode: "json" }),
-	startedAt: text("started_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
-	completedAt: text("completed_at"),
-});
+export const executionHistory = sqliteTable(
+	"execution_history",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		agentId: integer("agent_id").references(() => agents.id, {
+			onDelete: "set null",
+		}),
+		status: text("status", { enum: ["success", "failure", "running"] }).notNull(),
+		inputTokens: integer("input_tokens"),
+		outputTokens: integer("output_tokens"),
+		durationMs: integer("duration_ms"),
+		result: text("result", { mode: "json" }),
+		error: text("error"),
+		deliveryStatus: text("delivery_status"),
+		estimatedCost: real("estimated_cost"),
+		retryCount: integer("retry_count").default(0),
+		toolCalls: text("tool_calls", { mode: "json" }),
+		startedAt: text("started_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+		completedAt: text("completed_at"),
+	},
+	(table) => [
+		index("idx_exec_agent_id").on(table.agentId),
+		index("idx_exec_agent_started").on(table.agentId, table.startedAt),
+		index("idx_exec_status").on(table.status),
+	],
+);
 
 export const tools = sqliteTable("tools", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
