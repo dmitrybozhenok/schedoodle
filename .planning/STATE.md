@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Plan 12-01 complete (LLM concurrency semaphore)
-last_updated: "2026-03-15T05:03:22Z"
-last_activity: 2026-03-15 -- Plan 12-01 complete (counting semaphore for LLM concurrency limits)
+stopped_at: Plan 12-02 complete (graceful shutdown and health concurrency)
+last_updated: "2026-03-15T05:11:41Z"
+last_activity: 2026-03-15 -- Plan 12-02 complete (graceful shutdown and health concurrency)
 progress:
   total_phases: 15
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 24
-  completed_plans: 23
-  percent: 96
+  completed_plans: 24
+  percent: 100
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 12 of 15 (LLM Concurrency Limits and Graceful Shutdown)
-Plan: 1 of 2 in current phase (1 complete)
-Status: In Progress
-Last activity: 2026-03-15 -- Plan 12-01 complete (counting semaphore for LLM concurrency limits)
+Plan: 2 of 2 in current phase (2 complete)
+Status: Phase Complete
+Last activity: 2026-03-15 -- Plan 12-02 complete (graceful shutdown and health concurrency)
 
-Progress: [█████████░] 96%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Progress: [█████████░] 96%
 | Phase 11 P02 | 2min | 1 tasks | 2 files |
 | Phase 11 P01 | 3min | 2 tasks | 7 files |
 | Phase 12 P01 | 10min | 2 tasks | 7 files |
+| Phase 12 P02 | 5min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -162,6 +163,9 @@ Recent decisions affecting current work:
 - [Phase 12]: [12-01]: Semaphore as separate module (~45 lines) matching circuit-breaker.ts pattern
 - [Phase 12]: [12-01]: Rename executeAgent to executeAgentInner, new executeAgent wraps with semaphore
 - [Phase 12]: [12-01]: Conditional concurrency log only when slots are full (matches Phase 11 pattern)
+- [Phase 12]: [12-02]: markRunningAsShutdownTimeout in startup.ts (not index.ts) to avoid server startup side effects in tests
+- [Phase 12]: [12-02]: createAgentRoutes default isShuttingDown parameter for backward compatibility
+- [Phase 12]: [12-02]: Shutdown guard after enabled check, before executeAgent call
 
 ### Roadmap Evolution
 
@@ -187,6 +191,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T05:03:22Z
-Stopped at: Plan 12-01 complete (LLM concurrency semaphore)
-Resume file: .planning/phases/12-llm-concurrency-limits-and-graceful-shutdown/12-01-SUMMARY.md
+Last session: 2026-03-15T05:11:41Z
+Stopped at: Plan 12-02 complete (graceful shutdown and health concurrency)
+Resume file: .planning/phases/12-llm-concurrency-limits-and-graceful-shutdown/12-02-SUMMARY.md
