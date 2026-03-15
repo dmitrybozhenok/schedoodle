@@ -8,6 +8,7 @@
 		"dev": "tsx watch src/index.ts",
 		"start": "node dist/index.js",
 		"build": "tsc",
+		"typecheck": "tsc --noEmit",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"lint": "biome check .",

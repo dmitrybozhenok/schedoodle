@@ -45,7 +45,7 @@ export function createToolRoutes(db: Database): Hono {
 			name: string;
 			description: string;
 			url: string;
-			method?: string;
+			method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 			headers?: Record<string, string>;
 			inputSchema: Record<string, unknown>;
 		};
@@ -107,7 +107,7 @@ export function createToolRoutes(db: Database): Hono {
 			name?: string;
 			description?: string;
 			url?: string;
-			method?: string;
+			method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 			headers?: Record<string, string>;
 			inputSchema?: Record<string, unknown>;
 		};
