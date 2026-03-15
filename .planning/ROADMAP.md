@@ -104,7 +104,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2009-03-14 |
 | 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2009-03-15 |
 | 8. Enhanced Health Monitoring | 2/2 | Complete | 2026-03-15 |
-| 9. Agent Tool Use | 0/3 | Planned | - |
+| 9. Agent Tool Use | 1/3 | In Progress|  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -174,7 +174,7 @@ Plans:
   7. Per-agent execution timeout is configurable via maxExecutionMs and enforced with AbortController
   8. Circuit breaker wraps the entire multi-step generateText call
   9. Built-in tools are automatically available to all agents without opt-in
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
 - [ ] 09-01-PLAN.md — Schema (tools table, agent_tools join, maxExecutionMs, toolCalls), env config, built-in tools, webhook factory, tool registry, and tests
 - [ ] 09-02-PLAN.md — Executor modifications: tools + stopWhen + AbortController timeout + tool call logging, and tests

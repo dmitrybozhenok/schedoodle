@@ -66,16 +66,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Agent Tool Use
 
-- [ ] **TOOL-01**: web_fetch built-in tool fetches URL content and returns plain text (HTML converted via html-to-text)
-- [ ] **TOOL-02**: web_search built-in tool queries Brave Search API and returns structured results
-- [ ] **TOOL-03**: Custom webhook tools execute HTTP calls with configurable URL, method, headers, and JSON Schema input
+- [x] **TOOL-01**: web_fetch built-in tool fetches URL content and returns plain text (HTML converted via html-to-text)
+- [x] **TOOL-02**: web_search built-in tool queries Brave Search API and returns structured results
+- [x] **TOOL-03**: Custom webhook tools execute HTTP calls with configurable URL, method, headers, and JSON Schema input
 - [ ] **TOOL-04**: Full CRUD API at /tools for custom tool definitions (POST, GET, PATCH, DELETE)
 - [ ] **TOOL-05**: Many-to-many agent-tool attachment via join table with link/unlink API endpoints
 - [ ] **TOOL-06**: Executor uses generateText with tools + stopWhen: stepCountIs(10) for multi-step tool calling
 - [ ] **TOOL-07**: Tool call details logged as JSON array in execution history (toolName, input, output, durationMs)
 - [ ] **TOOL-08**: Per-agent configurable execution timeout via maxExecutionMs column + AbortController
-- [ ] **TOOL-09**: Database schema: tools table, agent_tools join table, maxExecutionMs on agents, toolCalls on executionHistory
-- [ ] **TOOL-10**: Built-in tools (web_fetch, web_search) automatically available to all agents without per-agent opt-in
+- [x] **TOOL-09**: Database schema: tools table, agent_tools join table, maxExecutionMs on agents, toolCalls on executionHistory
+- [x] **TOOL-10**: Built-in tools (web_fetch, web_search) automatically available to all agents without per-agent opt-in
 - [ ] **TOOL-11**: Circuit breaker wraps entire generateText call including all tool steps
 
 ## v2 Requirements

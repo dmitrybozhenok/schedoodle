@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 10 context gathered
-last_updated: "2026-03-15T03:26:41.474Z"
-last_activity: 2026-03-15 -- Plan 08-02 complete (enhanced /health with per-agent breakdown, aggregates, upcoming runs, status levels)
+status: in-progress
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-15T03:32:00.000Z"
+last_activity: 2026-03-15 -- Plan 09-01 complete (tools schema, built-in tools, webhook factory, registry)
 progress:
   total_phases: 14
   completed_phases: 8
   total_plans: 18
-  completed_plans: 15
-  percent: 100
+  completed_plans: 16
+  percent: 89
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Agents run reliably on schedule, process tasks through an LLM, and deliver structured results -- without manual intervention.
-**Current focus:** Phase 8 -- Enhanced health monitoring with agent health flags and execution diagnostics
+**Current focus:** Phase 9 -- Agent Tool Use with Built-in and Custom Tools
 
 ## Current Position
 
-Phase: 8 of 7 (Enhanced Health Monitoring)
-Plan: 2 of 2 in current phase (2 complete)
-Status: Complete
-Last activity: 2026-03-15 -- Plan 08-02 complete (enhanced /health with per-agent breakdown, aggregates, upcoming runs, status levels)
+Phase: 9 of 14 (Agent Tool Use)
+Plan: 1 of 3 in current phase (1 complete)
+Status: In Progress
+Last activity: 2026-03-15 -- Plan 09-01 complete (tools schema, built-in tools, webhook factory, registry)
 
-Progress: [██████████] 100%
+Progress: [████████░░] 89%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [██████████] 100%
 | Phase 08 P01 | 4min | 2 tasks | 12 files |
 | Phase 08 P02 | 3min | 1 tasks | 3 files |
 | Phase 08 P02 | 3min | 1 tasks | 3 files |
+| Phase 09 P01 | 11min | 3 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,11 @@ Recent decisions affecting current work:
 - [08-02]: Per-agent lastRunAt/lastStatus N+1 queries acceptable for SQLite with <100 agents
 - [Phase 08]: Single 24h query grouped in JS for per-agent successRate/avgDurationMs (bounded result set pattern)
 - [Phase 08]: Status hierarchy: OPEN circuit breaker = unhealthy; >50% agents unhealthy = unhealthy; some = degraded; all healthy = ok
+- [09-01]: AI SDK 6 tool() uses inputSchema (not parameters) for TypeScript compatibility
+- [09-01]: Webhook tool uses direct object literal instead of tool() helper for jsonSchema() compatibility
+- [09-01]: Custom tools in registry prefixed with custom_ to prevent built-in name collisions
+- [09-01]: z.record(z.string(), z.any()) for inputSchema validation (Zod v4 compatibility)
+- [09-01]: AbortSignal conditional push pattern for optional abortSignal (may be undefined)
 
 ### Roadmap Evolution
 
@@ -151,6 +157,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T03:26:41.471Z
-Stopped at: Phase 10 context gathered
-Resume file: .planning/phases/10-api-security-and-hardening/10-CONTEXT.md
+Last session: 2026-03-15T03:32:00.000Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: .planning/phases/09-agent-tool-use-with-built-in-and-custom-tools/09-01-SUMMARY.md
