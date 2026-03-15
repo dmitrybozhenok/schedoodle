@@ -17,7 +17,9 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"eval": "tsx evals/eval.ts",
-		"eval:judge": "tsx evals/eval.ts --judge"
+		"eval:judge": "tsx evals/eval.ts --judge",
+		"mcp": "tsx src/mcp.ts",
+		"mcp:start": "node dist/mcp.js"
 	},
 	"keywords": [],
 	"author": "",
@@ -26,6 +28,7 @@
 		"@ai-sdk/anthropic": "^3.0.58",
 		"@hono/node-server": "^1.19.11",
 		"@hono/zod-validator": "^0.7.6",
+		"@modelcontextprotocol/sdk": "^1.27.1",
 		"ai": "^6.0.116",
 		"ai-sdk-ollama": "^3.8.0",
 		"better-sqlite3": "^12.8.0",
