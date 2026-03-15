@@ -67,6 +67,7 @@ CREATE TABLE execution_history (
   error TEXT,
   delivery_status TEXT,
   estimated_cost REAL,
+  retry_count INTEGER DEFAULT 0,
   started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   completed_at TEXT
 );
@@ -301,6 +302,51 @@ describe("executeAgent", () => {
 			.where(eq(schema.executionHistory.agentId, agent.id))
 			.all();
 		expect(rows[0].durationMs).toBeGreaterThanOrEqual(25);
+	});
+
+	it("records retryCount=0 in DB on success without retry", async () => {
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].retryCount).toBe(0);
+	});
+
+	it("records retryCount=1 in DB on success after NoObjectGeneratedError retry", async () => {
+		mockGenerateText
+			.mockRejectedValueOnce(makeNoObjectError("schema mismatch"))
+			.mockResolvedValueOnce(makeLlmResult());
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].retryCount).toBe(1);
+	});
+
+	it("records retryCount=0 in DB on failure", async () => {
+		mockGenerateText.mockRejectedValue(new Error("API failure"));
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].retryCount).toBe(0);
 	});
 
 	it("records estimatedCost in execution history on success", async () => {

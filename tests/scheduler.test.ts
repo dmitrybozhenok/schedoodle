@@ -44,6 +44,7 @@ CREATE TABLE execution_history (
   error TEXT,
   delivery_status TEXT,
   estimated_cost REAL,
+  retry_count INTEGER DEFAULT 0,
   started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   completed_at TEXT
 );

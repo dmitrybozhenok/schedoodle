@@ -65,7 +65,7 @@ async function callLlmWithRetry(modelId: string, systemPrompt: string | null, us
 			output: Output.object({ schema: agentOutputSchema }),
 			prompt: userMessage,
 		});
-		return result;
+		return { result, retryCount: 0 };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			// Retry once with validation error appended as feedback
@@ -78,7 +78,7 @@ async function callLlmWithRetry(modelId: string, systemPrompt: string | null, us
 				output: Output.object({ schema: agentOutputSchema }),
 				prompt: retryPrompt,
 			});
-			return result;
+			return { result, retryCount: 1 };
 		}
 		throw error;
 	}
@@ -108,7 +108,7 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 
 		// Call LLM with retry, wrapped in circuit breaker
 		const modelId = agent.model ?? DEFAULT_MODEL;
-		const result = await llmBreaker.execute(() =>
+		const { result, retryCount } = await llmBreaker.execute(() =>
 			callLlmWithRetry(modelId, agent.systemPrompt, userMessage),
 		);
 
@@ -130,6 +130,7 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 				inputTokens: result.usage.inputTokens ?? null,
 				outputTokens: result.usage.outputTokens ?? null,
 				estimatedCost: cost,
+				retryCount,
 				durationMs,
 				completedAt: new Date().toISOString(),
 			})
@@ -183,6 +184,7 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 				status: "failure",
 				error: errorMsg,
 				estimatedCost: isCircuitOpen ? 0 : null,
+				retryCount: 0,
 				durationMs,
 				completedAt: new Date().toISOString(),
 			})

@@ -30,6 +30,7 @@ export const executionHistory = sqliteTable("execution_history", {
 	error: text("error"),
 	deliveryStatus: text("delivery_status"),
 	estimatedCost: real("estimated_cost"),
+	retryCount: integer("retry_count").default(0),
 	startedAt: text("started_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 	completedAt: text("completed_at"),
 });

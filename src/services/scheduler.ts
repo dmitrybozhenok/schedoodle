@@ -94,3 +94,11 @@ export function stopAll(): void {
 export function getJobCount(): number {
 	return jobs.size;
 }
+
+/**
+ * Get the live map of scheduled jobs. Used by the health endpoint
+ * to compute upcoming run times.
+ */
+export function getScheduledJobs(): Map<number, Cron> {
+	return jobs;
+}
