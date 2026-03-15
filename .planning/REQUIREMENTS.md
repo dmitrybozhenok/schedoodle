@@ -99,15 +99,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### MCP Server
 
-- [ ] **MCP-01**: MCP server runs as a separate stdio process at src/mcp.ts with @modelcontextprotocol/sdk
-- [ ] **MCP-02**: list_agents MCP tool returns all agents with enriched data (health, schedule, enabled status)
-- [ ] **MCP-03**: get_agent MCP tool returns a single enriched agent by ID
-- [ ] **MCP-04**: create_agent MCP tool accepts natural language schedules and inserts agent into DB
-- [ ] **MCP-05**: update_agent MCP tool modifies agent fields with NL schedule resolution
-- [ ] **MCP-06**: delete_agent MCP tool uses two-step confirmation (preview then confirm)
-- [ ] **MCP-07**: execute_agent MCP tool triggers synchronous agent execution and returns full result
-- [ ] **MCP-08**: get_execution_history MCP tool returns execution records for an agent (default 100, max 200)
-- [ ] **MCP-09**: All MCP error responses include actionable guidance for self-correction
+- [x] **MCP-01**: MCP server runs as a separate stdio process at src/mcp.ts with @modelcontextprotocol/sdk
+- [x] **MCP-02**: list_agents MCP tool returns all agents with enriched data (health, schedule, enabled status)
+- [x] **MCP-03**: get_agent MCP tool returns a single enriched agent by ID
+- [x] **MCP-04**: create_agent MCP tool accepts natural language schedules and inserts agent into DB
+- [x] **MCP-05**: update_agent MCP tool modifies agent fields with NL schedule resolution
+- [x] **MCP-06**: delete_agent MCP tool uses two-step confirmation (preview then confirm)
+- [x] **MCP-07**: execute_agent MCP tool triggers synchronous agent execution and returns full result
+- [x] **MCP-08**: get_execution_history MCP tool returns execution records for an agent (default 100, max 200)
+- [x] **MCP-09**: All MCP error responses include actionable guidance for self-correction
 - [ ] **MCP-10**: list_tools, get_tool, create_tool, update_tool MCP tools provide full custom tool CRUD
 - [ ] **MCP-11**: delete_tool MCP tool uses two-step confirmation matching delete_agent pattern
 - [ ] **MCP-12**: list_agent_tools MCP tool returns tools attached to an agent
