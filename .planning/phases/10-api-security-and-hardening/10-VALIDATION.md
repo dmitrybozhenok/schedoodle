@@ -44,8 +44,8 @@ created: 2026-03-15
 | 10-01-04 | 01 | 1 | SEC-08 | unit | `pnpm vitest run tests/middleware-security.test.ts -t "cors"` | ❌ W0 | ⬜ pending |
 | 10-02-01 | 02 | 1 | SEC-03 | unit | `pnpm vitest run tests/ssrf.test.ts` | ❌ W0 | ⬜ pending |
 | 10-02-02 | 02 | 1 | SEC-04 | unit | `pnpm vitest run tests/prefetch.test.ts -t "size limit"` | ❌ W0 | ⬜ pending |
-| 10-03-01 | 03 | 1 | SEC-05 | unit | `pnpm vitest run tests/schemas.test.ts -t "max"` | ❌ W0 | ⬜ pending |
-| 10-04-01 | 04 | 1 | SEC-06 | unit | `pnpm vitest run tests/middleware-rate-limiter.test.ts` | ❌ W0 | ⬜ pending |
+| 10-02-03 | 02 | 1 | SEC-05 | unit | `pnpm vitest run tests/schemas.test.ts -t "max"` | ❌ W0 | ⬜ pending |
+| 10-01-05 | 01 | 1 | SEC-06 | unit | `pnpm vitest run tests/middleware-rate-limiter.test.ts` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
