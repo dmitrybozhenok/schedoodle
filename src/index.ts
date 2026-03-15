@@ -7,6 +7,7 @@ import { db } from "./db/index.js";
 import { agents } from "./db/schema.js";
 import { createAgentRoutes } from "./routes/agents.js";
 import { createHealthRoute } from "./routes/health.js";
+import { createScheduleRoutes } from "./routes/schedules.js";
 import { getLlmCircuitStatus } from "./services/executor.js";
 import { startAll, stopAll } from "./services/scheduler.js";
 
@@ -35,6 +36,7 @@ app.notFound((c) => {
 // Mount routes
 app.route("/agents", createAgentRoutes(db));
 app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt));
+app.route("/schedules", createScheduleRoutes());
 
 // Boot sequence
 const allAgents = db.select().from(agents).all();
