@@ -10,6 +10,7 @@ import { createDashboardRoute } from "./routes/dashboard.js";
 import { createHealthRoute } from "./routes/health.js";
 import { createManageRoute } from "./routes/manage.js";
 import { createScheduleRoutes } from "./routes/schedules.js";
+import { createToolRoutes } from "./routes/tools.js";
 import { getLlmCircuitStatus } from "./services/executor.js";
 import { getScheduledJobs, startAll, stopAll } from "./services/scheduler.js";
 
@@ -41,6 +42,7 @@ app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt, getSc
 app.route("/manage", createManageRoute());
 app.route("/schedules", createScheduleRoutes());
 app.route("/dashboard", createDashboardRoute());
+app.route("/tools", createToolRoutes(db));
 
 // Boot sequence
 const allAgents = db.select().from(agents).all();
