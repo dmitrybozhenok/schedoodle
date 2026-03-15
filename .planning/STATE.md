@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-15T03:32:00.000Z"
-last_activity: 2026-03-15 -- Plan 09-01 complete (tools schema, built-in tools, webhook factory, registry)
+status: executing
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-03-15T03:43:02.283Z"
+last_activity: 2026-03-15 -- Plan 09-03 complete (tools CRUD API, agent-tool attachment endpoints)
 progress:
   total_phases: 14
-  completed_phases: 8
-  total_plans: 18
-  completed_plans: 16
-  percent: 89
+  completed_phases: 9
+  total_plans: 20
+  completed_plans: 18
+  percent: 94
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 9 of 14 (Agent Tool Use)
-Plan: 1 of 3 in current phase (1 complete)
+Plan: 3 of 3 in current phase (3 complete)
 Status: In Progress
-Last activity: 2026-03-15 -- Plan 09-01 complete (tools schema, built-in tools, webhook factory, registry)
+Last activity: 2026-03-15 -- Plan 09-03 complete (tools CRUD API, agent-tool attachment endpoints)
 
-Progress: [████████░░] 89%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -69,6 +69,8 @@ Progress: [████████░░] 89%
 | Phase 08 P02 | 3min | 1 tasks | 3 files |
 | Phase 08 P02 | 3min | 1 tasks | 3 files |
 | Phase 09 P01 | 11min | 3 tasks | 18 files |
+| Phase 09 P03 | 6min | 2 tasks | 5 files |
+| Phase 09 P02 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -133,6 +135,13 @@ Recent decisions affecting current work:
 - [09-01]: Custom tools in registry prefixed with custom_ to prevent built-in name collisions
 - [09-01]: z.record(z.string(), z.any()) for inputSchema validation (Zod v4 compatibility)
 - [09-01]: AbortSignal conditional push pattern for optional abortSignal (may be undefined)
+- [09-03]: zodErrorHook duplicated in tools.ts (matching existing codebase convention from Phase 7)
+- [09-03]: inArray query for fetching tools by IDs from join table (avoids N+1)
+- [09-03]: UNIQUE constraint catch for 409 on duplicate tool attachment
+- [Phase 09]: AnyTool type alias for toolSet parameter (matches registry.ts pattern)
+- [Phase 09]: any-typed onStepFinish callback for AI SDK generic type compatibility
+- [Phase 09]: callGenerateText helper instead of baseOptions spread to avoid TS type widening
+- [Phase 09]: totalUsage preferred over usage for multi-step token aggregation
 
 ### Roadmap Evolution
 
@@ -157,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T03:32:00.000Z
-Stopped at: Completed 09-01-PLAN.md
-Resume file: .planning/phases/09-agent-tool-use-with-built-in-and-custom-tools/09-01-SUMMARY.md
+Last session: 2026-03-15T03:43:02.280Z
+Stopped at: Completed 09-02-PLAN.md
+Resume file: None
