@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -107,6 +107,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 9. Agent Tool Use | 1/3 | In Progress|  |
 | 10. API Security and Hardening | 2/2 | Complete    | 2026-03-15 |
 | 11. Data Integrity and Execution Lifecycle | 2/2 | Complete    | 2026-03-15 |
+| 12. LLM Concurrency Limits and Graceful Shutdown | 0/2 | Planned | |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -220,13 +221,23 @@ Plans:
 
 ### Phase 12: LLM Concurrency Limits and Graceful Shutdown
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Concurrent LLM executions are bounded by a configurable semaphore, the shutdown process drains in-flight executions with a timeout, and the health endpoint provides concurrency visibility
+**Requirements**: CONC-01, CONC-02, CONC-03, SHUT-01, SHUT-02, SHUT-03, OBSV-01, OBSV-02, OBSV-03
 **Depends on:** Phase 11
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. A counting semaphore limits concurrent LLM calls to MAX_CONCURRENT_LLM (default 3)
+  2. Both cron-triggered and manual executions share the same concurrency pool via semaphore-wrapped executeAgent
+  3. Excess executions wait in FIFO order until a slot frees up
+  4. On SIGINT/SIGTERM, the service stops accepting new work and waits up to 30s for in-flight executions
+  5. If timeout expires, remaining 'running' records are marked as 'failure' with 'Shutdown timeout exceeded'
+  6. Queued (not-yet-started) executions are dropped on shutdown
+  7. Health endpoint includes concurrency stats (active, queued, limit) and shutting_down flag
+  8. Health endpoint returns 503 during shutdown
+  9. Log emitted only when an execution has to wait for a slot
+**Plans:** 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md — Semaphore module, MAX_CONCURRENT_LLM env config, executor semaphore wrapping, and tests
+- [ ] 12-02-PLAN.md — Graceful shutdown drain/timeout, health concurrency stats, shutdown guards, and tests
 
 ### Phase 13: CI CD Pipeline
 
