@@ -119,13 +119,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Telegram Notification Channel
 
-- [ ] **TGRAM-01**: Telegram Bot API sendMessage sends notifications via direct fetch (no third-party library)
-- [ ] **TGRAM-02**: MarkdownV2 escape function handles all 18 special characters, with separate code block escaping
-- [ ] **TGRAM-03**: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID optional env vars control Telegram configuration
-- [ ] **TGRAM-04**: telegramDeliveryStatus column tracks Telegram delivery independently from email
-- [ ] **TGRAM-05**: Telegram messages use MarkdownV2 with bold agent name, timestamp, summary, details sections
-- [ ] **TGRAM-06**: Telegram messages truncated at ~3800 chars with truncation notice
-- [ ] **TGRAM-07**: Failure messages use warning emoji prefix and "FAILED:" header
+- [x] **TGRAM-01**: Telegram Bot API sendMessage sends notifications via direct fetch (no third-party library)
+- [x] **TGRAM-02**: MarkdownV2 escape function handles all 18 special characters, with separate code block escaping
+- [x] **TGRAM-03**: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID optional env vars control Telegram configuration
+- [x] **TGRAM-04**: telegramDeliveryStatus column tracks Telegram delivery independently from email
+- [x] **TGRAM-05**: Telegram messages use MarkdownV2 with bold agent name, timestamp, summary, details sections
+- [x] **TGRAM-06**: Telegram messages truncated at ~3800 chars with truncation notice
+- [x] **TGRAM-07**: Failure messages use warning emoji prefix and "FAILED:" header
 - [ ] **TGRAM-08**: Both email and Telegram dispatch in parallel via Promise.allSettled after each execution
 - [ ] **TGRAM-09**: Per-channel delivery status tracked independently (emailDeliveryStatus, telegramDeliveryStatus)
 - [ ] **TGRAM-10**: test_telegram MCP tool sends test message to verify bot configuration

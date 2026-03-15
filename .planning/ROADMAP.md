@@ -110,7 +110,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 12. LLM Concurrency Limits and Graceful Shutdown | 2/2 | Complete    | 2026-03-15 |
 | 13. CI/CD Pipeline | 1/1 | Complete    | 2026-03-15 |
 | 14. MCP Server | 2/2 | Complete    | 2026-03-15 |
-| 15. Telegram Notification Channel | 0/2 | Planned    |  |
+| 15. Telegram Notification Channel | 1/2 | In Progress|  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -292,7 +292,7 @@ Plans:
   8. Failure messages use warning emoji and "FAILED:" header
   9. test_telegram MCP tool verifies bot configuration by sending a test message
   10. Health endpoint includes per-channel delivery stats (email and Telegram sent/failed counts)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 15-01-PLAN.md — Telegram utility module (API call, MarkdownV2 escaping), env config, schema telegramDeliveryStatus column, notifier Telegram functions, and tests
