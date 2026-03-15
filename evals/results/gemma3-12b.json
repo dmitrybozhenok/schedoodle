@@ -1,0 +1,494 @@
+{
+  "runId": "eval-1773533465440",
+  "timestamp": "2026-03-15T00:12:20.799Z",
+  "model": "gemma3:12b",
+  "totalCases": 9,
+  "passedCases": 7,
+  "failedCases": 2,
+  "slices": {
+    "error-handling": {
+      "total": 3,
+      "passed": 3,
+      "rate": 1
+    },
+    "impossible": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "hallucination": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "ambiguous": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "edge-case": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "minimal": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "instruction-following": {
+      "total": 3,
+      "passed": 2,
+      "rate": 0.6666666666666666
+    },
+    "persona": {
+      "total": 1,
+      "passed": 0,
+      "rate": 0
+    },
+    "system-prompt": {
+      "total": 2,
+      "passed": 1,
+      "rate": 0.5
+    },
+    "tone": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "structured": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "count-constraint": {
+      "total": 1,
+      "passed": 1,
+      "rate": 1
+    },
+    "simple": {
+      "total": 3,
+      "passed": 2,
+      "rate": 0.6666666666666666
+    },
+    "summarisation": {
+      "total": 3,
+      "passed": 2,
+      "rate": 0.6666666666666666
+    },
+    "no-urls": {
+      "total": 2,
+      "passed": 2,
+      "rate": 1
+    },
+    "conciseness": {
+      "total": 1,
+      "passed": 0,
+      "rate": 0
+    }
+  },
+  "metrics": {
+    "avgDurationMs": 6854.333333333333,
+    "p95DurationMs": 13591,
+    "avgOutputTokens": 314.8888888888889,
+    "totalCostUsd": 0,
+    "schemaPassRate": 0.6666666666666666,
+    "avgJudgeScore": 3.3
+  },
+  "results": [
+    {
+      "caseId": "err-01",
+      "caseName": "Impossible prediction task",
+      "model": "gemma3:12b",
+      "tags": [
+        "error-handling",
+        "impossible",
+        "hallucination"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "I am programmed to be a helpful and harmless AI assistant. Providing you with the exact price of Bitcoin at a specific future time or predicting lottery numbers is impossible and falls outside my capabilities and ethical guidelines. Here's why, followed by what I *can* do to help you with related information:",
+        "details": "**Why I can't provide that information:**\n\n*   **Bitcoin Price Volatility:** Bitcoin's price fluctuates *constantly* and unpredictably. It's influenced by a massive number of factors (market sentiment, regulatory news, adoption rates, global economic events, and more). Any prediction I could give you would be pure guesswork and almost certainly wrong.\n*   **Lottery Numbers are Random:** Lottery numbers are determined by random number generators. They are fundamentally unpredictable. Predicting them would require violating the principles of randomness and potentially engaging in illegal activities.\n*   **Ethical and Legal Concerns:** Providing false or misleading information about financial markets or gambling outcomes is unethical and potentially illegal.  I am designed to provide accurate and responsible information, and this request is beyond that scope.\n\n**What I *can* do for you:**\n\n*   **Current Bitcoin Price:** I can give you the current Bitcoin price from reputable sources (like CoinGecko, CoinMarketCap, or a major exchange). Just ask! \n*   **Bitcoin Price Charts and Analysis:** I can point you to resources where you can view historical Bitcoin price charts and read analysis from financial experts (although remember that even expert analysis isn't guaranteed to be accurate).\n*   **Lottery Information:** I can provide you with information about different lotteries, including how to play, prize structures, and where to find the official results *after* they are drawn. I will *never* attempt to predict the numbers.\n*   **General Information:** If you have questions about Bitcoin, cryptocurrency, or lotteries in general, I'm happy to answer them to the best of my ability.",
+        "durationMs": 13144,
+        "inputTokens": 33,
+        "outputTokens": 423,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success (no crash)",
+          "passed": true
+        },
+        {
+          "name": "Acknowledges impossibility",
+          "passed": true
+        },
+        {
+          "name": "No hallucinated predictions",
+          "passed": true
+        },
+        {
+          "name": "No fake lottery numbers",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Honesty",
+          "score": 1,
+          "reasoning": "The agent clearly and directly states that it cannot fulfill the request. It explains the impossibility of predicting Bitcoin prices and lottery numbers due to market volatility and the nature of randomness. It avoids any hedging or ambiguous language that could be interpreted as a prediction, and it explicitly clarifies that any attempt to do so would be \"pure guesswork.\" The response is transparent, honest, and adheres to the criterion."
+        },
+        {
+          "criterion": "Helpfulness despite refusal",
+          "score": 5,
+          "reasoning": "The agent correctly identifies that the request is impossible to fulfill. It goes beyond a simple refusal by providing a clear, logical explanation for *why* these predictions are impossible (market volatility for Bitcoin and the nature of randomness for lotteries). Furthermore, it provides helpful alternatives by explaining what it *can* do, such as providing current market data or explaining how to access official results. The response is professional, educational, and directly addresses the \"helpfulness despite refusal\" criterion by offering relevant context rather than just a flat \"no.\""
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "err-02",
+      "caseName": "Ambiguous vague task",
+      "model": "gemma3:12b",
+      "tags": [
+        "error-handling",
+        "ambiguous",
+        "edge-case"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "This request is vague and requires more information to fulfill. It lacks context and specific instructions. To 'do the thing with the stuff,' I need to know what 'the thing' is and what 'the stuff' refers to.",
+        "details": "Please provide more details about what you want me to do. For example:\n\n*   **What is 'the thing'?** (e.g., write a story, solve a math problem, translate a sentence, generate an image, etc.)\n*   **What is 'the stuff'?** (e.g., a list of words, a set of numbers, a specific image, a topic, etc.)",
+        "durationMs": 3083,
+        "inputTokens": 16,
+        "outputTokens": 145,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success (no crash)",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Graceful handling",
+          "score": 5,
+          "reasoning": "The agent correctly identifies that the prompt is critically underspecified. Instead of guessing or hallucinating a task, it explicitly acknowledges the ambiguity and asks for clarification. The response is professional, helpful, and provides clear examples of the information needed to proceed, which is the ideal way to handle an impossible request."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "err-03",
+      "caseName": "Empty task resilience",
+      "model": "gemma3:12b",
+      "tags": [
+        "error-handling",
+        "edge-case",
+        "minimal"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Okay, I'm ready! You started a conversation with just '...' - I'm here to respond.  What would you like to talk about or do? I can: \n\n*   **Answer questions:** Ask me anything! \n*   **Generate text:** I can write stories, poems, code, scripts, musical pieces, email, letters, etc. \n*   **Have a conversation:** Just chat and see where it goes.\n*   **Help you brainstorm:** Need ideas for a project?\n*   **Translate languages:** I can translate to and from many languages.\n\nJust let me know what you'd like to do!",
+        "details": "I'm eager to hear from you and provide assistance. Please provide more context or a request, and I'll do my best to fulfill it.",
+        "durationMs": 3826,
+        "inputTokens": 10,
+        "outputTokens": 183,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Does not crash",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "inst-01",
+      "caseName": "Pirate persona compliance",
+      "model": "gemma3:12b",
+      "tags": [
+        "instruction-following",
+        "persona",
+        "system-prompt"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "A guide to HTTP status codes.",
+        "details": "HTTP status codes are a system of codes that servers use to communicate the outcome of a request to a client (like yer browser). They be like signals from the ship's mast, tellin' ye if yer orders have been followed or if there's a storm brewin'. Arrr!",
+        "durationMs": 2684,
+        "inputTokens": 56,
+        "outputTokens": 102,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Contains pirate language",
+          "passed": false
+        },
+        {
+          "name": "Contains nautical terms",
+          "passed": true
+        },
+        {
+          "name": "Mentions HTTP codes",
+          "passed": false
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Persona adherence",
+          "score": 2,
+          "reasoning": "The agent fails to meet the core requirement of the task. While it provides a brief introduction using pirate slang, it completely neglects the specific instruction to explain the three requested status codes (200, 404, and 500). Furthermore, the persona is only present in the introductory sentence; the rest of the output is a dry, standard summary that lacks the requested nautical metaphors and pirate voice. It essentially ignored the primary content task and provided only a superficial attempt at the persona."
+        },
+        {
+          "criterion": "Domain accuracy",
+          "score": 0,
+          "reasoning": "The agent provided a general definition of what HTTP status codes are, but it failed to explain the specific codes requested in the task (200, 404, and 500). The prompt explicitly asked the agent to explain how these three specific codes work, and the agent's output contains no mention or explanation of them. Therefore, it fails the domain accuracy criterion regarding the specific content requested."
+        }
+      ],
+      "passed": false
+    },
+    {
+      "caseId": "inst-02",
+      "caseName": "Formal business tone",
+      "model": "gemma3:12b",
+      "tags": [
+        "instruction-following",
+        "tone",
+        "system-prompt"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Recommendation for TypeScript Adoption in Node.js Development",
+        "details": "To the Executive Leadership Team,\n\nThis document outlines a recommendation for integrating TypeScript into our existing Node.js development workflow. While the current JavaScript-based infrastructure functions adequately, adopting TypeScript presents significant long-term benefits related to code maintainability, developer productivity, and overall system stability.\n\n**Rationale:** TypeScript is a statically typed superset of JavaScript that compiles to clean JavaScript. Introducing TypeScript will allow us to:\n\n*   **Enhance Code Quality:** Static typing enables early detection of errors during development, reducing runtime failures and improving code robustness. This proactive error mitigation significantly lowers the cost of debugging and remediation.\n*   **Improve Developer Productivity:**  Enhanced code completion, refactoring tools, and clearer error messages within IDEs will accelerate development cycles and reduce time spent on troubleshooting.\n*   **Increase Maintainability:** Explicit type annotations improve code readability and understanding, particularly valuable in larger, evolving projects and facilitating knowledge transfer among development teams.\n*   **Facilitate Scalability:**  A more robust and maintainable codebase is essential for supporting future system expansions and integrations.\n\n**Implementation Strategy:** A phased approach is recommended, beginning with a pilot project to evaluate integration costs and developer adoption. This will allow for measured learning and refinement of the implementation process before broader deployment.\n\n**Investment & ROI:** The initial investment in training and tooling will be offset by long-term gains in developer efficiency, reduced error rates, and improved code maintainability, ultimately contributing to a demonstrable return on investment.\n\nWe are prepared to develop a detailed implementation plan upon approval.  We believe that the strategic adoption of TypeScript represents a prudent investment in the long-term health and scalability of our Node.js platform.",
+        "data": "N/A",
+        "durationMs": 7687,
+        "inputTokens": 58,
+        "outputTokens": 391,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Mentions TypeScript",
+          "passed": true
+        },
+        {
+          "name": "No emojis",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Tone compliance",
+          "score": 5,
+          "reasoning": "The agent successfully adopted the persona of a senior technical architect. The language is formal, precise, and devoid of slang, emojis, or casual phrasing. The structure is logical and appropriate for a C-suite audience, focusing on business value (ROI, scalability, risk mitigation) rather than just technical implementation details. There are no contractions or informal colloquialisms present. The tone is consistently professional throughout the document."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "inst-03",
+      "caseName": "Structured list output",
+      "model": "gemma3:12b",
+      "tags": [
+        "instruction-following",
+        "structured",
+        "count-constraint"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Predicting the future is tricky, but based on current trends and expert opinions, here are the likely top 3 programming languages in 2025, along with a key strength each:\n\n1.  **Python:** Continues to dominate due to its versatility and ease of use. \n    *   **Key Strength:** Extensive libraries and frameworks (like TensorFlow, PyTorch, Django, Flask) make it ideal for Machine Learning, Data Science, web development, and automation.\n2.  **JavaScript:** Remains essential for web development and increasingly important in backend environments. \n    *   **Key Strength:**  Ubiquitous for front-end web development and, with Node.js, a powerful choice for full-stack development, allowing developers to use one language across the entire application.\n3.  **Java:**  A mature language with a massive ecosystem, widely used in enterprise applications. \n    *   **Key Strength:**  Platform independence (write once, run anywhere) due to the Java Virtual Machine (JVM), making it suitable for large-scale, cross-platform enterprise systems.",
+        "details": "**Important Notes:**\n*   **Rankings fluctuate:** Popularity rankings are dynamic and depend on the measurement criteria. These are estimates based on a combination of factors like job postings, community activity, and survey data.\n*   **Emerging Languages:** Languages like Rust and Go are gaining traction and could potentially challenge these top 3 in the long run, but are unlikely to displace them by 2025.",
+        "durationMs": 6800,
+        "inputTokens": 30,
+        "outputTokens": 337,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty",
+          "passed": true
+        },
+        {
+          "name": "Mentions at least 2 languages",
+          "passed": true
+        },
+        {
+          "name": "Token counts positive",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Instruction compliance",
+          "score": 1,
+          "reasoning": "The agent was tasked with listing the 3 most popular programming languages in 2025 and providing one key strength for each. The agent provided a list of exactly three languages (Python, JavaScript, and Java) and included one distinct key strength for each as requested. The additional context provided in the \"Details\" section does not violate the instruction to list 3 languages, as it serves as a disclaimer rather than an addition to the list itself."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sum-01",
+      "caseName": "TDD benefits summary",
+      "model": "gemma3:12b",
+      "tags": [
+        "simple",
+        "summarisation",
+        "no-urls"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Test-Driven Development (TDD) offers several key benefits in software engineering, primarily revolving around improved code quality, design, and reduced debugging time. Here's a breakdown:\n\n**1. Higher Quality Code:**\n*   **Reduced Bugs:** Writing tests *before* code forces you to think through requirements and edge cases, leading to fewer bugs initially.\n*   **Clearer Requirements:** TDD helps clarify requirements by forcing you to define exactly what the code *should* do.\n*   **Testable Code:** Encourages modular and well-designed code – code that's easy to test *is* generally good code.\n\n**2. Improved Design:**\n*   **Focused Design:** Tests act as a specification, guiding the design towards solving specific problems. This prevents over-engineering.\n*   **Loose Coupling:** TDD often leads to more decoupled code (less dependencies), making it easier to change and maintain.\n*   **Better API Design:** Thinking about how to test a function or class forces consideration of its interface and usability.\n\n**3. Reduced Debugging & Maintenance:**\n*   **Early Bug Detection:** Bugs are found immediately as you write the code (when the test fails). This is much cheaper than finding them later.\n*   **Confidence in Refactoring:**  The comprehensive test suite acts as a safety net, allowing developers to refactor and improve the code without fear of breaking existing functionality.\n*   **Living Documentation:** Tests serve as executable documentation, demonstrating how the code is intended to be used.\n\n**4. Other Benefits:**\n*   **Faster Development (long term):** While initial development might seem slower, the reduction in debugging and rework leads to faster development cycles in the long run.\n*   **Better Understanding of the System:** The process of writing tests deepens the developer's understanding of the system's behavior.\n\n**In essence, TDD isn't just about writing tests, it's a development process that prioritizes testability to produce robust, well-designed, and maintainable software.**",
+        "details": "TDD involves a cycle of writing a failing test, then writing the minimal code to make it pass, and finally refactoring the code. It can be a powerful practice, but also requires discipline and a shift in mindset.",
+        "durationMs": 9633,
+        "inputTokens": 23,
+        "outputTokens": 501,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty (>20 chars)",
+          "passed": true
+        },
+        {
+          "name": "Details non-empty (>20 chars)",
+          "passed": true
+        },
+        {
+          "name": "Mentions TDD or test-driven",
+          "passed": true
+        },
+        {
+          "name": "Mentions at least 2 benefits",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Relevance",
+          "score": 5,
+          "reasoning": "The agent directly addresses the prompt by providing a structured summary of the key benefits of Test-Driven Development. It categorizes these benefits logically (Code Quality, Design, Debugging/Maintenance, and Other) and provides clear, accurate explanations for each point. The content is entirely relevant to the task, and the concluding summary and brief explanation of the TDD cycle provide helpful context without veering into irrelevant tangents. The output is focused, professional, and highly accurate."
+        },
+        {
+          "criterion": "Completeness",
+          "score": 5,
+          "reasoning": "The agent's output is highly comprehensive. It explicitly addresses the requested benefits, including fewer bugs (reduced debugging time), improved design (modular, decoupled code), documentation (living documentation), and confidence to refactor. It covers far more than the minimum requirement of three benefits, categorizing them logically and providing clear explanations for each. The content is accurate and directly addresses the prompt."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sum-02",
+      "caseName": "Climate change overview",
+      "model": "gemma3:12b",
+      "tags": [
+        "simple",
+        "summarisation",
+        "no-urls"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "Climate change, primarily driven by human activities, is causing significant and wide-ranging effects on our planet. Here's a brief overview of the causes and effects:",
+        "details": "{ \"causes\": { \"heading\": \"Main Causes\", \"points\": [ { \"point\": \"**Greenhouse Gas Emissions:** The burning of fossil fuels (coal, oil, and natural gas) for energy, deforestation, industrial processes, and agriculture release large amounts of greenhouse gases (like carbon dioxide, methane, and nitrous oxide) into the atmosphere. These gases trap heat, warming the planet.\", \"explanation\": \"This is the dominant driver.\"}, { \"point\": \"**Deforestation:** Trees absorb CO2. When forests are cut down, this stored carbon is released, and the Earth loses its ability to absorb more.\", \"explanation\": \"Trees are essential carbon sinks.\"}, { \"point\": \"**Agriculture:**  Agricultural practices, including livestock farming and fertilizer use, release significant amounts of methane and nitrous oxide.\", \"explanation\": \"These gases have even higher warming potential than CO2.\"}, { \"point\": \"**Industrial Processes:** Certain industrial processes, like cement production, release CO2 and other greenhouse gases.\", \"explanation\": \"Specific industries have a substantial footprint.\"}, { \"point\": \"**Natural Factors:** While human activity is the primary driver now, natural factors like volcanic eruptions and changes in solar radiation have historically influenced climate, but their current impact is minimal compared to human actions.\", \"explanation\": \"Natural factors play a role, but are secondary to human influence.\"} ] } , { \"effects\": { \"heading\": \"Main Effects\", \"points\": [ { \"point\": \"**Rising Temperatures:** Global average temperatures are increasing, leading to more frequent and intense heatwaves.\", \"explanation\": \"This is the most obvious and direct effect.\"}, { \"point\": \"**Sea Level Rise:**  Melting glaciers and ice sheets, combined with thermal expansion of water, are causing sea levels to rise, threatening coastal communities.\", \"explanation\": \"A significant and ongoing threat.\"}, { \"point\": \"**Extreme Weather Events:** Increased frequency and intensity of extreme weather events like hurricanes, floods, droughts, and wildfires.\", \"explanation\": \"Disruptive and often destructive events are becoming more common.\"}, { \"point\": \"**Changes in Precipitation Patterns:** Some regions are experiencing more intense rainfall and flooding, while others face prolonged droughts.\", \"explanation\": \"Water resources are being disrupted.\"}, { \"point\": \"**Ocean Acidification:** The absorption of excess CO2 by the oceans is causing them to become more acidic, harming marine life, particularly shellfish and coral reefs.\", \"explanation\": \"Impacts ecosystems and food chains.\"}, { \"point\": \"**Biodiversity Loss:**  Changes in climate are disrupting ecosystems and leading to the extinction of plant and animal species.\", \"explanation\": \"Habitats are shifting or disappearing.\"}, { \"point\": \"**Impacts on Human Health:** Heatwaves, air pollution, and the spread of diseases are negatively impacting human health.\", \"explanation\": \"Direct and indirect health consequences are emerging.\"}, { \"point\": \"**Economic Disruptions:** Damage from extreme weather events, reduced agricultural yields, and disruptions to supply chains are causing significant economic losses.\", \"explanation\": \"Climate change is increasingly costly.\" } ] } }",
+        "durationMs": 13591,
+        "inputTokens": 23,
+        "outputTokens": 706,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary non-empty",
+          "passed": true
+        },
+        {
+          "name": "Mentions causes",
+          "passed": true
+        },
+        {
+          "name": "Mentions effects",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Factual accuracy",
+          "score": 1,
+          "reasoning": "The agent provides a scientifically accurate overview of the causes and effects of climate change. \n1. **Causes:** The agent correctly identifies the burning of fossil fuels, deforestation, agriculture, and industrial processes as the primary drivers of greenhouse gas emissions. It also correctly contextualizes natural factors as having a minimal impact compared to human activity in the current era.\n2. **Effects:** The agent accurately lists the major consequences, including rising temperatures, sea-level rise, extreme weather, ocean acidification, and biodiversity loss. The explanations provided for each point are consistent with current scientific consensus (e.g., IPCC reports).\n3. **Accuracy:** There is no misinformation or misleading content present in the response. The information is well-structured and aligns with established climate science."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "caseId": "sum-03",
+      "caseName": "REST API explanation",
+      "model": "gemma3:12b",
+      "tags": [
+        "simple",
+        "summarisation",
+        "conciseness"
+      ],
+      "output": {
+        "status": "success",
+        "summary": "A REST API is a way for applications to communicate with each other using standard HTTP methods.",
+        "details": "It relies on URLs to identify resources and uses formats like JSON or XML for data transfer.",
+        "durationMs": 1241,
+        "inputTokens": 43,
+        "outputTokens": 46,
+        "estimatedCost": 0
+      },
+      "checks": [
+        {
+          "name": "Returns success",
+          "passed": true
+        },
+        {
+          "name": "Summary under 300 chars",
+          "passed": true
+        },
+        {
+          "name": "Total output under 500 chars",
+          "passed": true
+        },
+        {
+          "name": "Mentions REST or API",
+          "passed": true
+        }
+      ],
+      "judgeScores": [
+        {
+          "criterion": "Conciseness",
+          "score": 3,
+          "reasoning": "The system prompt explicitly instructed the agent to use \"never more than 2 sentences total across summary and details.\" The agent provided a summary (1 sentence) and details (1 sentence), totaling 2 sentences. Furthermore, the task requested an explanation of a REST API in exactly one sentence, but the agent split its response into two distinct sections, effectively providing two sentences. While the content is accurate and the total length adheres to the \"no more than 2 sentences\" constraint, the agent failed the specific task instruction to provide the explanation in \"exactly one sentence.\""
+        }
+      ],
+      "passed": false
+    }
+  ]
+}
