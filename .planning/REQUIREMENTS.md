@@ -41,6 +41,16 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **OBSV-01**: Token usage and estimated cost are tracked per agent per execution
 - [x] **OBSV-02**: A health check endpoint reports service status and basic operational info
 
+### Natural Language Schedule Parsing
+
+- [x] **NLP-01**: Natural language input like "every weekday at 9am" is translated to a valid cron expression
+- [x] **NLP-02**: If input is already a valid cron expression, it is detected and described without an LLM call
+- [x] **NLP-03**: Response includes a human-readable description of the cron expression via cronstrue
+- [x] **NLP-04**: Ambiguous input returns a low-confidence warning so users can verify
+- [x] **NLP-05**: Unparseable input returns a 422 with guidance and example suggestions
+- [x] **NLP-06**: POST /schedules/parse endpoint accepts natural language and returns structured parse result
+- [x] **NLP-07**: LLM unavailability (circuit breaker open) returns a 503 with fallback guidance to use raw cron
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -84,7 +94,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | Multiple notification channels | Email only; design notifier as pluggable for future channels |
 | LLM tool-use / function-calling loops | Pre-fetch pattern is cheaper, more reliable, and deterministic |
 | Plugin / extension system | Premature abstraction; extract extension points after patterns emerge |
-| Natural language schedule input | Use cron expressions; link to crontab.guru in docs |
+| ~~Natural language schedule input~~ | ~~Use cron expressions; link to crontab.guru in docs~~ — Implemented in Phase 7 |
 | Agent marketplace / sharing | No users to share with; copy-paste JSON configs instead |
 
 ## Traceability
@@ -109,12 +119,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOTF-02 | Phase 5 | Complete |
 | OBSV-01 | Phase 4 | Complete |
 | OBSV-02 | Phase 4 | Complete |
+| NLP-01 | Phase 7 | Complete |
+| NLP-02 | Phase 7 | Complete |
+| NLP-03 | Phase 7 | Complete |
+| NLP-04 | Phase 7 | Complete |
+| NLP-05 | Phase 7 | Complete |
+| NLP-06 | Phase 7 | Complete |
+| NLP-07 | Phase 7 | Complete |
 
 **Coverage:**
-- v1 requirements: 16 total
-- Mapped to phases: 16
+- v1 requirements: 23 total
+- Mapped to phases: 23
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after roadmap creation*
+*Last updated: 2026-03-15 after Phase 7 completion*
