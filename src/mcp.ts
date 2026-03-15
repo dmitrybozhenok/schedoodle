@@ -2,7 +2,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { db } from "./db/index.js";
 import { registerAgentTools } from "./mcp/tools/agents.js";
+import { registerHealthTools } from "./mcp/tools/health.js";
 import { registerHistoryTools } from "./mcp/tools/history.js";
+import { registerScheduleTools } from "./mcp/tools/schedules.js";
+import { registerToolTools } from "./mcp/tools/tools.js";
 
 const server = new McpServer({
 	name: "schedoodle",
@@ -11,7 +14,9 @@ const server = new McpServer({
 
 registerAgentTools(server, db);
 registerHistoryTools(server, db);
-// Plan 02 will add: registerToolTools, registerHealthTools, registerScheduleTools
+registerToolTools(server, db);
+registerHealthTools(server, db);
+registerScheduleTools(server);
 
 async function main() {
 	const transport = new StdioServerTransport();
