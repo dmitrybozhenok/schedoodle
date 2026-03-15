@@ -89,6 +89,14 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **SEC-07**: All responses include security headers: X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: same-origin
 - [x] **SEC-08**: CORS blocks cross-origin requests (no permissive Access-Control-Allow-Origin)
 
+### CI/CD Pipeline
+
+- [ ] **CI-01**: GitHub Actions workflow runs lint, typecheck, test, and build on every push to master
+- [ ] **CI-02**: All four checks run as parallel jobs for fastest feedback
+- [ ] **CI-03**: pnpm store is cached between runs for faster dependency installs
+- [ ] **CI-04**: Workflow supports manual dispatch via workflow_dispatch trigger
+- [ ] **CI-05**: Tests run with mocked environment variables (dummy ANTHROPIC_API_KEY)
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -196,12 +204,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEC-06 | Phase 10 | Planned |
 | SEC-07 | Phase 10 | Planned |
 | SEC-08 | Phase 10 | Planned |
+| CI-01 | Phase 13 | Planned |
+| CI-02 | Phase 13 | Planned |
+| CI-03 | Phase 13 | Planned |
+| CI-04 | Phase 13 | Planned |
+| CI-05 | Phase 13 | Planned |
 
 **Coverage:**
-- v1 requirements: 52 total
-- Mapped to phases: 52
+- v1 requirements: 57 total
+- Mapped to phases: 57
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 10 planning*
+*Last updated: 2026-03-15 after Phase 13 planning*

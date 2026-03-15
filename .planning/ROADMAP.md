@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -239,15 +239,20 @@ Plans:
 - [ ] 12-01-PLAN.md — Semaphore module, MAX_CONCURRENT_LLM env config, executor semaphore wrapping, and tests
 - [ ] 12-02-PLAN.md — Graceful shutdown drain/timeout, health concurrency stats, shutdown guards, and tests
 
-### Phase 13: CI CD Pipeline
+### Phase 13: CI/CD Pipeline
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Automated CI pipeline runs lint, typecheck, test, and build checks on every push to master and on manual dispatch via GitHub Actions
+**Requirements**: CI-01, CI-02, CI-03, CI-04, CI-05
 **Depends on:** Phase 12
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. Pushing to master triggers a GitHub Actions workflow with four checks: lint, typecheck, test, build
+  2. All four checks run as parallel jobs for fastest feedback
+  3. pnpm store is cached between runs for faster installs
+  4. Workflow can be manually triggered via workflow_dispatch
+  5. Tests run with mocked external services (dummy ANTHROPIC_API_KEY in workflow env)
+**Plans:** 1 plan
 Plans:
-- [ ] TBD (run /gsd:plan-phase 13 to break down)
+- [ ] 13-01-PLAN.md — GitHub Actions CI workflow with four parallel jobs (lint, typecheck, test, build), pnpm caching, and typecheck script
 
 ### Phase 14: MCP Server for Claude Code Integration
 
