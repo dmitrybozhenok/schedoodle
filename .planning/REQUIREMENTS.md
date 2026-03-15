@@ -117,6 +117,21 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **MCP-16**: parse_schedule MCP tool converts natural language to cron expression
 - [x] **MCP-17**: All 17 MCP tools are registered and discoverable via MCP tool listing
 
+### Telegram Notification Channel
+
+- [ ] **TGRAM-01**: Telegram Bot API sendMessage sends notifications via direct fetch (no third-party library)
+- [ ] **TGRAM-02**: MarkdownV2 escape function handles all 18 special characters, with separate code block escaping
+- [ ] **TGRAM-03**: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID optional env vars control Telegram configuration
+- [ ] **TGRAM-04**: telegramDeliveryStatus column tracks Telegram delivery independently from email
+- [ ] **TGRAM-05**: Telegram messages use MarkdownV2 with bold agent name, timestamp, summary, details sections
+- [ ] **TGRAM-06**: Telegram messages truncated at ~3800 chars with truncation notice
+- [ ] **TGRAM-07**: Failure messages use warning emoji prefix and "FAILED:" header
+- [ ] **TGRAM-08**: Both email and Telegram dispatch in parallel via Promise.allSettled after each execution
+- [ ] **TGRAM-09**: Per-channel delivery status tracked independently (emailDeliveryStatus, telegramDeliveryStatus)
+- [ ] **TGRAM-10**: test_telegram MCP tool sends test message to verify bot configuration
+- [ ] **TGRAM-11**: Health endpoint includes per-channel delivery stats (email and Telegram sent/failed counts)
+- [ ] **TGRAM-12**: Telegram silently skipped when either env var is missing (matches email skip pattern)
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -157,7 +172,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | ~~Multi-user / authentication~~ | ~~Personal tool; run on localhost or behind VPN~~ -- Single-token auth added in Phase 10 |
 | Agent chaining / workflows | Independent agents only; workflow orchestration is an entire product category |
 | Real-time streaming | Agents are batch jobs; streaming adds complexity for zero value |
-| Multiple notification channels | Email only; design notifier as pluggable for future channels |
+| ~~Multiple notification channels~~ | ~~Email only; design notifier as pluggable for future channels~~ -- Telegram added in Phase 15 |
 | ~~LLM tool-use / function-calling loops~~ | ~~Pre-fetch pattern is cheaper, more reliable, and deterministic~~ -- Implemented in Phase 9 |
 | Plugin / extension system | Premature abstraction; extract extension points after patterns emerge |
 | ~~Natural language schedule input~~ | ~~Use cron expressions; link to crontab.guru in docs~~ -- Implemented in Phase 7 |
@@ -168,6 +183,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | MCP HTTP/SSE transport | stdio sufficient for local Claude Code use |
 | MCP Resources/Prompts primitives | Tools-only approach validated first |
 | MCP scheduler integration | Avoid dual-process cron conflicts |
+| Per-agent notification channel selection | Both channels fire globally; per-agent config deferred |
+| Notification channel abstraction | No interface pattern until a third channel is added |
 
 ## Traceability
 
@@ -249,12 +266,24 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MCP-15 | Phase 14 | Planned |
 | MCP-16 | Phase 14 | Planned |
 | MCP-17 | Phase 14 | Planned |
+| TGRAM-01 | Phase 15 | Planned |
+| TGRAM-02 | Phase 15 | Planned |
+| TGRAM-03 | Phase 15 | Planned |
+| TGRAM-04 | Phase 15 | Planned |
+| TGRAM-05 | Phase 15 | Planned |
+| TGRAM-06 | Phase 15 | Planned |
+| TGRAM-07 | Phase 15 | Planned |
+| TGRAM-08 | Phase 15 | Planned |
+| TGRAM-09 | Phase 15 | Planned |
+| TGRAM-10 | Phase 15 | Planned |
+| TGRAM-11 | Phase 15 | Planned |
+| TGRAM-12 | Phase 15 | Planned |
 
 **Coverage:**
-- v1 requirements: 74 total
-- Mapped to phases: 74
+- v1 requirements: 86 total
+- Mapped to phases: 86
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 14 planning*
+*Last updated: 2026-03-15 after Phase 15 planning*

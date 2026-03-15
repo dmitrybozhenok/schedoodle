@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -110,6 +110,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 12. LLM Concurrency Limits and Graceful Shutdown | 2/2 | Complete    | 2026-03-15 |
 | 13. CI/CD Pipeline | 1/1 | Complete    | 2026-03-15 |
 | 14. MCP Server | 2/2 | Complete    | 2026-03-15 |
+| 15. Telegram Notification Channel | 0/2 | Planned    |  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -277,10 +278,22 @@ Plans:
 
 ### Phase 15: Telegram Notification Channel
 
-**Goal:** Agent results can be delivered via Telegram bot in addition to email, with per-agent channel selection
-**Requirements**: TBD
+**Goal:** Agent results are delivered via Telegram bot in addition to email, with both channels dispatching independently in parallel and per-channel delivery tracking
+**Requirements**: TGRAM-01, TGRAM-02, TGRAM-03, TGRAM-04, TGRAM-05, TGRAM-06, TGRAM-07, TGRAM-08, TGRAM-09, TGRAM-10, TGRAM-11, TGRAM-12
 **Depends on:** Phase 14
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. Telegram notifications send via direct fetch to Telegram Bot API with MarkdownV2 formatting
+  2. Both email and Telegram dispatch in parallel via Promise.allSettled after each execution
+  3. Neither channel blocks the other -- one failure does not prevent the other from succeeding
+  4. Per-channel delivery status tracked independently (emailDeliveryStatus, telegramDeliveryStatus)
+  5. Telegram silently skipped when TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID env vars are missing
+  6. Telegram messages include bold agent name, timestamp, summary, details, and optional code block data
+  7. Messages truncated at ~3800 chars with truncation notice
+  8. Failure messages use warning emoji and "FAILED:" header
+  9. test_telegram MCP tool verifies bot configuration by sending a test message
+  10. Health endpoint includes per-channel delivery stats (email and Telegram sent/failed counts)
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 15 to break down)
+- [ ] 15-01-PLAN.md — Telegram utility module (API call, MarkdownV2 escaping), env config, schema telegramDeliveryStatus column, notifier Telegram functions, and tests
+- [ ] 15-02-PLAN.md — Executor multi-channel parallel dispatch, test_telegram MCP tool, health per-channel delivery stats, and tests
