@@ -15,6 +15,8 @@ export const envSchema = z
 		SMTP_PORT: z.coerce.number().optional(),
 		BRAVE_API_KEY: z.string().optional(),
 		AUTH_TOKEN: z.string().optional(),
+		TELEGRAM_BOT_TOKEN: z.string().optional(),
+		TELEGRAM_CHAT_ID: z.string().optional(),
 		RETENTION_DAYS: z.coerce.number().min(1).default(30),
 		MAX_CONCURRENT_LLM: z.coerce.number().min(1).default(3),
 	})

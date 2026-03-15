@@ -70,6 +70,7 @@ CREATE TABLE execution_history (
   result TEXT,
   error TEXT,
   delivery_status TEXT,
+  telegram_delivery_status TEXT,
   estimated_cost REAL,
   retry_count INTEGER DEFAULT 0,
   tool_calls TEXT,

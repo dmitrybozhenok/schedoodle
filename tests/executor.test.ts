@@ -83,6 +83,7 @@ CREATE TABLE execution_history (
   result TEXT,
   error TEXT,
   delivery_status TEXT,
+  telegram_delivery_status TEXT,
   estimated_cost REAL,
   retry_count INTEGER DEFAULT 0,
   tool_calls TEXT,
@@ -571,7 +572,7 @@ describe("notification integration", () => {
 		});
 	});
 
-	it("sets deliveryStatus to sent on successful notification", async () => {
+	it("sets emailDeliveryStatus to sent on successful notification", async () => {
 		mockSendNotification.mockResolvedValue({ status: "sent" });
 
 		const agent = makeAgent(db);
@@ -583,10 +584,10 @@ describe("notification integration", () => {
 			.where(eq(schema.executionHistory.agentId, agent.id))
 			.all();
 
-		expect(rows[0].deliveryStatus).toBe("sent");
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
 	});
 
-	it("sets deliveryStatus to failed when notification fails", async () => {
+	it("sets emailDeliveryStatus to failed when notification fails", async () => {
 		mockSendNotification.mockResolvedValue({ status: "failed", error: "domain not verified" });
 
 		const agent = makeAgent(db);
@@ -598,10 +599,10 @@ describe("notification integration", () => {
 			.where(eq(schema.executionHistory.agentId, agent.id))
 			.all();
 
-		expect(rows[0].deliveryStatus).toBe("failed");
+		expect(rows[0].emailDeliveryStatus).toBe("failed");
 	});
 
-	it("does not update deliveryStatus when notification skipped", async () => {
+	it("does not update emailDeliveryStatus when notification skipped", async () => {
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 
 		const agent = makeAgent(db);
@@ -613,8 +614,8 @@ describe("notification integration", () => {
 			.where(eq(schema.executionHistory.agentId, agent.id))
 			.all();
 
-		// When skipped, deliveryStatus should be null (no notification attempted)
-		expect(rows[0].deliveryStatus).toBeNull();
+		// When skipped, emailDeliveryStatus should be null (no notification attempted)
+		expect(rows[0].emailDeliveryStatus).toBeNull();
 	});
 
 	it("does not call sendNotification on failed execution", async () => {
@@ -640,7 +641,7 @@ describe("notification integration", () => {
 			.where(eq(schema.executionHistory.agentId, agent.id))
 			.all();
 
-		expect(rows[0].deliveryStatus).toBe("failed");
+		expect(rows[0].emailDeliveryStatus).toBe("failed");
 	});
 });
 

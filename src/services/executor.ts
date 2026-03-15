@@ -238,7 +238,7 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 		try {
 			// Set delivery status to pending before send attempt
 			db.update(executionHistory)
-				.set({ deliveryStatus: "pending" })
+				.set({ emailDeliveryStatus: "pending" })
 				.where(eq(executionHistory.id, executionId))
 				.run();
 
@@ -247,12 +247,12 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 			if (notifyResult.status === "skipped") {
 				// Reset pending back to null when notification is not configured
 				db.update(executionHistory)
-					.set({ deliveryStatus: null })
+					.set({ emailDeliveryStatus: null })
 					.where(eq(executionHistory.id, executionId))
 					.run();
 			} else {
 				db.update(executionHistory)
-					.set({ deliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
+					.set({ emailDeliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
 					.where(eq(executionHistory.id, executionId))
 					.run();
 			}
@@ -260,7 +260,7 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 			// Never let notification errors affect execution status
 			console.error(`[notify] Unexpected error: ${err}`);
 			db.update(executionHistory)
-				.set({ deliveryStatus: "failed" })
+				.set({ emailDeliveryStatus: "failed" })
 				.where(eq(executionHistory.id, executionId))
 				.run();
 		}
@@ -300,14 +300,14 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 			);
 			if (notifyResult.status !== "skipped") {
 				db.update(executionHistory)
-					.set({ deliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
+					.set({ emailDeliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
 					.where(eq(executionHistory.id, executionId))
 					.run();
 			}
 		} catch (err) {
 			console.error(`[notify] Unexpected error on failure notification: ${err}`);
 			db.update(executionHistory)
-				.set({ deliveryStatus: "failed" })
+				.set({ emailDeliveryStatus: "failed" })
 				.where(eq(executionHistory.id, executionId))
 				.run();
 		}

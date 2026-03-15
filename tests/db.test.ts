@@ -30,6 +30,7 @@ CREATE TABLE execution_history (
   result TEXT,
   error TEXT,
   delivery_status TEXT,
+  telegram_delivery_status TEXT,
   estimated_cost REAL,
   retry_count INTEGER DEFAULT 0,
   tool_calls TEXT,
@@ -156,7 +157,7 @@ describe("database schema", () => {
 				durationMs: 1500,
 				result: { summary: "done" },
 				error: null,
-				deliveryStatus: "sent",
+				emailDeliveryStatus: "sent",
 			})
 			.returning()
 			.get();
@@ -167,7 +168,7 @@ describe("database schema", () => {
 		expect(exec.inputTokens).toBe(100);
 		expect(exec.outputTokens).toBe(200);
 		expect(exec.durationMs).toBe(1500);
-		expect(exec.deliveryStatus).toBe("sent");
+		expect(exec.emailDeliveryStatus).toBe("sent");
 		expect(exec.startedAt).toBeTruthy();
 	});
 
