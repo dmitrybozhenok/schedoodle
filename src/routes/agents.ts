@@ -1,8 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Database } from "../db/index.js";
-import { agents, executionHistory } from "../db/schema.js";
+import { agents, agentTools, executionHistory, tools } from "../db/schema.js";
 import { enrichAgent } from "../helpers/enrich-agent.js";
 import { isCronExpression } from "../helpers/cron-detect.js";
 import { createAgentSchema, updateAgentSchema } from "../schemas/agent-input.js";
@@ -286,6 +286,85 @@ export function createAgentRoutes(db: Database): Hono {
 			.all();
 
 		return c.json(list);
+	});
+
+	// GET /:id/tools - List tools attached to this agent
+	app.get("/:id/tools", (c) => {
+		const id = parseId(c.req.param("id"));
+		if (id === null) {
+			return c.json({ error: "Invalid agent ID" }, 400);
+		}
+
+		const agent = db.select().from(agents).where(eq(agents.id, id)).get();
+		if (!agent) {
+			return c.json({ error: "Agent not found" }, 404);
+		}
+
+		const links = db
+			.select({ toolId: agentTools.toolId })
+			.from(agentTools)
+			.where(eq(agentTools.agentId, id))
+			.all();
+
+		if (links.length === 0) return c.json([]);
+
+		const toolIds = links.map((l) => l.toolId);
+		const toolList = db.select().from(tools).where(inArray(tools.id, toolIds)).all();
+		return c.json(toolList);
+	});
+
+	// POST /:id/tools/:toolId - Attach tool to agent
+	app.post("/:id/tools/:toolId", (c) => {
+		const id = parseId(c.req.param("id"));
+		const toolId = parseId(c.req.param("toolId"));
+		if (id === null || toolId === null) {
+			return c.json({ error: "Invalid ID" }, 400);
+		}
+
+		const agent = db.select().from(agents).where(eq(agents.id, id)).get();
+		if (!agent) {
+			return c.json({ error: "Agent not found" }, 404);
+		}
+
+		const toolRecord = db.select().from(tools).where(eq(tools.id, toolId)).get();
+		if (!toolRecord) {
+			return c.json({ error: "Tool not found" }, 404);
+		}
+
+		try {
+			db.insert(agentTools).values({ agentId: id, toolId }).run();
+			return c.json({ agentId: id, toolId }, 201);
+		} catch (err) {
+			if (err instanceof Error && err.message.includes("UNIQUE constraint failed")) {
+				return c.json({ error: "Tool already attached to this agent" }, 409);
+			}
+			throw err;
+		}
+	});
+
+	// DELETE /:id/tools/:toolId - Detach tool from agent
+	app.delete("/:id/tools/:toolId", (c) => {
+		const id = parseId(c.req.param("id"));
+		const toolId = parseId(c.req.param("toolId"));
+		if (id === null || toolId === null) {
+			return c.json({ error: "Invalid ID" }, 400);
+		}
+
+		const link = db
+			.select()
+			.from(agentTools)
+			.where(and(eq(agentTools.agentId, id), eq(agentTools.toolId, toolId)))
+			.get();
+
+		if (!link) {
+			return c.json({ error: "Tool not attached to this agent" }, 404);
+		}
+
+		db.delete(agentTools)
+			.where(and(eq(agentTools.agentId, id), eq(agentTools.toolId, toolId)))
+			.run();
+
+		return c.body(null, 204);
 	});
 
 	return app;
