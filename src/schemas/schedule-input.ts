@@ -15,9 +15,9 @@ export const scheduleParseSchema = z.object({
 		.string()
 		.describe("Standard 5-field cron expression (minute hour day-of-month month day-of-week)"),
 	confidence: z
-		.enum(["high", "low"])
+		.enum(["high", "low", "refused"])
 		.describe(
-			"high if the input clearly maps to a single cron schedule, low if ambiguous",
+			"high if the input clearly maps to a single cron schedule, low if ambiguous, refused if the input is not a recognizable schedule description",
 		),
 	interpretation: z
 		.string()
@@ -30,7 +30,7 @@ export type ParseScheduleResponse = {
 	input: string;
 	cronExpression: string;
 	humanReadable: string;
-	confidence: "high" | "low";
+	confidence: "high" | "low" | "refused";
 	interpretation: string;
 	warning?: string;
 };

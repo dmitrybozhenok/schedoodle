@@ -1,7 +1,7 @@
 import { generateText, NoObjectGeneratedError, Output } from "ai";
 import { Cron } from "croner";
 import cronstrue from "cronstrue";
-import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
+import { resolveModel } from "../config/llm-provider.js";
 import { isCronExpression } from "../helpers/cron-detect.js";
 import type { ParseScheduleResponse, ScheduleParseResult } from "../schemas/schedule-input.js";
 import { scheduleParseSchema } from "../schemas/schedule-input.js";
@@ -17,7 +17,10 @@ Input: "${input}"
 Rules:
 - Use standard 5-field cron: minute hour day-of-month month day-of-week
 - Use numeric values for days of week (0=Sunday, 1=Monday, ..., 6=Saturday)
-- If the input is ambiguous, set confidence to "low"
+- If the input is ambiguous but still describes a schedule, set confidence to "low"
+- If the input is NOT a schedule at all, set confidence to "refused" and cronExpression to "REFUSED".
+  REFUSE these: "sometimes in the morning", "when I feel like it", "make me a sandwich", "not too often", "occasionally", random text.
+  ACCEPT these (they ARE valid schedules): "every day at 7am", "every weekday at 9am", "every Monday at 8am", "every 3 hours", "daily", "hourly", "twice a day".
 - Common mappings:
   - "weekday" = Monday through Friday (1-5)
   - "daily" = every day (default midnight if no time specified)
@@ -49,7 +52,7 @@ export async function parseSchedule(input: string): Promise<ParseScheduleRespons
 	}
 
 	// Translate natural language via LLM
-	const model = await resolveModel(DEFAULT_MODEL);
+	const model = await resolveModel("qwen2.5-coder:14b");
 	const prompt = buildParsePrompt(trimmed);
 
 	let result: ScheduleParseResult;
@@ -74,6 +77,11 @@ export async function parseSchedule(input: string): Promise<ParseScheduleRespons
 		} else {
 			throw error;
 		}
+	}
+
+	// Refuse non-schedule inputs
+	if (result.confidence === "refused") {
+		throw new Error("Input is not a recognizable schedule description");
 	}
 
 	// Validate the generated cron expression with croner
