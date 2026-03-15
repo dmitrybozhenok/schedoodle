@@ -20,6 +20,14 @@ vi.mock("../src/services/executor.js", () => ({
 	executeAgent: (...args: unknown[]) => mockExecuteAgent(...args),
 }));
 
+// Mock schedule parser to avoid real LLM calls
+vi.mock("../src/services/schedule-parser.js", () => ({
+	parseSchedule: (input: string) => {
+		// Simulate refusal for nonsensical input
+		throw new Error("Input is not a recognizable schedule description");
+	},
+}));
+
 import { createAgentRoutes } from "../src/routes/agents.js";
 
 const CREATE_AGENTS_SQL = `

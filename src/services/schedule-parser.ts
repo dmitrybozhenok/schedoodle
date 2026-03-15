@@ -1,7 +1,7 @@
 import { generateText, NoObjectGeneratedError, Output } from "ai";
 import { Cron } from "croner";
 import cronstrue from "cronstrue";
-import { resolveModel } from "../config/llm-provider.js";
+import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
 import { isCronExpression } from "../helpers/cron-detect.js";
 import type { ParseScheduleResponse, ScheduleParseResult } from "../schemas/schedule-input.js";
 import { scheduleParseSchema } from "../schemas/schedule-input.js";
@@ -52,7 +52,7 @@ export async function parseSchedule(input: string): Promise<ParseScheduleRespons
 	}
 
 	// Translate natural language via LLM
-	const model = await resolveModel("qwen2.5-coder:14b");
+	const model = await resolveModel(DEFAULT_MODEL);
 	const prompt = buildParsePrompt(trimmed);
 
 	let result: ScheduleParseResult;
