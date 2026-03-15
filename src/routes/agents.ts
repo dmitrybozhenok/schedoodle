@@ -249,6 +249,13 @@ export function createAgentRoutes(db: Database): Hono {
 			return c.json({ error: "Agent not found" }, 404);
 		}
 
+		if (agent.enabled === 0) {
+			return c.json(
+				{ error: "Agent is disabled", message: "Enable the agent before triggering manual execution" },
+				409,
+			);
+		}
+
 		const result = await executeAgent(agent, db);
 		return c.json(result, result.status === "success" ? 200 : 500);
 	});
