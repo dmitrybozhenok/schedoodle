@@ -97,6 +97,26 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CI-04**: Workflow supports manual dispatch via workflow_dispatch trigger
 - [x] **CI-05**: Tests run with mocked environment variables (dummy ANTHROPIC_API_KEY)
 
+### MCP Server
+
+- [ ] **MCP-01**: MCP server runs as a separate stdio process at src/mcp.ts with @modelcontextprotocol/sdk
+- [ ] **MCP-02**: list_agents MCP tool returns all agents with enriched data (health, schedule, enabled status)
+- [ ] **MCP-03**: get_agent MCP tool returns a single enriched agent by ID
+- [ ] **MCP-04**: create_agent MCP tool accepts natural language schedules and inserts agent into DB
+- [ ] **MCP-05**: update_agent MCP tool modifies agent fields with NL schedule resolution
+- [ ] **MCP-06**: delete_agent MCP tool uses two-step confirmation (preview then confirm)
+- [ ] **MCP-07**: execute_agent MCP tool triggers synchronous agent execution and returns full result
+- [ ] **MCP-08**: get_execution_history MCP tool returns execution records for an agent (default 100, max 200)
+- [ ] **MCP-09**: All MCP error responses include actionable guidance for self-correction
+- [ ] **MCP-10**: list_tools, get_tool, create_tool, update_tool MCP tools provide full custom tool CRUD
+- [ ] **MCP-11**: delete_tool MCP tool uses two-step confirmation matching delete_agent pattern
+- [ ] **MCP-12**: list_agent_tools MCP tool returns tools attached to an agent
+- [ ] **MCP-13**: attach_tool MCP tool links a custom tool to an agent
+- [ ] **MCP-14**: detach_tool MCP tool unlinks a custom tool from an agent
+- [ ] **MCP-15**: get_health MCP tool returns system health with per-agent breakdown and circuit breaker status
+- [ ] **MCP-16**: parse_schedule MCP tool converts natural language to cron expression
+- [ ] **MCP-17**: All 17 MCP tools are registered and discoverable via MCP tool listing
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -145,6 +165,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | Shell command / code execution tool | Security implications need separate design |
 | Per-agent tool opt-out for built-ins | All agents get built-ins for now |
 | Tool authentication beyond static headers | OAuth, dynamic tokens deferred |
+| MCP HTTP/SSE transport | stdio sufficient for local Claude Code use |
+| MCP Resources/Prompts primitives | Tools-only approach validated first |
+| MCP scheduler integration | Avoid dual-process cron conflicts |
 
 ## Traceability
 
@@ -209,12 +232,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CI-03 | Phase 13 | Complete |
 | CI-04 | Phase 13 | Complete |
 | CI-05 | Phase 13 | Complete |
+| MCP-01 | Phase 14 | Planned |
+| MCP-02 | Phase 14 | Planned |
+| MCP-03 | Phase 14 | Planned |
+| MCP-04 | Phase 14 | Planned |
+| MCP-05 | Phase 14 | Planned |
+| MCP-06 | Phase 14 | Planned |
+| MCP-07 | Phase 14 | Planned |
+| MCP-08 | Phase 14 | Planned |
+| MCP-09 | Phase 14 | Planned |
+| MCP-10 | Phase 14 | Planned |
+| MCP-11 | Phase 14 | Planned |
+| MCP-12 | Phase 14 | Planned |
+| MCP-13 | Phase 14 | Planned |
+| MCP-14 | Phase 14 | Planned |
+| MCP-15 | Phase 14 | Planned |
+| MCP-16 | Phase 14 | Planned |
+| MCP-17 | Phase 14 | Planned |
 
 **Coverage:**
-- v1 requirements: 57 total
-- Mapped to phases: 57
+- v1 requirements: 74 total
+- Mapped to phases: 74
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 13 execution*
+*Last updated: 2026-03-15 after Phase 14 planning*

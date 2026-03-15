@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -109,6 +109,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 11. Data Integrity and Execution Lifecycle | 2/2 | Complete    | 2026-03-15 |
 | 12. LLM Concurrency Limits and Graceful Shutdown | 2/2 | Complete    | 2026-03-15 |
 | 13. CI/CD Pipeline | 1/1 | Complete    | 2026-03-15 |
+| 14. MCP Server | 0/2 | Planned |  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -257,13 +258,22 @@ Plans:
 
 ### Phase 14: MCP Server for Claude Code Integration
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Schedoodle's full management capabilities are exposed through an MCP server with stdio transport, enabling Claude Code to manage agents, trigger executions, check health, and manage tools directly from the CLI
+**Requirements**: MCP-01, MCP-02, MCP-03, MCP-04, MCP-05, MCP-06, MCP-07, MCP-08, MCP-09, MCP-10, MCP-11, MCP-12, MCP-13, MCP-14, MCP-15, MCP-16, MCP-17
 **Depends on:** Phase 13
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. MCP server runs as a separate stdio process at src/mcp.ts using @modelcontextprotocol/sdk
+  2. All 17 MCP tools are registered and discoverable (agent CRUD, execute, history, tool CRUD, agent-tool linking, health, schedule parsing)
+  3. Agent management tools support natural language schedule input via the schedule-parser service
+  4. Destructive operations (delete_agent, delete_tool) require two-step confirmation (preview then confirm)
+  5. All error responses include actionable guidance for Claude to self-correct
+  6. The MCP server accesses the database directly without starting the HTTP server or scheduler
+  7. execute_agent runs synchronously and returns the full execution result
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 14 to break down)
+- [ ] 14-01-PLAN.md — Install MCP SDK, create entrypoint with stdio transport, agent CRUD + execute + history tools, helpers, and tests
+- [ ] 14-02-PLAN.md — Tool CRUD, agent-tool linking, health, schedule parsing tools, wire into entrypoint, and tests
 
 ### Phase 15: Telegram Notification Channel
 
