@@ -44,7 +44,7 @@ vi.mock("../src/services/notifier.js", () => ({
 	sendNotification: (...args: unknown[]) => mockSendNotification(...args),
 }));
 
-import { _resetLlmBreaker, executeAgent, executeAgents } from "../src/services/executor.js";
+import { _resetLlmBreaker, _resetLlmSemaphore, drainLlmSemaphore, executeAgent, executeAgents, getLlmSemaphoreStatus } from "../src/services/executor.js";
 import { buildPrompt, prefetchUrls } from "../src/services/prefetch.js";
 
 const CREATE_AGENTS_SQL = `
@@ -151,6 +151,7 @@ describe("executeAgent", () => {
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
+		_resetLlmSemaphore();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
@@ -473,6 +474,7 @@ describe("executeAgents", () => {
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
+		_resetLlmSemaphore();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
@@ -536,6 +538,7 @@ describe("notification integration", () => {
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
+		_resetLlmSemaphore();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "sent" });
 		mockBuildToolSet.mockReturnValue({});
@@ -643,6 +646,7 @@ describe("tool-enabled execution", () => {
 
 		vi.clearAllMocks();
 		_resetLlmBreaker();
+		_resetLlmSemaphore();
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
@@ -911,5 +915,176 @@ describe("tool-enabled execution", () => {
 		expect(result.status).toBe("failure");
 		expect(result.error).toBe("Circuit breaker open - call rejected");
 		expect(mockGenerateText).not.toHaveBeenCalled();
+	});
+});
+
+describe("semaphore concurrency wrapping", () => {
+	let sqlite: Database.Database;
+	let db: ReturnType<typeof drizzle>;
+
+	beforeEach(() => {
+		sqlite = new Database(":memory:");
+		sqlite.exec(CREATE_AGENTS_SQL);
+		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		sqlite.exec(CREATE_TOOLS_SQL);
+		sqlite.exec(CREATE_AGENT_TOOLS_SQL);
+		db = drizzle(sqlite, { schema });
+
+		vi.clearAllMocks();
+		_resetLlmBreaker();
+		_resetLlmSemaphore();
+		mockGenerateText.mockResolvedValue(makeLlmResult());
+		mockSendNotification.mockResolvedValue({ status: "skipped" });
+		mockBuildToolSet.mockReturnValue({});
+	});
+
+	afterEach(() => {
+		sqlite.close();
+	});
+
+	it("executeAgent acquires semaphore before execution and releases after (verify via getStatus)", async () => {
+		let statusDuringExec: ReturnType<typeof getLlmSemaphoreStatus> | null = null;
+
+		mockGenerateText.mockImplementation(async () => {
+			statusDuringExec = getLlmSemaphoreStatus();
+			return makeLlmResult();
+		});
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		// During execution, one slot should be active
+		expect(statusDuringExec).not.toBeNull();
+		expect(statusDuringExec!.active).toBe(1);
+
+		// After execution, slot should be released
+		const statusAfter = getLlmSemaphoreStatus();
+		expect(statusAfter.active).toBe(0);
+	});
+
+	it("semaphore is released even when executeAgent throws (finally block)", async () => {
+		mockGenerateText.mockRejectedValue(new Error("LLM exploded"));
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		// Semaphore should be released despite error
+		const status = getLlmSemaphoreStatus();
+		expect(status.active).toBe(0);
+	});
+
+	it("when slots are full, a log message is emitted", async () => {
+		const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+		// Make generateText block until we release
+		let resolveFirst: (v: unknown) => void;
+		let resolveSecond: (v: unknown) => void;
+		let resolveThird: (v: unknown) => void;
+		let callIndex = 0;
+		mockGenerateText.mockImplementation(
+			() =>
+				new Promise((r) => {
+					callIndex++;
+					if (callIndex === 1) resolveFirst = r;
+					else if (callIndex === 2) resolveSecond = r;
+					else resolveThird = r;
+				}),
+		);
+
+		const agent1 = makeAgent(db, { name: "Agent1" });
+		const agent2 = makeAgent(db, { name: "Agent2" });
+		const agent3 = makeAgent(db, { name: "Agent3" });
+		const agent4 = makeAgent(db, { name: "Agent4" });
+
+		// Start 3 agents (fills default limit of 3)
+		const p1 = executeAgent(agent1, db);
+		const p2 = executeAgent(agent2, db);
+		const p3 = executeAgent(agent3, db);
+
+		// Wait for them to acquire slots
+		await new Promise((r) => setTimeout(r, 20));
+
+		// 4th agent should trigger the log
+		const p4 = executeAgent(agent4, db);
+		await new Promise((r) => setTimeout(r, 20));
+
+		expect(logSpy).toHaveBeenCalledWith(
+			expect.stringContaining("[concurrency] Slot full"),
+		);
+		expect(logSpy).toHaveBeenCalledWith(
+			expect.stringContaining('agent "Agent4" queued'),
+		);
+
+		// Clean up: resolve all
+		resolveFirst!(makeLlmResult());
+		resolveSecond!(makeLlmResult());
+		resolveThird!(makeLlmResult());
+		await Promise.all([p1, p2, p3]);
+
+		// The 4th call should now have a slot
+		callIndex = 0; // reset so the new mock call gets resolveFirst
+		mockGenerateText.mockResolvedValue(makeLlmResult());
+		await p4;
+
+		logSpy.mockRestore();
+	});
+
+	it("when slots are available, no concurrency log is emitted", async () => {
+		const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const concurrencyLogs = logSpy.mock.calls.filter((call) =>
+			String(call[0]).includes("[concurrency]"),
+		);
+		expect(concurrencyLogs).toHaveLength(0);
+
+		logSpy.mockRestore();
+	});
+
+	it("getLlmSemaphoreStatus() returns current semaphore status", () => {
+		const status = getLlmSemaphoreStatus();
+		expect(status).toEqual({ active: 0, queued: 0, limit: 3 });
+	});
+
+	it("drainLlmSemaphore() clears queued waiters", async () => {
+		// Fill all slots
+		mockGenerateText.mockImplementation(() => new Promise(() => {})); // never resolves
+
+		const agent1 = makeAgent(db, { name: "A1" });
+		const agent2 = makeAgent(db, { name: "A2" });
+		const agent3 = makeAgent(db, { name: "A3" });
+		const agent4 = makeAgent(db, { name: "A4" });
+
+		executeAgent(agent1, db);
+		executeAgent(agent2, db);
+		executeAgent(agent3, db);
+		await new Promise((r) => setTimeout(r, 20));
+
+		// 4th one should queue
+		executeAgent(agent4, db);
+		await new Promise((r) => setTimeout(r, 20));
+
+		expect(getLlmSemaphoreStatus().queued).toBe(1);
+
+		const dropped = drainLlmSemaphore();
+		expect(dropped).toBe(1);
+		expect(getLlmSemaphoreStatus().queued).toBe(0);
+	});
+
+	it("_resetLlmSemaphore() resets semaphore state", async () => {
+		// Use up a slot
+		mockGenerateText.mockImplementation(() => new Promise(() => {})); // never resolves
+		const agent = makeAgent(db, { name: "Busy" });
+		executeAgent(agent, db);
+		await new Promise((r) => setTimeout(r, 20));
+
+		expect(getLlmSemaphoreStatus().active).toBe(1);
+
+		_resetLlmSemaphore();
+
+		const status = getLlmSemaphoreStatus();
+		expect(status).toEqual({ active: 0, queued: 0, limit: 3 });
 	});
 });
