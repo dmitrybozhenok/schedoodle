@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type AgentOutput, agentOutputSchema } from "../src/schemas/agent-output.js";
+import { createAgentSchema, updateAgentSchema } from "../src/schemas/agent-input.js";
 
 describe("agentOutputSchema", () => {
 	it("parses valid { summary, details } successfully", () => {
@@ -44,5 +45,84 @@ describe("agentOutputSchema", () => {
 		// compile-time check: satisfies ensures type compatibility
 		output satisfies { summary: string; details: string; data?: unknown };
 		expect(output).toBeDefined();
+	});
+});
+
+const validBase = {
+	name: "Test Agent",
+	taskDescription: "Do something",
+	cronSchedule: "0 * * * *",
+};
+
+describe("createAgentSchema field limits", () => {
+	it("rejects taskDescription over 10,000 characters", () => {
+		const result = createAgentSchema.safeParse({
+			...validBase,
+			taskDescription: "x".repeat(10_001),
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts taskDescription at exactly 10,000 characters", () => {
+		const result = createAgentSchema.safeParse({
+			...validBase,
+			taskDescription: "x".repeat(10_000),
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects systemPrompt over 5,000 characters", () => {
+		const result = createAgentSchema.safeParse({
+			...validBase,
+			systemPrompt: "x".repeat(5_001),
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts systemPrompt at exactly 5,000 characters", () => {
+		const result = createAgentSchema.safeParse({
+			...validBase,
+			systemPrompt: "x".repeat(5_000),
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects model over 100 characters", () => {
+		const result = createAgentSchema.safeParse({
+			...validBase,
+			model: "x".repeat(101),
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts model at exactly 100 characters", () => {
+		const result = createAgentSchema.safeParse({
+			...validBase,
+			model: "x".repeat(100),
+		});
+		expect(result.success).toBe(true);
+	});
+});
+
+describe("updateAgentSchema inherits max constraints", () => {
+	it("rejects taskDescription over 10,000 characters", () => {
+		const result = updateAgentSchema.safeParse({
+			taskDescription: "x".repeat(10_001),
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects systemPrompt over 5,000 characters", () => {
+		const result = updateAgentSchema.safeParse({
+			systemPrompt: "x".repeat(5_001),
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects model over 100 characters", () => {
+		const result = updateAgentSchema.safeParse({
+			model: "x".repeat(101),
+		});
+		expect(result.success).toBe(false);
 	});
 });
