@@ -179,3 +179,53 @@ Plans:
 - [ ] 09-01-PLAN.md — Schema (tools table, agent_tools join, maxExecutionMs, toolCalls), env config, built-in tools, webhook factory, tool registry, and tests
 - [ ] 09-02-PLAN.md — Executor modifications: tools + stopWhen + AbortController timeout + tool call logging, and tests
 - [ ] 09-03-PLAN.md — Tools CRUD API, agent-tool attachment endpoints, mount routes, and tests
+
+### Phase 10: API Security and Hardening
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 9
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 10 to break down)
+
+### Phase 11: Data Integrity and Execution Lifecycle
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 10
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 11 to break down)
+
+### Phase 12: LLM Concurrency Limits and Graceful Shutdown
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 12 to break down)
+
+### Phase 13: CI CD Pipeline
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 12
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 13 to break down)
+
+### Phase 14: MCP Server for Claude Code Integration
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 13
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14 to break down)

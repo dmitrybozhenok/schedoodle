@@ -133,6 +133,11 @@ Recent decisions affecting current work:
 - Phase 6 added: Agent Enabled Flag and Schedule Controls
 - Phase 7 added: Natural language schedule parsing
 - Phase 8 added: Enhanced health monitoring with agent health flags and execution diagnostics
+- Phase 10 added: API Security and Hardening
+- Phase 11 added: Data Integrity and Execution Lifecycle
+- Phase 12 added: LLM Concurrency Limits and Graceful Shutdown
+- Phase 13 added: CI CD Pipeline
+- Phase 14 added: MCP Server for Claude Code Integration
 
 ### Pending Todos
 
