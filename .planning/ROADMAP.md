@@ -105,7 +105,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2009-03-15 |
 | 8. Enhanced Health Monitoring | 2/2 | Complete | 2026-03-15 |
 | 9. Agent Tool Use | 1/3 | In Progress|  |
-| 10. API Security and Hardening | 0/2 | Planned | - |
+| 10. API Security and Hardening | 2/2 | Complete   | 2026-03-15 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -195,7 +195,7 @@ Plans:
   6. LLM-invoking endpoints return 429 after 10 requests/minute per IP; general endpoints after 60/minute
   7. All responses include X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: same-origin
   8. Cross-origin requests are blocked (no permissive Access-Control-Allow-Origin)
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 10-01-PLAN.md — Auth middleware, security headers, CORS, rate limiter, env config, and mount all middleware in index.ts
 - [ ] 10-02-PLAN.md — SSRF protection, response size limit in prefetch, and input field max length constraints
