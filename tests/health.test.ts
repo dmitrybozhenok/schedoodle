@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import * as schema from "../src/db/schema.js";
 import { createHealthRoute } from "../src/routes/health.js";
 import type { CircuitBreakerStatus } from "../src/services/circuit-breaker.js";
+import type { SemaphoreStatus } from "../src/services/semaphore.js";
 
 const CREATE_AGENTS_SQL = `
 CREATE TABLE agents (
@@ -61,6 +62,18 @@ function mockGetScheduledJobs(entries: Array<[number, { nextRun: () => Date | nu
 	return vi.fn(() => new Map(entries));
 }
 
+function defaultConcurrencyStatus(): SemaphoreStatus {
+	return { active: 0, queued: 0, limit: 3 };
+}
+
+function mockGetConcurrencyStatus(status?: SemaphoreStatus) {
+	return vi.fn(() => status ?? defaultConcurrencyStatus());
+}
+
+function mockIsShuttingDown(value = false) {
+	return vi.fn(() => value);
+}
+
 function insertAgent(db: ReturnType<typeof createTestDb>, name: string, cronSchedule = "0 * * * *") {
 	const now = new Date().toISOString();
 	return db
@@ -107,7 +120,7 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now() - 5000;
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 		const res = await app.request("/");
 		expect(res.status).toBe(200);
@@ -126,7 +139,7 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 		insertAgent(db, "Agent1");
 		insertAgent(db, "Agent2");
@@ -140,7 +153,7 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 		const agent = insertAgent(db, "Agent1");
 
@@ -158,7 +171,7 @@ describe("GET /health", () => {
 		const db = createTestDb();
 		const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 		const agent = insertAgent(db, "Agent1");
 
@@ -182,7 +195,7 @@ describe("GET /health", () => {
 		};
 		const getCircuitStatus = vi.fn(() => openStatus);
 		const startedAt = Date.now();
-		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+		const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 		const res = await app.request("/");
 		const body = await res.json();
@@ -199,7 +212,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent1 = insertAgent(db, "AgentA");
 			const agent2 = insertAgent(db, "AgentB");
@@ -232,7 +245,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "MixedAgent");
 			const recentTime = new Date().toISOString();
@@ -252,7 +265,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			insertAgent(db, "NoExecAgent");
 
@@ -267,7 +280,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "RunningAgent");
 			const recentTime = new Date().toISOString();
@@ -288,7 +301,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "DurAgent");
 			const recentTime = new Date().toISOString();
@@ -306,7 +319,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			insertAgent(db, "NoDurAgent");
 
@@ -323,7 +336,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "HealthyAgent");
 			const recentTime = new Date().toISOString();
@@ -338,7 +351,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent1 = insertAgent(db, "HealthyAgent1");
 			const agent2 = insertAgent(db, "UnhealthyAgent");
@@ -369,7 +382,7 @@ describe("GET /health", () => {
 			};
 			const getCircuitStatus = vi.fn(() => openStatus);
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "OkAgent");
 			const recentTime = new Date().toISOString();
@@ -384,7 +397,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent1 = insertAgent(db, "Bad1");
 			const agent2 = insertAgent(db, "Bad2");
@@ -411,7 +424,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -435,7 +448,7 @@ describe("GET /health", () => {
 			mockJobs.set(agent3.id, { nextRun: () => new Date("2026-03-15T10:00:00Z") });
 
 			const getScheduledJobs = vi.fn(() => mockJobs);
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>);
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>, mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -467,7 +480,7 @@ describe("GET /health", () => {
 			}
 
 			const getScheduledJobs = vi.fn(() => mockJobs);
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>);
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>, mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -488,7 +501,7 @@ describe("GET /health", () => {
 			mockJobs.set(agent2.id, { nextRun: () => null }); // paused/stopped
 
 			const getScheduledJobs = vi.fn(() => mockJobs);
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>);
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, getScheduledJobs as ReturnType<typeof mockGetScheduledJobs>, mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -503,7 +516,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "LongResultAgent");
 			const longResult = "A".repeat(300);
@@ -524,7 +537,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "LongErrorAgent");
 			const longError = "E".repeat(300);
@@ -545,7 +558,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "ShortAgent");
 			insertExecution(db, agent.id, "success", {
@@ -566,7 +579,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const agent = insertAgent(db, "AggAgent");
 			const recentTime = new Date().toISOString();
@@ -589,7 +602,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now();
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			const res = await app.request("/");
 			const body = await res.json();
@@ -604,7 +617,7 @@ describe("GET /health", () => {
 			const db = createTestDb();
 			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
 			const startedAt = Date.now() - 10000;
-			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs());
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown());
 
 			insertAgent(db, "PreserveAgent");
 
@@ -620,6 +633,91 @@ describe("GET /health", () => {
 			expect(body.recentExecutions).toHaveProperty("success");
 			expect(body.recentExecutions).toHaveProperty("failure");
 			expect(body.recentExecutions).toHaveProperty("total");
+		});
+	});
+
+	describe("concurrency stats", () => {
+		it("response includes concurrency object with active, queued, limit fields", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const concurrencyMock = mockGetConcurrencyStatus({ active: 2, queued: 1, limit: 3 });
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), concurrencyMock, mockIsShuttingDown());
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body).toHaveProperty("concurrency");
+			expect(body.concurrency).toEqual({ active: 2, queued: 1, limit: 3 });
+			expect(concurrencyMock).toHaveBeenCalled();
+		});
+
+		it("concurrency section reflects actual semaphore status via callback", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const concurrencyMock = mockGetConcurrencyStatus({ active: 0, queued: 0, limit: 5 });
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), concurrencyMock, mockIsShuttingDown());
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body.concurrency).toEqual({ active: 0, queued: 0, limit: 5 });
+		});
+
+		it("full concurrency does NOT change top-level status from ok", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			// All slots full (active === limit)
+			const concurrencyMock = mockGetConcurrencyStatus({ active: 3, queued: 2, limit: 3 });
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), concurrencyMock, mockIsShuttingDown());
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body.status).toBe("ok");
+		});
+	});
+
+	describe("shutting_down flag", () => {
+		it("response includes shutting_down: false under normal operation", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown(false));
+
+			const res = await app.request("/");
+			expect(res.status).toBe(200);
+			const body = await res.json();
+
+			expect(body).toHaveProperty("shutting_down", false);
+		});
+
+		it("when isShuttingDown returns true, health returns 503 with status shutting_down", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown(true));
+
+			const res = await app.request("/");
+			expect(res.status).toBe(503);
+
+			const body = await res.json();
+			expect(body.status).toBe("shutting_down");
+		});
+
+		it("when isShuttingDown returns true, response body includes shutting_down: true", async () => {
+			const db = createTestDb();
+			const getCircuitStatus = vi.fn(() => defaultCircuitStatus());
+			const startedAt = Date.now();
+			const app = createHealthRoute(db, getCircuitStatus, startedAt, mockGetScheduledJobs(), mockGetConcurrencyStatus(), mockIsShuttingDown(true));
+
+			const res = await app.request("/");
+			const body = await res.json();
+
+			expect(body).toHaveProperty("shutting_down", true);
+			expect(body).toHaveProperty("concurrency");
 		});
 	});
 });
