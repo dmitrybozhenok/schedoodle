@@ -1,16 +1,17 @@
-import { generateText, NoObjectGeneratedError, Output } from "ai";
-import { eq } from "drizzle-orm";
+import { generateText, NoObjectGeneratedError, Output, stepCountIs } from "ai";
+import { eq, inArray } from "drizzle-orm";
 import { env } from "../config/env.js";
 import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
 import { estimateCost } from "../config/pricing.js";
 import type { Database } from "../db/index.js";
-import { executionHistory } from "../db/schema.js";
+import { agentTools, executionHistory, tools } from "../db/schema.js";
 import type { AgentOutput } from "../schemas/agent-output.js";
 import { agentOutputSchema } from "../schemas/agent-output.js";
 import { buildPrompt, prefetchUrls } from "../services/prefetch.js";
 import type { Agent } from "../types/index.js";
 import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
 import { sendFailureNotification, sendNotification } from "./notifier.js";
+import { buildToolSet } from "./tools/registry.js";
 
 const BREAKER_NAME = env.LLM_PROVIDER === "ollama" ? "ollama" : "anthropic";
 
@@ -54,31 +55,85 @@ export function getLlmCircuitStatus() {
 }
 
 /**
- * Call the LLM with structured output and one retry on validation failure.
+ * Truncate a string to maxLen characters, appending "..." if truncated.
  */
-async function callLlmWithRetry(modelId: string, systemPrompt: string | null, userMessage: string) {
+function truncate(str: string, maxLen: number): string {
+	return str.length > maxLen ? `${str.slice(0, maxLen)}...` : str;
+}
+
+type ToolCallLogEntry = {
+	toolName: string;
+	input: unknown;
+	output: string;
+	durationMs: number;
+};
+
+/**
+ * Call the LLM with structured output and one retry on validation failure.
+ * Accepts a tool set and abort signal for multi-step tool calling.
+ */
+async function callLlmWithRetry(
+	modelId: string,
+	systemPrompt: string | null,
+	userMessage: string,
+	toolSet: Record<string, unknown>,
+	abortSignal: AbortSignal,
+) {
 	const model = await resolveModel(modelId);
+	const hasTools = Object.keys(toolSet).length > 0;
+
+	const toolCallLog: ToolCallLogEntry[] = [];
+
+	const onStepFinish = ({
+		toolCalls,
+		toolResults,
+	}: {
+		toolCalls: Array<{ toolName: string; args: unknown }>;
+		toolResults: Array<{ result?: unknown }>;
+	}) => {
+		if (toolCalls) {
+			for (let i = 0; i < toolCalls.length; i++) {
+				toolCallLog.push({
+					toolName: toolCalls[i].toolName,
+					input: toolCalls[i].args,
+					output: truncate(
+						String(toolResults?.[i]?.result ?? ""),
+						2000,
+					),
+					durationMs: 0,
+				});
+			}
+		}
+	};
+
+	const baseOptions = {
+		model,
+		system: systemPrompt ?? undefined,
+		output: Output.object({ schema: agentOutputSchema }),
+		tools: hasTools ? toolSet : undefined,
+		stopWhen: hasTools ? stepCountIs(10) : undefined,
+		abortSignal,
+		onStepFinish,
+	};
+
 	try {
 		const result = await generateText({
-			model,
-			system: systemPrompt ?? undefined,
-			output: Output.object({ schema: agentOutputSchema }),
+			...baseOptions,
 			prompt: userMessage,
 		});
-		return { result, retryCount: 0 };
+		return { result, retryCount: 0, toolCallLog };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			// Retry once with validation error appended as feedback
-			const errorMsg = error instanceof Error ? error.message : String(error);
+			const errorMsg =
+				error instanceof Error ? error.message : String(error);
 			const retryPrompt = `${userMessage}\n\n[Previous attempt failed validation: ${errorMsg}]\nPlease provide a valid response matching the required schema.`;
 
 			const result = await generateText({
-				model,
-				system: systemPrompt ?? undefined,
-				output: Output.object({ schema: agentOutputSchema }),
+				...baseOptions,
 				prompt: retryPrompt,
 			});
-			return { result, retryCount: 1 };
+			return { result, retryCount: 1, toolCallLog };
 		}
 		throw error;
 	}
@@ -101,25 +156,61 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 	const executionId = inserted.id;
 	const startTime = Date.now();
 
+	// Create AbortController with per-agent timeout
+	const timeoutMs = agent.maxExecutionMs ?? 60_000;
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
 	try {
 		// Prefetch URLs from task description
 		const contextData = await prefetchUrls(agent.taskDescription);
 		const userMessage = buildPrompt(agent.taskDescription, contextData);
 
+		// Load custom tools for this agent from DB
+		const agentToolLinks = db
+			.select({ toolId: agentTools.toolId })
+			.from(agentTools)
+			.where(eq(agentTools.agentId, agent.id))
+			.all();
+		const customTools =
+			agentToolLinks.length > 0
+				? db
+						.select()
+						.from(tools)
+						.where(
+							inArray(
+								tools.id,
+								agentToolLinks.map((l) => l.toolId),
+							),
+						)
+						.all()
+				: [];
+		const toolSet = buildToolSet(customTools);
+
 		// Call LLM with retry, wrapped in circuit breaker
 		const modelId = agent.model ?? DEFAULT_MODEL;
-		const { result, retryCount } = await llmBreaker.execute(() =>
-			callLlmWithRetry(modelId, agent.systemPrompt, userMessage),
+		const { result, retryCount, toolCallLog } = await llmBreaker.execute(
+			() =>
+				callLlmWithRetry(
+					modelId,
+					agent.systemPrompt,
+					userMessage,
+					toolSet,
+					controller.signal,
+				),
 		);
 
 		const durationMs = Date.now() - startTime;
 		const output = result.output as AgentOutput;
 
+		// Prefer totalUsage (aggregates across multi-step tool calls) over usage
+		const usage = result.totalUsage ?? result.usage;
+
 		// Compute estimated cost from token usage
 		const cost = estimateCost(
 			modelId,
-			result.usage.inputTokens ?? 0,
-			result.usage.outputTokens ?? 0,
+			usage.inputTokens ?? 0,
+			usage.outputTokens ?? 0,
 		);
 
 		// Update execution to success
@@ -127,11 +218,12 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 			.set({
 				status: "success",
 				result: output,
-				inputTokens: result.usage.inputTokens ?? null,
-				outputTokens: result.usage.outputTokens ?? null,
+				inputTokens: usage.inputTokens ?? null,
+				outputTokens: usage.outputTokens ?? null,
 				estimatedCost: cost,
 				retryCount,
 				durationMs,
+				toolCalls: toolCallLog.length > 0 ? toolCallLog : null,
 				completedAt: new Date().toISOString(),
 			})
 			.where(eq(executionHistory.id, executionId))
@@ -172,11 +264,15 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 	} catch (error) {
 		const durationMs = Date.now() - startTime;
 		const isCircuitOpen = error instanceof CircuitBreakerOpenError;
-		const errorMsg = isCircuitOpen
-			? "Circuit breaker open - call rejected"
-			: error instanceof Error
-				? error.message
-				: String(error);
+		const isAbort =
+			error instanceof Error && error.name === "AbortError";
+		const errorMsg = isAbort
+			? `Execution timed out after ${timeoutMs}ms`
+			: isCircuitOpen
+				? "Circuit breaker open - call rejected"
+				: error instanceof Error
+					? error.message
+					: String(error);
 
 		// Update execution to failure
 		db.update(executionHistory)
@@ -213,6 +309,8 @@ export async function executeAgent(agent: Agent, db: Database): Promise<ExecuteR
 		}
 
 		return { status: "failure", executionId, error: errorMsg };
+	} finally {
+		clearTimeout(timeout);
 	}
 }
 
