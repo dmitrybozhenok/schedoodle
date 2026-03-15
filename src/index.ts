@@ -19,6 +19,10 @@ import { createScheduleRoutes } from "./routes/schedules.js";
 import { createToolRoutes } from "./routes/tools.js";
 import { getLlmCircuitStatus } from "./services/executor.js";
 import { getScheduledJobs, startAll, stopAll } from "./services/scheduler.js";
+import {
+	cleanupStaleExecutions,
+	pruneOldExecutions,
+} from "./services/startup.js";
 
 const startedAt = Date.now();
 
@@ -56,7 +60,21 @@ app.route("/schedules", createScheduleRoutes());
 app.route("/dashboard", createDashboardRoute());
 app.route("/tools", createToolRoutes(db));
 
-// Boot sequence
+// Boot sequence: stale cleanup -> pruning -> scheduler
+const staleCount = cleanupStaleExecutions(db);
+if (staleCount > 0) {
+	console.log(
+		`[startup] Cleaned up ${staleCount} stale running executions`,
+	);
+}
+
+const prunedCount = pruneOldExecutions(db, env.RETENTION_DAYS);
+if (prunedCount > 0) {
+	console.log(
+		`[startup] Pruned ${prunedCount} execution records older than ${env.RETENTION_DAYS} days`,
+	);
+}
+
 const allAgents = db.select().from(agents).all();
 startAll(allAgents, db);
 
