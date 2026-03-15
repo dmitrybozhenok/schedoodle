@@ -80,14 +80,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### API Security and Hardening
 
-- [ ] **SEC-01**: Auth middleware blocks requests without valid Bearer token when AUTH_TOKEN env var is set
-- [ ] **SEC-02**: Auth middleware passes through all requests when AUTH_TOKEN is not configured (backward-compatible)
+- [x] **SEC-01**: Auth middleware blocks requests without valid Bearer token when AUTH_TOKEN env var is set
+- [x] **SEC-02**: Auth middleware passes through all requests when AUTH_TOKEN is not configured (backward-compatible)
 - [x] **SEC-03**: SSRF check blocks private/internal IP ranges (127.x, 10.x, 172.16-31.x, 192.168.x, 169.254.x, ::1, localhost) before URL prefetch
 - [x] **SEC-04**: URL prefetch aborts and returns truncation message when response body exceeds 1 MB
 - [x] **SEC-05**: Input field limits enforce max lengths via Zod (taskDescription: 10k, systemPrompt: 5k, model: 100)
-- [ ] **SEC-06**: In-memory per-IP rate limiter returns 429 after threshold (10/min LLM endpoints, 60/min general)
-- [ ] **SEC-07**: All responses include security headers: X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: same-origin
-- [ ] **SEC-08**: CORS blocks cross-origin requests (no permissive Access-Control-Allow-Origin)
+- [x] **SEC-06**: In-memory per-IP rate limiter returns 429 after threshold (10/min LLM endpoints, 60/min general)
+- [x] **SEC-07**: All responses include security headers: X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: same-origin
+- [x] **SEC-08**: CORS blocks cross-origin requests (no permissive Access-Control-Allow-Origin)
 
 ## v2 Requirements
 
