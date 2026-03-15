@@ -78,6 +78,17 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TOOL-10**: Built-in tools (web_fetch, web_search) automatically available to all agents without per-agent opt-in
 - [ ] **TOOL-11**: Circuit breaker wraps entire generateText call including all tool steps
 
+### API Security and Hardening
+
+- [ ] **SEC-01**: Auth middleware blocks requests without valid Bearer token when AUTH_TOKEN env var is set
+- [ ] **SEC-02**: Auth middleware passes through all requests when AUTH_TOKEN is not configured (backward-compatible)
+- [ ] **SEC-03**: SSRF check blocks private/internal IP ranges (127.x, 10.x, 172.16-31.x, 192.168.x, 169.254.x, ::1, localhost) before URL prefetch
+- [ ] **SEC-04**: URL prefetch aborts and returns truncation message when response body exceeds 1 MB
+- [ ] **SEC-05**: Input field limits enforce max lengths via Zod (taskDescription: 10k, systemPrompt: 5k, model: 100)
+- [ ] **SEC-06**: In-memory per-IP rate limiter returns 429 after threshold (10/min LLM endpoints, 60/min general)
+- [ ] **SEC-07**: All responses include security headers: X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: same-origin
+- [ ] **SEC-08**: CORS blocks cross-origin requests (no permissive Access-Control-Allow-Origin)
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -115,7 +126,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | Feature | Reason |
 |---------|--------|
 | Web dashboard / UI | API-first for v1; curl + future CLI cover the use case |
-| Multi-user / authentication | Personal tool; run on localhost or behind VPN |
+| ~~Multi-user / authentication~~ | ~~Personal tool; run on localhost or behind VPN~~ -- Single-token auth added in Phase 10 |
 | Agent chaining / workflows | Independent agents only; workflow orchestration is an entire product category |
 | Real-time streaming | Agents are batch jobs; streaming adds complexity for zero value |
 | Multiple notification channels | Email only; design notifier as pluggable for future channels |
@@ -177,12 +188,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOOL-09 | Phase 9 | Planned |
 | TOOL-10 | Phase 9 | Planned |
 | TOOL-11 | Phase 9 | Planned |
+| SEC-01 | Phase 10 | Planned |
+| SEC-02 | Phase 10 | Planned |
+| SEC-03 | Phase 10 | Planned |
+| SEC-04 | Phase 10 | Planned |
+| SEC-05 | Phase 10 | Planned |
+| SEC-06 | Phase 10 | Planned |
+| SEC-07 | Phase 10 | Planned |
+| SEC-08 | Phase 10 | Planned |
 
 **Coverage:**
-- v1 requirements: 44 total
-- Mapped to phases: 44
+- v1 requirements: 52 total
+- Mapped to phases: 52
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 9 planning*
+*Last updated: 2026-03-15 after Phase 10 planning*

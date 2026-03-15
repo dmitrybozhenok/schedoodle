@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -105,6 +105,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2009-03-15 |
 | 8. Enhanced Health Monitoring | 2/2 | Complete | 2026-03-15 |
 | 9. Agent Tool Use | 1/3 | In Progress|  |
+| 10. API Security and Hardening | 0/2 | Planned | - |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -131,7 +132,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Natural language input like "every weekday at 9am" is translated to a valid cron expression
   2. The response includes both the cron expression and a human-readable description (e.g., "At 09:00, Monday through Friday")
-  3. If input is already a valid cron expression, it is described without an LLM call
+  3. If input is already a valid cron expression, it is detected and described without an LLM call
   4. Ambiguous input returns a low-confidence warning so users can verify
   5. Unparseable input returns a 422 with guidance and example suggestions
   6. LLM unavailability returns a 503 with fallback guidance to use raw cron
@@ -182,13 +183,22 @@ Plans:
 
 ### Phase 10: API Security and Hardening
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** All API endpoints are protected with bearer token authentication, URL prefetch is hardened against SSRF and memory abuse, input fields have length constraints, LLM-invoking endpoints are rate-limited, and all responses include security headers with CORS restricted to same-origin
+**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06, SEC-07, SEC-08
 **Depends on:** Phase 9
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. When AUTH_TOKEN env var is set, requests without a valid Bearer token are rejected with 401
+  2. When AUTH_TOKEN is not configured, all requests pass through (backward-compatible)
+  3. URLs pointing to private/internal IP ranges are blocked before fetch (SSRF protection)
+  4. URL prefetch aborts and returns truncation message when response exceeds 1 MB
+  5. Agent input fields enforce max lengths (taskDescription: 10k, systemPrompt: 5k, model: 100)
+  6. LLM-invoking endpoints return 429 after 10 requests/minute per IP; general endpoints after 60/minute
+  7. All responses include X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: same-origin
+  8. Cross-origin requests are blocked (no permissive Access-Control-Allow-Origin)
+**Plans:** 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Auth middleware, security headers, CORS, rate limiter, env config, and mount all middleware in index.ts
+- [ ] 10-02-PLAN.md — SSRF protection, response size limit in prefetch, and input field max length constraints
 
 ### Phase 11: Data Integrity and Execution Lifecycle
 
