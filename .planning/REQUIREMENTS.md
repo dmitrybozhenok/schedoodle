@@ -64,6 +64,20 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **HLTH-09**: Scheduler exposes its job registry for external consumers (upcoming runs)
 - [x] **HLTH-10**: Health endpoint includes system-wide successRate and avgDurationMs aggregates (24h window)
 
+### Agent Tool Use
+
+- [ ] **TOOL-01**: web_fetch built-in tool fetches URL content and returns plain text (HTML converted via html-to-text)
+- [ ] **TOOL-02**: web_search built-in tool queries Brave Search API and returns structured results
+- [ ] **TOOL-03**: Custom webhook tools execute HTTP calls with configurable URL, method, headers, and JSON Schema input
+- [ ] **TOOL-04**: Full CRUD API at /tools for custom tool definitions (POST, GET, PATCH, DELETE)
+- [ ] **TOOL-05**: Many-to-many agent-tool attachment via join table with link/unlink API endpoints
+- [ ] **TOOL-06**: Executor uses generateText with tools + stopWhen: stepCountIs(10) for multi-step tool calling
+- [ ] **TOOL-07**: Tool call details logged as JSON array in execution history (toolName, input, output, durationMs)
+- [ ] **TOOL-08**: Per-agent configurable execution timeout via maxExecutionMs column + AbortController
+- [ ] **TOOL-09**: Database schema: tools table, agent_tools join table, maxExecutionMs on agents, toolCalls on executionHistory
+- [ ] **TOOL-10**: Built-in tools (web_fetch, web_search) automatically available to all agents without per-agent opt-in
+- [ ] **TOOL-11**: Circuit breaker wraps entire generateText call including all tool steps
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -105,10 +119,13 @@ Deferred to future release. Tracked but not in current roadmap.
 | Agent chaining / workflows | Independent agents only; workflow orchestration is an entire product category |
 | Real-time streaming | Agents are batch jobs; streaming adds complexity for zero value |
 | Multiple notification channels | Email only; design notifier as pluggable for future channels |
-| LLM tool-use / function-calling loops | Pre-fetch pattern is cheaper, more reliable, and deterministic |
+| ~~LLM tool-use / function-calling loops~~ | ~~Pre-fetch pattern is cheaper, more reliable, and deterministic~~ -- Implemented in Phase 9 |
 | Plugin / extension system | Premature abstraction; extract extension points after patterns emerge |
-| ~~Natural language schedule input~~ | ~~Use cron expressions; link to crontab.guru in docs~~ — Implemented in Phase 7 |
+| ~~Natural language schedule input~~ | ~~Use cron expressions; link to crontab.guru in docs~~ -- Implemented in Phase 7 |
 | Agent marketplace / sharing | No users to share with; copy-paste JSON configs instead |
+| Shell command / code execution tool | Security implications need separate design |
+| Per-agent tool opt-out for built-ins | All agents get built-ins for now |
+| Tool authentication beyond static headers | OAuth, dynamic tokens deferred |
 
 ## Traceability
 
@@ -139,22 +156,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NLP-05 | Phase 7 | Complete |
 | NLP-06 | Phase 7 | Complete |
 | NLP-07 | Phase 7 | Complete |
-| HLTH-01 | Phase 8 | Planned |
-| HLTH-02 | Phase 8 | Planned |
-| HLTH-03 | Phase 8 | Planned |
-| HLTH-04 | Phase 8 | Planned |
-| HLTH-05 | Phase 8 | Planned |
-| HLTH-06 | Phase 8 | Planned |
-| HLTH-07 | Phase 8 | Planned |
-| HLTH-08 | Phase 8 | Planned |
-| HLTH-09 | Phase 8 | Planned |
-| HLTH-10 | Phase 8 | Planned |
+| HLTH-01 | Phase 8 | Complete |
+| HLTH-02 | Phase 8 | Complete |
+| HLTH-03 | Phase 8 | Complete |
+| HLTH-04 | Phase 8 | Complete |
+| HLTH-05 | Phase 8 | Complete |
+| HLTH-06 | Phase 8 | Complete |
+| HLTH-07 | Phase 8 | Complete |
+| HLTH-08 | Phase 8 | Complete |
+| HLTH-09 | Phase 8 | Complete |
+| HLTH-10 | Phase 8 | Complete |
+| TOOL-01 | Phase 9 | Planned |
+| TOOL-02 | Phase 9 | Planned |
+| TOOL-03 | Phase 9 | Planned |
+| TOOL-04 | Phase 9 | Planned |
+| TOOL-05 | Phase 9 | Planned |
+| TOOL-06 | Phase 9 | Planned |
+| TOOL-07 | Phase 9 | Planned |
+| TOOL-08 | Phase 9 | Planned |
+| TOOL-09 | Phase 9 | Planned |
+| TOOL-10 | Phase 9 | Planned |
+| TOOL-11 | Phase 9 | Planned |
 
 **Coverage:**
-- v1 requirements: 33 total
-- Mapped to phases: 33
+- v1 requirements: 44 total
+- Mapped to phases: 44
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 8 planning*
+*Last updated: 2026-03-15 after Phase 9 planning*

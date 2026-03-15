@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -103,7 +103,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Notification | 2/2 | Complete   | 2009-03-14 |
 | 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2009-03-14 |
 | 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2009-03-15 |
-| 8. Enhanced Health Monitoring | 0/2 | Planned | - |
+| 8. Enhanced Health Monitoring | 2/2 | Complete | 2026-03-15 |
+| 9. Agent Tool Use | 0/3 | Planned | - |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -155,15 +156,26 @@ Plans:
   8. Health endpoint includes system-wide successRate and avgDurationMs aggregates (24h window)
 **Plans:** 2 plans
 Plans:
-- [ ] 08-01-PLAN.md — Schema retryCount, executor tracking, scheduler getScheduledJobs, enrichAgent healthy flag, agents route limit, and tests
-- [ ] 08-02-PLAN.md — Enhanced /health endpoint with per-agent breakdown, aggregates, upcoming runs, status levels, and tests
+- [x] 08-01-PLAN.md — Schema retryCount, executor tracking, scheduler getScheduledJobs, enrichAgent healthy flag, agents route limit, and tests
+- [x] 08-02-PLAN.md — Enhanced /health endpoint with per-agent breakdown, aggregates, upcoming runs, status levels, and tests
 
-### Phase 9: Agent tool use with built-in and custom tools
+### Phase 9: Agent Tool Use with Built-in and Custom Tools
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Agents can use tools (functions) during LLM execution, with two built-in tools (web_fetch, web_search) available to all agents plus user-defined custom webhook tools attached via a many-to-many relationship
+**Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-04, TOOL-05, TOOL-06, TOOL-07, TOOL-08, TOOL-09, TOOL-10, TOOL-11
 **Depends on:** Phase 8
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. Agents can use a web_fetch tool to retrieve URL content during LLM execution
+  2. Agents can use a web_search tool to query Brave Search during LLM execution
+  3. Users can define custom webhook tools with URL, method, headers, and JSON Schema input via CRUD API
+  4. Users can attach/detach custom tools to/from agents via API
+  5. The executor uses AI SDK generateText with tools and stepCountIs(10) for multi-step tool calling
+  6. Tool call details (toolName, input, output, durationMs) are logged in execution history
+  7. Per-agent execution timeout is configurable via maxExecutionMs and enforced with AbortController
+  8. Circuit breaker wraps the entire multi-step generateText call
+  9. Built-in tools are automatically available to all agents without opt-in
+**Plans:** 3 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 9 to break down)
+- [ ] 09-01-PLAN.md — Schema (tools table, agent_tools join, maxExecutionMs, toolCalls), env config, built-in tools, webhook factory, tool registry, and tests
+- [ ] 09-02-PLAN.md — Executor modifications: tools + stopWhen + AbortController timeout + tool call logging, and tests
+- [ ] 09-03-PLAN.md — Tools CRUD API, agent-tool attachment endpoints, mount routes, and tests
