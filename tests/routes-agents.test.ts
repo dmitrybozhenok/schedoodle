@@ -89,9 +89,9 @@ CREATE TABLE agent_tools (
 CREATE UNIQUE INDEX agent_tools_unique ON agent_tools(agent_id, tool_id);
 `;
 
-function buildApp(db: ReturnType<typeof drizzle>) {
+function buildApp(db: ReturnType<typeof drizzle>, isShuttingDown: () => boolean = () => false) {
 	const app = new Hono();
-	app.route("/agents", createAgentRoutes(db));
+	app.route("/agents", createAgentRoutes(db, isShuttingDown));
 	return app;
 }
 
@@ -874,6 +874,34 @@ describe("Agent CRUD routes", () => {
 			expect(res.status).toBe(404);
 			const body = await res.json();
 			expect(body.error).toBe("Agent not found");
+		});
+	});
+
+	describe("shutdown guard on manual execute", () => {
+		it("POST /:id/execute returns 503 when isShuttingDown returns true", async () => {
+			const shutdownApp = buildApp(db, () => true);
+			const agent = makeAgent(db, { name: "ShutdownAgent", enabled: 1 });
+
+			const res = await shutdownApp.request(`/agents/${agent.id}/execute`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(503);
+			const body = await res.json();
+			expect(body.error).toBe("Service is shutting down");
+			expect(mockExecuteAgent).not.toHaveBeenCalled();
+		});
+
+		it("POST /:id/execute works normally when isShuttingDown returns false", async () => {
+			const normalApp = buildApp(db, () => false);
+			const agent = makeAgent(db, { name: "NormalAgent", enabled: 1 });
+
+			const res = await normalApp.request(`/agents/${agent.id}/execute`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(200);
+			expect(mockExecuteAgent).toHaveBeenCalledTimes(1);
 		});
 	});
 
