@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -106,6 +106,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. Enhanced Health Monitoring | 2/2 | Complete | 2026-03-15 |
 | 9. Agent Tool Use | 1/3 | In Progress|  |
 | 10. API Security and Hardening | 2/2 | Complete    | 2026-03-15 |
+| 11. Data Integrity and Execution Lifecycle | 0/2 | Planned | |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -202,13 +203,20 @@ Plans:
 
 ### Phase 11: Data Integrity and Execution Lifecycle
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Execution history has performance indexes, stale running records are cleaned up on startup, old history is pruned by configurable retention, and disabled agents are blocked from manual execution
+**Requirements**: EXEC-05, INDEX-01, STARTUP-01, STARTUP-02, ENV-01, EXEC-05-guard
 **Depends on:** Phase 10
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. execution_history table has indexes on agent_id, (agent_id, started_at), and status for query performance
+  2. On startup, all 'running' execution records are marked as 'failure' with error message
+  3. On startup, execution records older than RETENTION_DAYS (default 30) are deleted
+  4. RETENTION_DAYS is configurable via env var with sensible default and minimum
+  5. Startup tasks run before the scheduler starts
+  6. Disabled agents return 409 from POST /agents/:id/execute
+**Plans:** 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 11 to break down)
+- [ ] 11-01-PLAN.md — Schema indexes, RETENTION_DAYS env, startup module (stale cleanup + pruning), boot sequence wiring, and tests
+- [ ] 11-02-PLAN.md — 409 guard on disabled agent manual execute endpoint and test updates
 
 ### Phase 12: LLM Concurrency Limits and Graceful Shutdown
 
