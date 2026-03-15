@@ -239,3 +239,13 @@ Plans:
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 14 to break down)
+
+### Phase 15: Telegram Notification Channel
+
+**Goal:** Agent results can be delivered via Telegram bot in addition to email, with per-agent channel selection
+**Requirements**: TBD
+**Depends on:** Phase 14
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 15 to break down)

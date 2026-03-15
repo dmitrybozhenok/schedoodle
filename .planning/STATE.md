@@ -153,6 +153,7 @@ Recent decisions affecting current work:
 - Phase 12 added: LLM Concurrency Limits and Graceful Shutdown
 - Phase 13 added: CI CD Pipeline
 - Phase 14 added: MCP Server for Claude Code Integration
+- Phase 15 added: Telegram Notification Channel
 
 ### Pending Todos
 
