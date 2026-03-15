@@ -14,6 +14,7 @@ export const envSchema = z
 		SMTP_HOST: z.string().optional(),
 		SMTP_PORT: z.coerce.number().optional(),
 		BRAVE_API_KEY: z.string().optional(),
+		AUTH_TOKEN: z.string().optional(),
 	})
 	.refine(
 		(data) =>

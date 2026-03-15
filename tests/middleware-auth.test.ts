@@ -1,8 +1,11 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock env module so we can control AUTH_TOKEN per test
-const mockEnv: Record<string, string | undefined> = {};
+// Use vi.hoisted so mockEnv is available when vi.mock factory runs (hoisted)
+const { mockEnv } = vi.hoisted(() => {
+	const mockEnv: Record<string, string | undefined> = {};
+	return { mockEnv };
+});
 
 vi.mock("../src/config/env.js", () => ({
 	env: new Proxy(mockEnv, {
