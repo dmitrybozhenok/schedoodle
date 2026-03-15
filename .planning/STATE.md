@@ -106,6 +106,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 6 added: Agent Enabled Flag and Schedule Controls
+- Phase 7 added: Natural language schedule parsing
 
 ### Pending Todos
 
