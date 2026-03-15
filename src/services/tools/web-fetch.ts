@@ -5,12 +5,14 @@ import { z } from "zod";
 export const webFetchTool = tool({
 	description:
 		"Fetch content from a URL. Returns plain text for HTML pages, raw text for JSON/other. Use when you need to read a webpage, API, or data source not already provided in the context.",
-	parameters: z.object({
+	inputSchema: z.object({
 		url: z.string().url().describe("The HTTP or HTTPS URL to fetch"),
 	}),
 	execute: async ({ url }, { abortSignal }) => {
 		try {
-			const combinedSignal = AbortSignal.any([abortSignal, AbortSignal.timeout(10_000)]);
+			const signals = [AbortSignal.timeout(10_000)];
+			if (abortSignal) signals.push(abortSignal);
+			const combinedSignal = AbortSignal.any(signals);
 			const response = await fetch(url, {
 				signal: combinedSignal,
 				headers: { "User-Agent": "Schedoodle/1.0" },

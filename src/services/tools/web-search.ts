@@ -2,28 +2,32 @@ import { tool } from "ai";
 import { z } from "zod";
 import { env } from "../../config/env.js";
 
+const webSearchParams = z.object({
+	query: z.string().describe("The search query"),
+	count: z
+		.number()
+		.int()
+		.min(1)
+		.max(10)
+		.default(5)
+		.optional()
+		.describe("Number of results to return (1-10, default 5)"),
+});
+
 export const webSearchTool = tool({
 	description:
 		"Search the web using Brave Search. Returns titles, URLs, and descriptions of matching pages. Use when you need to find current information, news, or discover URLs to fetch.",
-	parameters: z.object({
-		query: z.string().describe("The search query"),
-		count: z
-			.number()
-			.int()
-			.min(1)
-			.max(10)
-			.default(5)
-			.optional()
-			.describe("Number of results to return (1-10, default 5)"),
-	}),
-	execute: async ({ query, count = 5 }, { abortSignal }) => {
+	inputSchema: webSearchParams,
+	execute: async ({ query, count = 5 }: z.infer<typeof webSearchParams>, { abortSignal }) => {
 		const apiKey = env.BRAVE_API_KEY;
 		if (!apiKey) {
 			return "[Web search unavailable: BRAVE_API_KEY not configured]";
 		}
 		try {
 			const params = new URLSearchParams({ q: query, count: String(count) });
-			const combinedSignal = AbortSignal.any([abortSignal, AbortSignal.timeout(10_000)]);
+			const signals = [AbortSignal.timeout(10_000)];
+			if (abortSignal) signals.push(abortSignal);
+			const combinedSignal = AbortSignal.any(signals);
 			const response = await fetch(
 				`https://api.search.brave.com/res/v1/web/search?${params}`,
 				{
