@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -65,10 +66,58 @@ CREATE TABLE execution_history (
 );
 `;
 
+const CREATE_TOOLS_SQL = `
+CREATE TABLE tools (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  url TEXT NOT NULL,
+  method TEXT NOT NULL DEFAULT 'POST' CHECK(method IN ('GET', 'POST', 'PUT', 'PATCH', 'DELETE')),
+  headers TEXT,
+  input_schema TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+`;
+
+const CREATE_AGENT_TOOLS_SQL = `
+CREATE TABLE agent_tools (
+  agent_id INTEGER NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  tool_id INTEGER NOT NULL REFERENCES tools(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+CREATE UNIQUE INDEX agent_tools_unique ON agent_tools(agent_id, tool_id);
+`;
+
 function buildApp(db: ReturnType<typeof drizzle>) {
 	const app = new Hono();
 	app.route("/agents", createAgentRoutes(db));
 	return app;
+}
+
+function makeTool(
+	db: ReturnType<typeof drizzle>,
+	overrides: Partial<{
+		name: string;
+		description: string;
+		url: string;
+		method: string;
+		headers: Record<string, string>;
+		inputSchema: Record<string, unknown>;
+	}> = {},
+) {
+	return db
+		.insert(schema.tools)
+		.values({
+			name: overrides.name ?? "TestTool",
+			description: overrides.description ?? "A test tool",
+			url: overrides.url ?? "https://example.com/webhook",
+			method: overrides.method ?? "POST",
+			headers: overrides.headers ?? null,
+			inputSchema: overrides.inputSchema ?? { type: "object", properties: {} },
+		})
+		.returning()
+		.get();
 }
 
 function makeAgent(
@@ -99,6 +148,8 @@ describe("Agent CRUD routes", () => {
 		sqlite.pragma("foreign_keys = ON");
 		sqlite.exec(CREATE_AGENTS_SQL);
 		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		sqlite.exec(CREATE_TOOLS_SQL);
+		sqlite.exec(CREATE_AGENT_TOOLS_SQL);
 		db = drizzle(sqlite, { schema });
 		app = buildApp(db);
 		vi.clearAllMocks();
@@ -678,6 +729,185 @@ describe("Agent CRUD routes", () => {
 			const body = await res.json();
 			expect(body.status).toBe("success");
 			expect(mockExecuteAgent).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	// --- Agent-tool attachment endpoints ---
+
+	describe("POST /agents/:id/tools/:toolId", () => {
+		it("attaches tool to agent and returns 201", async () => {
+			const agent = makeAgent(db, { name: "ToolAgent" });
+			const tool = makeTool(db, { name: "AttachTool" });
+
+			const res = await app.request(`/agents/${agent.id}/tools/${tool.id}`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(201);
+			const body = await res.json();
+			expect(body.agentId).toBe(agent.id);
+			expect(body.toolId).toBe(tool.id);
+		});
+
+		it("returns 404 when agent does not exist", async () => {
+			const tool = makeTool(db, { name: "OrphanTool" });
+
+			const res = await app.request(`/agents/999/tools/${tool.id}`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(404);
+			const body = await res.json();
+			expect(body.error).toBe("Agent not found");
+		});
+
+		it("returns 404 when tool does not exist", async () => {
+			const agent = makeAgent(db, { name: "NoToolAgent" });
+
+			const res = await app.request(`/agents/${agent.id}/tools/999`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(404);
+			const body = await res.json();
+			expect(body.error).toBe("Tool not found");
+		});
+
+		it("returns 409 when tool already attached", async () => {
+			const agent = makeAgent(db, { name: "DupAgent" });
+			const tool = makeTool(db, { name: "DupTool" });
+
+			// Attach once
+			await app.request(`/agents/${agent.id}/tools/${tool.id}`, {
+				method: "POST",
+			});
+
+			// Try to attach again
+			const res = await app.request(`/agents/${agent.id}/tools/${tool.id}`, {
+				method: "POST",
+			});
+
+			expect(res.status).toBe(409);
+			const body = await res.json();
+			expect(body.error).toBe("Tool already attached to this agent");
+		});
+	});
+
+	describe("DELETE /agents/:id/tools/:toolId", () => {
+		it("detaches tool from agent and returns 204", async () => {
+			const agent = makeAgent(db, { name: "DetachAgent" });
+			const tool = makeTool(db, { name: "DetachTool" });
+
+			// Attach first
+			await app.request(`/agents/${agent.id}/tools/${tool.id}`, {
+				method: "POST",
+			});
+
+			const res = await app.request(`/agents/${agent.id}/tools/${tool.id}`, {
+				method: "DELETE",
+			});
+
+			expect(res.status).toBe(204);
+
+			// Verify link is gone
+			const links = db.select().from(schema.agentTools).all();
+			expect(links).toHaveLength(0);
+		});
+
+		it("returns 404 when link does not exist", async () => {
+			const agent = makeAgent(db, { name: "NoLinkAgent" });
+			const tool = makeTool(db, { name: "NoLinkTool" });
+
+			const res = await app.request(`/agents/${agent.id}/tools/${tool.id}`, {
+				method: "DELETE",
+			});
+
+			expect(res.status).toBe(404);
+			const body = await res.json();
+			expect(body.error).toBe("Tool not attached to this agent");
+		});
+	});
+
+	describe("GET /agents/:id/tools", () => {
+		it("returns list of tools attached to agent", async () => {
+			const agent = makeAgent(db, { name: "ListToolsAgent" });
+			const tool1 = makeTool(db, { name: "Tool1" });
+			const tool2 = makeTool(db, { name: "Tool2" });
+
+			await app.request(`/agents/${agent.id}/tools/${tool1.id}`, { method: "POST" });
+			await app.request(`/agents/${agent.id}/tools/${tool2.id}`, { method: "POST" });
+
+			const res = await app.request(`/agents/${agent.id}/tools`);
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toHaveLength(2);
+			const names = body.map((t: { name: string }) => t.name);
+			expect(names).toContain("Tool1");
+			expect(names).toContain("Tool2");
+		});
+
+		it("returns empty array when no tools attached", async () => {
+			const agent = makeAgent(db, { name: "EmptyToolsAgent" });
+
+			const res = await app.request(`/agents/${agent.id}/tools`);
+			expect(res.status).toBe(200);
+			const body = await res.json();
+			expect(body).toEqual([]);
+		});
+
+		it("returns 404 when agent does not exist", async () => {
+			const res = await app.request("/agents/999/tools");
+			expect(res.status).toBe(404);
+			const body = await res.json();
+			expect(body.error).toBe("Agent not found");
+		});
+	});
+
+	describe("Cascade deletes for agent-tool links", () => {
+		it("deleting an agent cascades and removes its tool attachments", async () => {
+			const agent = makeAgent(db, { name: "CascadeAgent" });
+			const tool = makeTool(db, { name: "CascadeTool" });
+
+			// Attach tool
+			await app.request(`/agents/${agent.id}/tools/${tool.id}`, { method: "POST" });
+
+			// Verify link exists
+			let links = db.select().from(schema.agentTools).all();
+			expect(links).toHaveLength(1);
+
+			// Delete the agent
+			await app.request(`/agents/${agent.id}`, { method: "DELETE" });
+
+			// Verify link is gone
+			links = db.select().from(schema.agentTools).all();
+			expect(links).toHaveLength(0);
+
+			// Tool should still exist
+			const remainingTools = db.select().from(schema.tools).all();
+			expect(remainingTools).toHaveLength(1);
+		});
+
+		it("deleting a tool cascades and removes its agent attachments", async () => {
+			const agent = makeAgent(db, { name: "ToolCascadeAgent" });
+			const tool = makeTool(db, { name: "ToolCascadeTool" });
+
+			// Attach tool
+			db.insert(schema.agentTools).values({ agentId: agent.id, toolId: tool.id }).run();
+
+			// Verify link exists
+			let links = db.select().from(schema.agentTools).all();
+			expect(links).toHaveLength(1);
+
+			// Delete the tool directly
+			db.delete(schema.tools).where(eq(schema.tools.id, tool.id)).run();
+
+			// Verify link is gone
+			links = db.select().from(schema.agentTools).all();
+			expect(links).toHaveLength(0);
+
+			// Agent should still exist
+			const remainingAgents = db.select().from(schema.agents).all();
+			expect(remainingAgents).toHaveLength(1);
 		});
 	});
 });
