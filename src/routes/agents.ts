@@ -4,9 +4,24 @@ import { Hono } from "hono";
 import type { Database } from "../db/index.js";
 import { agents, executionHistory } from "../db/schema.js";
 import { enrichAgent } from "../helpers/enrich-agent.js";
+import { isCronExpression } from "../helpers/cron-detect.js";
 import { createAgentSchema, updateAgentSchema } from "../schemas/agent-input.js";
 import { executeAgent } from "../services/executor.js";
+import { parseSchedule } from "../services/schedule-parser.js";
 import { removeAgent, scheduleAgent } from "../services/scheduler.js";
+
+/**
+ * Resolve a schedule string: if it's already a valid cron expression, return it as-is.
+ * Otherwise, parse it as natural language via the LLM.
+ * Returns { cronSchedule, humanReadable } on success, or throws on failure.
+ */
+async function resolveSchedule(input: string): Promise<{ cronSchedule: string; humanReadable: string }> {
+	if (isCronExpression(input)) {
+		return { cronSchedule: input, humanReadable: "" };
+	}
+	const result = await parseSchedule(input);
+	return { cronSchedule: result.cronExpression, humanReadable: result.humanReadable };
+}
 
 /**
  * Zod validation error hook: maps issues to { field, message } details array.
@@ -55,13 +70,31 @@ export function createAgentRoutes(db: Database): Hono {
 		};
 		const now = new Date().toISOString();
 
+		// Resolve NL schedule to cron expression
+		let resolvedCron: string;
+		let scheduleNote: string | undefined;
+		try {
+			const resolved = await resolveSchedule(data.cronSchedule);
+			resolvedCron = resolved.cronSchedule;
+			scheduleNote = resolved.humanReadable || undefined;
+		} catch {
+			return c.json(
+				{
+					error: "Could not parse schedule",
+					message:
+						"Unable to interpret the schedule. Provide a cron expression (e.g., '0 9 * * 1-5') or a natural language description (e.g., 'every weekday at 9am').",
+				},
+				422,
+			);
+		}
+
 		try {
 			const created = db
 				.insert(agents)
 				.values({
 					name: data.name,
 					taskDescription: data.taskDescription,
-					cronSchedule: data.cronSchedule,
+					cronSchedule: resolvedCron,
 					systemPrompt: data.systemPrompt ?? null,
 					model: data.model ?? null,
 					enabled: data.enabled === false ? 0 : 1,
@@ -75,7 +108,8 @@ export function createAgentRoutes(db: Database): Hono {
 				scheduleAgent(created, db);
 			}
 
-			return c.json(enrichAgent(created, db), 201);
+			const enriched = enrichAgent(created, db);
+			return c.json(scheduleNote ? { ...enriched, scheduleNote } : enriched, 201);
 		} catch (err) {
 			// Handle UNIQUE constraint violation for duplicate name
 			if (err instanceof Error && err.message.includes("UNIQUE constraint failed")) {
@@ -137,6 +171,23 @@ export function createAgentRoutes(db: Database): Hono {
 			model?: string;
 			enabled?: boolean;
 		};
+
+		// Resolve NL schedule if cronSchedule is being updated
+		if (data.cronSchedule) {
+			try {
+				const resolved = await resolveSchedule(data.cronSchedule);
+				data.cronSchedule = resolved.cronSchedule;
+			} catch {
+				return c.json(
+					{
+						error: "Could not parse schedule",
+						message:
+							"Unable to interpret the schedule. Provide a cron expression or a natural language description.",
+					},
+					422,
+				);
+			}
+		}
 
 		// Build the update set, converting boolean enabled to integer for DB
 		const updateSet: Record<string, unknown> = {

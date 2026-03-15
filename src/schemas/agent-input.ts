@@ -1,23 +1,9 @@
-import { Cron } from "croner";
 import { z } from "zod";
-
-const cronExpression = z.string().refine(
-	(val) => {
-		try {
-			const job = new Cron(val, { paused: true });
-			job.stop();
-			return true;
-		} catch {
-			return false;
-		}
-	},
-	{ message: "Invalid cron expression" },
-);
 
 export const createAgentSchema = z.object({
 	name: z.string().min(1).max(100),
 	taskDescription: z.string().min(1),
-	cronSchedule: cronExpression,
+	cronSchedule: z.string().min(1).max(500),
 	systemPrompt: z.string().optional(),
 	model: z.string().optional(),
 	enabled: z.boolean().optional(),

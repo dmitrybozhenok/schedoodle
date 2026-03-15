@@ -171,7 +171,7 @@ describe("Agent CRUD routes", () => {
 			expect(body.details[0]).toHaveProperty("message");
 		});
 
-		it("returns 400 with invalid cron expression", async () => {
+		it("returns 422 with unparseable schedule", async () => {
 			const res = await app.request("/agents", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -182,9 +182,9 @@ describe("Agent CRUD routes", () => {
 				}),
 			});
 
-			expect(res.status).toBe(400);
+			expect(res.status).toBe(422);
 			const body = await res.json();
-			expect(body.error).toBe("Validation failed");
+			expect(body.error).toBe("Could not parse schedule");
 		});
 
 		it("returns 409 with duplicate agent name", async () => {
