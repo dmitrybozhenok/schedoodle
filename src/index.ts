@@ -3,6 +3,12 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { env } from "./config/env.js";
+import { authMiddleware } from "./middleware/auth.js";
+import {
+	rateLimiterMiddleware,
+	stopRateLimiterCleanup,
+} from "./middleware/rate-limiter.js";
+import { corsMiddleware, securityHeaders } from "./middleware/security.js";
 import { db } from "./db/index.js";
 import { agents } from "./db/schema.js";
 import { createAgentRoutes } from "./routes/agents.js";
@@ -21,6 +27,12 @@ const app = new Hono();
 
 // Request logging middleware
 app.use(logger());
+
+// Security middleware (order: headers -> CORS -> rate limit -> auth -> routes)
+app.use(securityHeaders());
+app.use(corsMiddleware());
+app.use(rateLimiterMiddleware());
+app.use(authMiddleware());
 
 // Global error handler
 app.onError((err, c) => {
@@ -55,6 +67,7 @@ const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
 // Graceful shutdown
 function shutdown() {
 	console.log("Schedoodle shutting down...");
+	stopRateLimiterCleanup();
 	stopAll();
 	server.close();
 	process.exit(0);
