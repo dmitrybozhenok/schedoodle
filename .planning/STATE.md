@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-03-15T04:18:17.001Z"
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-15T04:19:25.087Z"
 last_activity: 2026-03-15 -- Plan 11-02 complete (409 guard for disabled agent manual execution)
 progress:
   total_phases: 15
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 22
-  completed_plans: 21
+  completed_plans: 22
   percent: 100
 ---
 
@@ -74,6 +74,7 @@ Progress: [██████████] 100%
 | Phase 10 P02 | 3min | 2 tasks | 5 files |
 | Phase 10 P01 | 3min | 2 tasks | 9 files |
 | Phase 11 P02 | 2min | 1 tasks | 2 files |
+| Phase 11 P01 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -154,6 +155,9 @@ Recent decisions affecting current work:
 - [Phase 10]: [10-01]: Rate limiter cleanup timer uses unref() to avoid keeping process alive
 - [Phase 10]: [10-01]: vi.hoisted + Proxy pattern for mocking env module in middleware tests
 - [Phase 11]: Guard placed after 404 check, before executeAgent call -- minimal code, maximal clarity
+- [Phase 11]: [11-01]: Conditional startup logging (count > 0) for clean output
+- [Phase 11]: [11-01]: Pure synchronous startup functions taking db parameter for testability
+- [Phase 11]: [11-01]: db:push applied indexes cleanly (CREATE INDEX, no table recreation)
 
 ### Roadmap Evolution
 
@@ -179,6 +183,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T04:18:16.998Z
-Stopped at: Completed 11-02-PLAN.md
+Last session: 2026-03-15T04:19:25.084Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None
