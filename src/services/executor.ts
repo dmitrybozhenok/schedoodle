@@ -10,7 +10,12 @@ import { agentOutputSchema } from "../schemas/agent-output.js";
 import { buildPrompt, prefetchUrls } from "../services/prefetch.js";
 import type { Agent } from "../types/index.js";
 import { CircuitBreakerOpenError, createCircuitBreaker } from "./circuit-breaker.js";
-import { sendFailureNotification, sendNotification } from "./notifier.js";
+import {
+	sendFailureNotification,
+	sendNotification,
+	sendTelegramFailureNotification,
+	sendTelegramNotification,
+} from "./notifier.js";
 import { createSemaphore, type SemaphoreStatus } from "./semaphore.js";
 import { buildToolSet } from "./tools/registry.js";
 
@@ -236,31 +241,41 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 
 		// --- Notification (fire-and-forget, never affects execution status) ---
 		try {
-			// Set delivery status to pending before send attempt
+			// Set both channels to pending before dispatch
 			db.update(executionHistory)
-				.set({ emailDeliveryStatus: "pending" })
+				.set({ emailDeliveryStatus: "pending", telegramDeliveryStatus: "pending" })
 				.where(eq(executionHistory.id, executionId))
 				.run();
 
-			const notifyResult = await sendNotification(agent.name, new Date().toISOString(), output);
+			// Dispatch both channels in parallel
+			const [emailResult, telegramResult] = await Promise.allSettled([
+				sendNotification(agent.name, new Date().toISOString(), output),
+				sendTelegramNotification(agent.name, new Date().toISOString(), output),
+			]);
 
-			if (notifyResult.status === "skipped") {
-				// Reset pending back to null when notification is not configured
-				db.update(executionHistory)
-					.set({ emailDeliveryStatus: null })
-					.where(eq(executionHistory.id, executionId))
-					.run();
-			} else {
-				db.update(executionHistory)
-					.set({ emailDeliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
-					.where(eq(executionHistory.id, executionId))
-					.run();
-			}
+			// Update email status
+			const emailStatus =
+				emailResult.status === "fulfilled" ? emailResult.value : { status: "failed" as const };
+			const emailDelivery =
+				emailStatus.status === "skipped" ? null : emailStatus.status === "sent" ? "sent" : "failed";
+
+			// Update telegram status
+			const tgStatus =
+				telegramResult.status === "fulfilled"
+					? telegramResult.value
+					: { status: "failed" as const };
+			const tgDelivery =
+				tgStatus.status === "skipped" ? null : tgStatus.status === "sent" ? "sent" : "failed";
+
+			db.update(executionHistory)
+				.set({ emailDeliveryStatus: emailDelivery, telegramDeliveryStatus: tgDelivery })
+				.where(eq(executionHistory.id, executionId))
+				.run();
 		} catch (err) {
 			// Never let notification errors affect execution status
 			console.error(`[notify] Unexpected error: ${err}`);
 			db.update(executionHistory)
-				.set({ emailDeliveryStatus: "failed" })
+				.set({ emailDeliveryStatus: "failed", telegramDeliveryStatus: "failed" })
 				.where(eq(executionHistory.id, executionId))
 				.run();
 		}
@@ -293,21 +308,40 @@ async function executeAgentInner(agent: Agent, db: Database): Promise<ExecuteRes
 
 		// --- Failure notification (fire-and-forget) ---
 		try {
-			const notifyResult = await sendFailureNotification(
-				agent.name,
-				new Date().toISOString(),
-				errorMsg,
-			);
-			if (notifyResult.status !== "skipped") {
-				db.update(executionHistory)
-					.set({ emailDeliveryStatus: notifyResult.status === "sent" ? "sent" : "failed" })
-					.where(eq(executionHistory.id, executionId))
-					.run();
-			}
+			// Set both channels to pending before dispatch
+			db.update(executionHistory)
+				.set({ emailDeliveryStatus: "pending", telegramDeliveryStatus: "pending" })
+				.where(eq(executionHistory.id, executionId))
+				.run();
+
+			// Dispatch both channels in parallel
+			const [emailResult, telegramResult] = await Promise.allSettled([
+				sendFailureNotification(agent.name, new Date().toISOString(), errorMsg),
+				sendTelegramFailureNotification(agent.name, new Date().toISOString(), errorMsg),
+			]);
+
+			// Update email status
+			const emailStatus =
+				emailResult.status === "fulfilled" ? emailResult.value : { status: "failed" as const };
+			const emailDelivery =
+				emailStatus.status === "skipped" ? null : emailStatus.status === "sent" ? "sent" : "failed";
+
+			// Update telegram status
+			const tgStatus =
+				telegramResult.status === "fulfilled"
+					? telegramResult.value
+					: { status: "failed" as const };
+			const tgDelivery =
+				tgStatus.status === "skipped" ? null : tgStatus.status === "sent" ? "sent" : "failed";
+
+			db.update(executionHistory)
+				.set({ emailDeliveryStatus: emailDelivery, telegramDeliveryStatus: tgDelivery })
+				.where(eq(executionHistory.id, executionId))
+				.run();
 		} catch (err) {
 			console.error(`[notify] Unexpected error on failure notification: ${err}`);
 			db.update(executionHistory)
-				.set({ emailDeliveryStatus: "failed" })
+				.set({ emailDeliveryStatus: "failed", telegramDeliveryStatus: "failed" })
 				.where(eq(executionHistory.id, executionId))
 				.run();
 		}
