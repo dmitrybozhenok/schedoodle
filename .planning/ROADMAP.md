@@ -102,7 +102,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
 | 5. Notification | 2/2 | Complete   | 2026-03-14 |
 | 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2026-03-14 |
-| 7. Natural Language Schedule Parsing | 0/2 | Planning   | - |
+| 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2026-03-15 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -135,5 +135,5 @@ Plans:
   6. LLM unavailability returns a 503 with fallback guidance to use raw cron
 **Plans:** 2 plans
 Plans:
-- [ ] 07-01-PLAN.md — Cron detection helper, schedule parse schemas, NL-to-cron parser service with LLM + cronstrue, and unit tests
-- [ ] 07-02-PLAN.md — POST /schedules/parse route, wire into index.ts, and route-level tests
+- [x] 07-01-PLAN.md — Cron detection helper, schedule parse schemas, NL-to-cron parser service with LLM + cronstrue, and unit tests
+- [x] 07-02-PLAN.md — POST /schedules/parse route, wire into index.ts, and route-level tests
