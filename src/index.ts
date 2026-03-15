@@ -6,6 +6,7 @@ import { env } from "./config/env.js";
 import { db } from "./db/index.js";
 import { agents } from "./db/schema.js";
 import { createAgentRoutes } from "./routes/agents.js";
+import { createDashboardRoute } from "./routes/dashboard.js";
 import { createHealthRoute } from "./routes/health.js";
 import { createScheduleRoutes } from "./routes/schedules.js";
 import { getLlmCircuitStatus } from "./services/executor.js";
@@ -37,6 +38,7 @@ app.notFound((c) => {
 app.route("/agents", createAgentRoutes(db));
 app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt));
 app.route("/schedules", createScheduleRoutes());
+app.route("/dashboard", createDashboardRoute());
 
 // Boot sequence
 const allAgents = db.select().from(agents).all();
