@@ -2,6 +2,11 @@ import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { env } from "../config/env.js";
 import type { AgentOutput } from "../schemas/agent-output.js";
+import {
+	escapeMdV2,
+	escapeMdV2CodeBlock,
+	sendTelegramMessage,
+} from "./telegram.js";
 
 export interface NotifyResult {
 	status: "sent" | "failed" | "skipped";
@@ -161,6 +166,121 @@ export async function sendFailureNotification(
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		console.error(`[notify] Unexpected error for ${agentName} failure: ${message}`);
+		return { status: "failed", error: message };
+	}
+}
+
+// --- Telegram transport ---
+
+const TELEGRAM_MAX_LENGTH = 3800;
+
+export function buildTelegramMarkdown(
+	agentName: string,
+	executedAt: string,
+	output: AgentOutput,
+): string {
+	const esc = escapeMdV2;
+	const timestamp = new Date(executedAt).toLocaleString();
+
+	const parts: string[] = [
+		`*${esc(agentName)}*`,
+		esc(timestamp),
+		"",
+		"*Summary*",
+		esc(output.summary),
+		"",
+		"*Details*",
+		esc(output.details),
+	];
+
+	if (output.data) {
+		const dataStr = typeof output.data === "string" ? output.data : JSON.stringify(output.data, null, 2);
+		parts.push("", "*Data*", `\`\`\`\n${escapeMdV2CodeBlock(dataStr)}\n\`\`\``);
+	}
+
+	let message = parts.join("\n");
+	if (message.length > TELEGRAM_MAX_LENGTH) {
+		message = `${message.slice(0, TELEGRAM_MAX_LENGTH)}\n\\.\\.\\. \\[truncated, see email for full output\\]`;
+	}
+	return message;
+}
+
+export function buildTelegramFailureMarkdown(
+	agentName: string,
+	executedAt: string,
+	errorMsg: string,
+): string {
+	const esc = escapeMdV2;
+	const timestamp = new Date(executedAt).toLocaleString();
+
+	const parts: string[] = [
+		`\u26a0\ufe0f *FAILED: ${esc(agentName)}*`,
+		esc(timestamp),
+		"",
+		"*Error*",
+		esc(errorMsg),
+	];
+
+	let message = parts.join("\n");
+	if (message.length > TELEGRAM_MAX_LENGTH) {
+		message = `${message.slice(0, TELEGRAM_MAX_LENGTH)}\n\\.\\.\\. \\[truncated, see email for full output\\]`;
+	}
+	return message;
+}
+
+async function sendViaTelegram(
+	botToken: string,
+	chatId: string,
+	text: string,
+): Promise<NotifyResult> {
+	try {
+		const result = await sendTelegramMessage(botToken, chatId, text);
+		if (!result.ok) {
+			console.error(`[notify] Telegram error: ${result.description}`);
+			return { status: "failed", error: result.description };
+		}
+		return { status: "sent" };
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error(`[notify] Telegram error: ${message}`);
+		return { status: "failed", error: message };
+	}
+}
+
+export async function sendTelegramNotification(
+	agentName: string,
+	executedAt: string,
+	output: AgentOutput,
+): Promise<NotifyResult> {
+	if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+		return { status: "skipped" };
+	}
+
+	try {
+		const text = buildTelegramMarkdown(agentName, executedAt, output);
+		return await sendViaTelegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID, text);
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error(`[notify] Unexpected Telegram error for ${agentName}: ${message}`);
+		return { status: "failed", error: message };
+	}
+}
+
+export async function sendTelegramFailureNotification(
+	agentName: string,
+	executedAt: string,
+	errorMsg: string,
+): Promise<NotifyResult> {
+	if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+		return { status: "skipped" };
+	}
+
+	try {
+		const text = buildTelegramFailureMarkdown(agentName, executedAt, errorMsg);
+		return await sendViaTelegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID, text);
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error(`[notify] Unexpected Telegram error for ${agentName} failure: ${message}`);
 		return { status: "failed", error: message };
 	}
 }
