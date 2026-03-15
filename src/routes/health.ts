@@ -5,6 +5,7 @@ import type { Database } from "../db/index.js";
 import { agents, executionHistory } from "../db/schema.js";
 import { getConsecutiveFailures } from "../helpers/enrich-agent.js";
 import type { CircuitBreakerStatus } from "../services/circuit-breaker.js";
+import type { SemaphoreStatus } from "../services/semaphore.js";
 
 /**
  * Truncate a value to maxLength characters. Returns null if value is null/undefined.
@@ -26,10 +27,20 @@ export function createHealthRoute(
 	getCircuitStatus: () => CircuitBreakerStatus,
 	startedAt: number,
 	getScheduledJobs: () => Map<number, Cron>,
+	getConcurrencyStatus: () => SemaphoreStatus,
+	isShuttingDown: () => boolean,
 ): Hono {
 	const app = new Hono();
 
 	app.get("/", (c) => {
+		if (isShuttingDown()) {
+			return c.json({
+				status: "shutting_down",
+				shutting_down: true,
+				concurrency: getConcurrencyStatus(),
+			}, 503);
+		}
+
 		const uptimeMs = Date.now() - startedAt;
 
 		// Count agents
@@ -162,9 +173,11 @@ export function createHealthRoute(
 		// --- E. Build response ---
 		return c.json({
 			status,
+			shutting_down: false,
 			uptimeMs,
 			agentCount,
 			circuitBreaker,
+			concurrency: getConcurrencyStatus(),
 			recentExecutions: {
 				success,
 				failure,

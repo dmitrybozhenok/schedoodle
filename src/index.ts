@@ -61,7 +61,7 @@ app.notFound((c) => {
 
 // Mount routes
 app.route("/agents", createAgentRoutes(db, isShuttingDown));
-app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt, getScheduledJobs));
+app.route("/health", createHealthRoute(db, getLlmCircuitStatus, startedAt, getScheduledJobs, getLlmSemaphoreStatus, isShuttingDown));
 app.route("/manage", createManageRoute());
 app.route("/schedules", createScheduleRoutes());
 app.route("/dashboard", createDashboardRoute());
