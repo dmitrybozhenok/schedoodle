@@ -108,6 +108,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 10. API Security and Hardening | 2/2 | Complete    | 2026-03-15 |
 | 11. Data Integrity and Execution Lifecycle | 2/2 | Complete    | 2026-03-15 |
 | 12. LLM Concurrency Limits and Graceful Shutdown | 2/2 | Complete    | 2026-03-15 |
+| 13. CI/CD Pipeline | 1/1 | Complete    | 2026-03-15 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -250,9 +251,9 @@ Plans:
   3. pnpm store is cached between runs for faster installs
   4. Workflow can be manually triggered via workflow_dispatch
   5. Tests run with mocked external services (dummy ANTHROPIC_API_KEY in workflow env)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 13-01-PLAN.md — GitHub Actions CI workflow with four parallel jobs (lint, typecheck, test, build), pnpm caching, and typecheck script
+- [x] 13-01-PLAN.md — GitHub Actions CI workflow with four parallel jobs (lint, typecheck, test, build), pnpm caching, and typecheck script
 
 ### Phase 14: MCP Server for Claude Code Integration
 

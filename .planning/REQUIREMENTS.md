@@ -91,11 +91,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CI/CD Pipeline
 
-- [ ] **CI-01**: GitHub Actions workflow runs lint, typecheck, test, and build on every push to master
-- [ ] **CI-02**: All four checks run as parallel jobs for fastest feedback
-- [ ] **CI-03**: pnpm store is cached between runs for faster dependency installs
-- [ ] **CI-04**: Workflow supports manual dispatch via workflow_dispatch trigger
-- [ ] **CI-05**: Tests run with mocked environment variables (dummy ANTHROPIC_API_KEY)
+- [x] **CI-01**: GitHub Actions workflow runs lint, typecheck, test, and build on every push to master
+- [x] **CI-02**: All four checks run as parallel jobs for fastest feedback
+- [x] **CI-03**: pnpm store is cached between runs for faster dependency installs
+- [x] **CI-04**: Workflow supports manual dispatch via workflow_dispatch trigger
+- [x] **CI-05**: Tests run with mocked environment variables (dummy ANTHROPIC_API_KEY)
 
 ## v2 Requirements
 
@@ -204,11 +204,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEC-06 | Phase 10 | Planned |
 | SEC-07 | Phase 10 | Planned |
 | SEC-08 | Phase 10 | Planned |
-| CI-01 | Phase 13 | Planned |
-| CI-02 | Phase 13 | Planned |
-| CI-03 | Phase 13 | Planned |
-| CI-04 | Phase 13 | Planned |
-| CI-05 | Phase 13 | Planned |
+| CI-01 | Phase 13 | Complete |
+| CI-02 | Phase 13 | Complete |
+| CI-03 | Phase 13 | Complete |
+| CI-04 | Phase 13 | Complete |
+| CI-05 | Phase 13 | Complete |
 
 **Coverage:**
 - v1 requirements: 57 total
@@ -217,4 +217,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 13 planning*
+*Last updated: 2026-03-15 after Phase 13 execution*
