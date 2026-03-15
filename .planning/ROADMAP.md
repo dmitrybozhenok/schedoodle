@@ -13,9 +13,9 @@ Schedoodle delivers a personal AI agent automation platform in five phases. We s
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation and Schema** - Project scaffold, database schema, agent persistence, and configuration validation
-- [x] **Phase 2: Execution Engine** - Core LLM pipeline with structured output, data pre-fetch, and graceful failure handling (completed 2026-03-14)
-- [x] **Phase 3: Management API and Scheduling** - Agent CRUD endpoints, system prompts, and cron-based automatic execution (completed 2026-03-14)
-- [x] **Phase 4: Resilience and Observability** - Circuit breaker, token tracking, cost estimation, and health check endpoint (completed 2026-03-14)
+- [x] **Phase 2: Execution Engine** - Core LLM pipeline with structured output, data pre-fetch, and graceful failure handling (completed 2009-03-14)
+- [x] **Phase 3: Management API and Scheduling** - Agent CRUD endpoints, system prompts, and cron-based automatic execution (completed 2009-03-14)
+- [x] **Phase 4: Resilience and Observability** - Circuit breaker, token tracking, cost estimation, and health check endpoint (completed 2009-03-14)
 - [ ] **Phase 5: Notification** - Email delivery of agent results via Resend
 
 ## Phase Details
@@ -96,13 +96,13 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Schema | 1/1 | Complete | 2026-03-14 |
-| 2. Execution Engine | 2/2 | Complete   | 2026-03-14 |
-| 3. Management API and Scheduling | 2/2 | Complete   | 2026-03-14 |
-| 4. Resilience and Observability | 2/2 | Complete   | 2026-03-14 |
-| 5. Notification | 2/2 | Complete   | 2026-03-14 |
-| 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2026-03-14 |
-| 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2026-03-15 |
+| 1. Foundation and Schema | 1/1 | Complete | 2009-03-14 |
+| 2. Execution Engine | 2/2 | Complete   | 2009-03-14 |
+| 3. Management API and Scheduling | 2/2 | Complete   | 2009-03-14 |
+| 4. Resilience and Observability | 2/2 | Complete   | 2009-03-14 |
+| 5. Notification | 2/2 | Complete   | 2009-03-14 |
+| 6. Agent Enabled Flag and Schedule Controls | 2/2 | Complete   | 2009-03-14 |
+| 7. Natural Language Schedule Parsing | 2/2 | Complete   | 2009-03-15 |
 | 8. Enhanced Health Monitoring | 0/2 | Planned | - |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
@@ -157,3 +157,13 @@ Plans:
 Plans:
 - [ ] 08-01-PLAN.md — Schema retryCount, executor tracking, scheduler getScheduledJobs, enrichAgent healthy flag, agents route limit, and tests
 - [ ] 08-02-PLAN.md — Enhanced /health endpoint with per-agent breakdown, aggregates, upcoming runs, status levels, and tests
+
+### Phase 9: Agent tool use with built-in and custom tools
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 8
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 9 to break down)
