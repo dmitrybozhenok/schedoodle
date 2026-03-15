@@ -41,9 +41,13 @@ vi.mock("../src/services/prefetch.js", () => ({
 
 const mockSendNotification = vi.fn();
 const mockSendFailureNotification = vi.fn();
+const mockSendTelegramNotification = vi.fn();
+const mockSendTelegramFailureNotification = vi.fn();
 vi.mock("../src/services/notifier.js", () => ({
 	sendNotification: (...args: unknown[]) => mockSendNotification(...args),
 	sendFailureNotification: (...args: unknown[]) => mockSendFailureNotification(...args),
+	sendTelegramNotification: (...args: unknown[]) => mockSendTelegramNotification(...args),
+	sendTelegramFailureNotification: (...args: unknown[]) => mockSendTelegramFailureNotification(...args),
 }));
 
 import {
@@ -165,6 +169,8 @@ describe("executeAgent", () => {
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockSendFailureNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramFailureNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
 	});
 
@@ -489,6 +495,8 @@ describe("executeAgents", () => {
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockSendFailureNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramFailureNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
 	});
 
@@ -554,6 +562,8 @@ describe("notification integration", () => {
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "sent" });
 		mockSendFailureNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "sent" });
+		mockSendTelegramFailureNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
 	});
 
@@ -574,6 +584,7 @@ describe("notification integration", () => {
 
 	it("sets emailDeliveryStatus to sent on successful notification", async () => {
 		mockSendNotification.mockResolvedValue({ status: "sent" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "sent" });
 
 		const agent = makeAgent(db);
 		await executeAgent(agent, db);
@@ -643,6 +654,126 @@ describe("notification integration", () => {
 
 		expect(rows[0].emailDeliveryStatus).toBe("failed");
 	});
+
+	it("dispatches email and Telegram in parallel on success", async () => {
+		mockSendNotification.mockResolvedValue({ status: "sent" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "sent" });
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		expect(mockSendNotification).toHaveBeenCalledTimes(1);
+		expect(mockSendTelegramNotification).toHaveBeenCalledTimes(1);
+		expect(mockSendTelegramNotification).toHaveBeenCalledWith(
+			agent.name,
+			expect.any(String),
+			{ summary: "test summary", details: "test details" },
+		);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
+		expect(rows[0].telegramDeliveryStatus).toBe("sent");
+	});
+
+	it("sets telegramDeliveryStatus to null when Telegram skipped", async () => {
+		mockSendNotification.mockResolvedValue({ status: "sent" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "skipped" });
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
+		expect(rows[0].telegramDeliveryStatus).toBeNull();
+	});
+
+	it("email failure does not prevent Telegram success", async () => {
+		mockSendNotification.mockResolvedValue({ status: "failed", error: "SMTP down" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "sent" });
+
+		const agent = makeAgent(db);
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("success");
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("failed");
+		expect(rows[0].telegramDeliveryStatus).toBe("sent");
+	});
+
+	it("Telegram failure does not prevent email success", async () => {
+		mockSendNotification.mockResolvedValue({ status: "sent" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "failed", error: "API error" });
+
+		const agent = makeAgent(db);
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("success");
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
+		expect(rows[0].telegramDeliveryStatus).toBe("failed");
+	});
+
+	it("failure notification dispatches both channels", async () => {
+		mockGenerateText.mockRejectedValue(new Error("LLM failed"));
+		mockSendFailureNotification.mockResolvedValue({ status: "sent" });
+		mockSendTelegramFailureNotification.mockResolvedValue({ status: "sent" });
+
+		const agent = makeAgent(db);
+		await executeAgent(agent, db);
+
+		expect(mockSendFailureNotification).toHaveBeenCalledTimes(1);
+		expect(mockSendTelegramFailureNotification).toHaveBeenCalledTimes(1);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
+		expect(rows[0].telegramDeliveryStatus).toBe("sent");
+	});
+
+	it("both channels failed sets both statuses to failed independently", async () => {
+		mockSendNotification.mockResolvedValue({ status: "failed", error: "SMTP error" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "failed", error: "Telegram error" });
+
+		const agent = makeAgent(db);
+		const result = await executeAgent(agent, db);
+
+		expect(result.status).toBe("success");
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.agentId, agent.id))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("failed");
+		expect(rows[0].telegramDeliveryStatus).toBe("failed");
+	});
 });
 
 describe("tool-enabled execution", () => {
@@ -663,6 +794,8 @@ describe("tool-enabled execution", () => {
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockSendFailureNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramFailureNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
 	});
 
@@ -961,6 +1094,8 @@ describe("semaphore concurrency wrapping", () => {
 		mockGenerateText.mockResolvedValue(makeLlmResult());
 		mockSendNotification.mockResolvedValue({ status: "skipped" });
 		mockSendFailureNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramNotification.mockResolvedValue({ status: "skipped" });
+		mockSendTelegramFailureNotification.mockResolvedValue({ status: "skipped" });
 		mockBuildToolSet.mockReturnValue({});
 	});
 
