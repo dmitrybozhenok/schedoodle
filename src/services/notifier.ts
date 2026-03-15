@@ -2,11 +2,7 @@ import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { env } from "../config/env.js";
 import type { AgentOutput } from "../schemas/agent-output.js";
-import {
-	escapeMdV2,
-	escapeMdV2CodeBlock,
-	sendTelegramMessage,
-} from "./telegram.js";
+import { escapeMdV2, escapeMdV2CodeBlock, sendTelegramMessage } from "./telegram.js";
 
 export interface NotifyResult {
 	status: "sent" | "failed" | "skipped";
@@ -194,7 +190,8 @@ export function buildTelegramMarkdown(
 	];
 
 	if (output.data) {
-		const dataStr = typeof output.data === "string" ? output.data : JSON.stringify(output.data, null, 2);
+		const dataStr =
+			typeof output.data === "string" ? output.data : JSON.stringify(output.data, null, 2);
 		parts.push("", "*Data*", `\`\`\`\n${escapeMdV2CodeBlock(dataStr)}\n\`\`\``);
 	}
 

@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 describe("escapeMdV2", () => {
 	it("escapes all 18 MarkdownV2 special characters", async () => {
 		const { escapeMdV2 } = await import("../src/services/telegram.js");
-		const input = '_*[]()~`>#+-=|{}.!\\';
-		const expected = '\\_\\*\\[\\]\\(\\)\\~\\`\\>\\#\\+\\-\\=\\|\\{\\}\\.\\!\\\\';
+		const input = "_*[]()~`>#+-=|{}.!\\";
+		const expected = "\\_\\*\\[\\]\\(\\)\\~\\`\\>\\#\\+\\-\\=\\|\\{\\}\\.\\!\\\\";
 		expect(escapeMdV2(input)).toBe(expected);
 	});
 

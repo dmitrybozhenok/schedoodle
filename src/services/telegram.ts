@@ -7,7 +7,7 @@
  * Characters: _ * [ ] ( ) ~ ` > # + - = | { } . ! \
  */
 export function escapeMdV2(text: string): string {
-	return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
+	return text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
 }
 
 /**

@@ -13,7 +13,7 @@ vi.mock("resend", () => {
 const mockSendTelegramMessage = vi.fn();
 vi.mock("../src/services/telegram.js", () => ({
 	sendTelegramMessage: (...args: unknown[]) => mockSendTelegramMessage(...args),
-	escapeMdV2: (text: string) => text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1"),
+	escapeMdV2: (text: string) => text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, "\\$1"),
 	escapeMdV2CodeBlock: (text: string) => text.replace(/([`\\])/g, "\\$1"),
 }));
 
@@ -303,11 +303,7 @@ describe("Telegram notification", () => {
 	it("skips when TELEGRAM_BOT_TOKEN is missing", async () => {
 		setEnv({ TELEGRAM_CHAT_ID: "-100123456" });
 		const { sendTelegramNotification } = await import("../src/services/notifier.js");
-		const result = await sendTelegramNotification(
-			"Test Agent",
-			"2026-03-15T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendTelegramNotification("Test Agent", "2026-03-15T10:00:00Z", baseOutput);
 		expect(result.status).toBe("skipped");
 		expect(mockSendTelegramMessage).not.toHaveBeenCalled();
 	});
@@ -315,11 +311,7 @@ describe("Telegram notification", () => {
 	it("skips when TELEGRAM_CHAT_ID is missing", async () => {
 		setEnv({ TELEGRAM_BOT_TOKEN: "bot123:ABC" });
 		const { sendTelegramNotification } = await import("../src/services/notifier.js");
-		const result = await sendTelegramNotification(
-			"Test Agent",
-			"2026-03-15T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendTelegramNotification("Test Agent", "2026-03-15T10:00:00Z", baseOutput);
 		expect(result.status).toBe("skipped");
 	});
 
@@ -327,11 +319,7 @@ describe("Telegram notification", () => {
 		setEnv(telegramEnv);
 		mockSendTelegramMessage.mockResolvedValue({ ok: true });
 		const { sendTelegramNotification } = await import("../src/services/notifier.js");
-		const result = await sendTelegramNotification(
-			"Agent X",
-			"2026-03-15T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", baseOutput);
 		expect(result.status).toBe("sent");
 		expect(mockSendTelegramMessage).toHaveBeenCalledOnce();
 	});
@@ -340,11 +328,7 @@ describe("Telegram notification", () => {
 		setEnv(telegramEnv);
 		mockSendTelegramMessage.mockResolvedValue({ ok: false, description: "Bad Request" });
 		const { sendTelegramNotification } = await import("../src/services/notifier.js");
-		const result = await sendTelegramNotification(
-			"Agent X",
-			"2026-03-15T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", baseOutput);
 		expect(result.status).toBe("failed");
 		expect(result.error).toBe("Bad Request");
 	});
@@ -353,11 +337,7 @@ describe("Telegram notification", () => {
 		setEnv(telegramEnv);
 		mockSendTelegramMessage.mockRejectedValue(new Error("Network error"));
 		const { sendTelegramNotification } = await import("../src/services/notifier.js");
-		const result = await sendTelegramNotification(
-			"Agent X",
-			"2026-03-15T10:00:00Z",
-			baseOutput,
-		);
+		const result = await sendTelegramNotification("Agent X", "2026-03-15T10:00:00Z", baseOutput);
 		expect(result.status).toBe("failed");
 		expect(result.error).toBe("Network error");
 	});

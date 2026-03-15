@@ -47,7 +47,8 @@ vi.mock("../src/services/notifier.js", () => ({
 	sendNotification: (...args: unknown[]) => mockSendNotification(...args),
 	sendFailureNotification: (...args: unknown[]) => mockSendFailureNotification(...args),
 	sendTelegramNotification: (...args: unknown[]) => mockSendTelegramNotification(...args),
-	sendTelegramFailureNotification: (...args: unknown[]) => mockSendTelegramFailureNotification(...args),
+	sendTelegramFailureNotification: (...args: unknown[]) =>
+		mockSendTelegramFailureNotification(...args),
 }));
 
 import {
@@ -664,11 +665,10 @@ describe("notification integration", () => {
 
 		expect(mockSendNotification).toHaveBeenCalledTimes(1);
 		expect(mockSendTelegramNotification).toHaveBeenCalledTimes(1);
-		expect(mockSendTelegramNotification).toHaveBeenCalledWith(
-			agent.name,
-			expect.any(String),
-			{ summary: "test summary", details: "test details" },
-		);
+		expect(mockSendTelegramNotification).toHaveBeenCalledWith(agent.name, expect.any(String), {
+			summary: "test summary",
+			details: "test details",
+		});
 
 		const rows = db
 			.select()
