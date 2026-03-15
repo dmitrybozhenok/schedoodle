@@ -40,7 +40,7 @@ describe("webFetchTool", () => {
 			{ abortSignal: AbortSignal.timeout(5000), toolCallId: "test", messages: [] },
 		);
 
-		expect(result).toContain("Hello World");
+		expect(result).toContain("HELLO WORLD"); // html-to-text uppercases headings
 		expect(result).toContain("This is a paragraph");
 		// Should NOT contain HTML tags
 		expect(result).not.toContain("<h1>");

@@ -1,14 +1,10 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 
-// Mock env module -- start with BRAVE_API_KEY configured
-const mockEnv: Record<string, string | undefined> = {
-	DATABASE_URL: "./data/schedoodle.db",
-	LLM_PROVIDER: "anthropic",
-	ANTHROPIC_API_KEY: "test-key",
-	OLLAMA_BASE_URL: "http://127.0.0.1:11434/api",
-	PORT: "3000",
-	BRAVE_API_KEY: "test-brave-key",
-};
+// vi.hoisted runs before vi.mock, so mockEnv is available in the factory
+const { mockEnv } = vi.hoisted(() => {
+	const mockEnv: Record<string, string | undefined> = {};
+	return { mockEnv };
+});
 
 vi.mock("../src/config/env.js", () => ({
 	env: new Proxy(mockEnv, {
@@ -21,11 +17,18 @@ import { webSearchTool } from "../src/services/tools/web-search.js";
 describe("webSearchTool", () => {
 	const originalFetch = globalThis.fetch;
 
+	beforeEach(() => {
+		mockEnv.DATABASE_URL = "./data/schedoodle.db";
+		mockEnv.LLM_PROVIDER = "anthropic";
+		mockEnv.ANTHROPIC_API_KEY = "test-key";
+		mockEnv.OLLAMA_BASE_URL = "http://127.0.0.1:11434/api";
+		mockEnv.PORT = "3000";
+		mockEnv.BRAVE_API_KEY = "test-brave-key";
+	});
+
 	afterEach(() => {
 		globalThis.fetch = originalFetch;
 		vi.restoreAllMocks();
-		// Reset BRAVE_API_KEY for next test
-		mockEnv.BRAVE_API_KEY = "test-brave-key";
 	});
 
 	it("is an AI SDK tool with description and execute", () => {
