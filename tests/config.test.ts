@@ -111,4 +111,43 @@ describe("config validation", () => {
 			expect(result.data.NOTIFICATION_FROM).toBeUndefined();
 		}
 	});
+
+	// --- RETENTION_DAYS ---
+
+	it("RETENTION_DAYS defaults to 30 when not provided", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.RETENTION_DAYS).toBe(30);
+		}
+	});
+
+	it("RETENTION_DAYS parses string '14' to number 14", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			RETENTION_DAYS: "14",
+		});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.RETENTION_DAYS).toBe(14);
+		}
+	});
+
+	it("RETENTION_DAYS rejects 0 (min 1)", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			RETENTION_DAYS: "0",
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("RETENTION_DAYS rejects negative values", () => {
+		const result = loadEnvFromRecord({
+			ANTHROPIC_API_KEY: "test-key",
+			RETENTION_DAYS: "-5",
+		});
+		expect(result.success).toBe(false);
+	});
 });

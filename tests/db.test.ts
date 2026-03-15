@@ -36,6 +36,9 @@ CREATE TABLE execution_history (
   started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   completed_at TEXT
 );
+CREATE INDEX idx_exec_agent_id ON execution_history(agent_id);
+CREATE INDEX idx_exec_agent_started ON execution_history(agent_id, started_at);
+CREATE INDEX idx_exec_status ON execution_history(status);
 `;
 
 const CREATE_TOOLS_SQL = `
@@ -432,6 +435,34 @@ describe("database schema", () => {
 		}>;
 		const names = columns.map((c) => c.name);
 		expect(names).toContain("max_execution_ms");
+	});
+
+	// --- execution_history indexes ---
+
+	describe("execution_history indexes", () => {
+		it("has index idx_exec_agent_id on agent_id", () => {
+			const indexes = sqlite.pragma("index_list('execution_history')") as Array<{
+				name: string;
+			}>;
+			const indexNames = indexes.map((i) => i.name);
+			expect(indexNames).toContain("idx_exec_agent_id");
+		});
+
+		it("has composite index idx_exec_agent_started on (agent_id, started_at)", () => {
+			const indexes = sqlite.pragma("index_list('execution_history')") as Array<{
+				name: string;
+			}>;
+			const indexNames = indexes.map((i) => i.name);
+			expect(indexNames).toContain("idx_exec_agent_started");
+		});
+
+		it("has index idx_exec_status on status", () => {
+			const indexes = sqlite.pragma("index_list('execution_history')") as Array<{
+				name: string;
+			}>;
+			const indexNames = indexes.map((i) => i.name);
+			expect(indexNames).toContain("idx_exec_status");
+		});
 	});
 
 	// --- toolCalls on executionHistory ---
