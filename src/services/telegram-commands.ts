@@ -19,8 +19,48 @@ const HELP_TEXT = `I can help you manage your agents. Try:
 - "disable [agent name]" - disable an agent
 - "status" - system health summary
 - "change [agent name] to [schedule]" - update schedule
+- "create [name] that [does task] every [schedule]" - create a new agent
+- "delete [agent name]" - delete an agent (with confirmation)
+- "update [agent name] task to [description]" - change task
+- "rename [agent name] to [new name]" - rename an agent
 
 Commands: /help, /start`;
+
+interface PendingDeletion {
+	agentId: number;
+	agentName: string;
+	expiresAt: number;
+	timer: ReturnType<typeof setTimeout>;
+}
+
+const pendingDeletions = new Map<string, PendingDeletion>();
+
+function setPendingDeletion(chatId: string, agentId: number, agentName: string): void {
+	clearPendingDeletion(chatId);
+	const timer = setTimeout(() => pendingDeletions.delete(chatId), 60_000);
+	timer.unref(); // Prevent timer from keeping process alive during shutdown
+	pendingDeletions.set(chatId, {
+		agentId,
+		agentName,
+		expiresAt: Date.now() + 60_000,
+		timer,
+	});
+}
+
+function clearPendingDeletion(chatId: string): void {
+	const existing = pendingDeletions.get(chatId);
+	if (existing) {
+		clearTimeout(existing.timer);
+		pendingDeletions.delete(chatId);
+	}
+}
+
+/** @internal Test-only: clear all pending deletions for test isolation */
+export function _resetPendingDeletions(): void {
+	for (const [chatId] of pendingDeletions) {
+		clearPendingDeletion(chatId);
+	}
+}
 
 /**
  * Find an agent by name (case-insensitive).
@@ -179,6 +219,141 @@ async function handleReschedule(
 }
 
 /**
+ * Create a new agent with optional schedule.
+ */
+async function handleCreate(
+	agentName: string | null,
+	taskDescription: string | null,
+	scheduleInput: string | null,
+	db: Database,
+): Promise<string> {
+	if (!agentName || !taskDescription) {
+		return 'Missing name or task. Example: "create Morning Briefing that summarizes my emails every day at 7am"';
+	}
+
+	// Check duplicate name
+	const existing = findAgentByName(agentName, db);
+	if (existing) {
+		return `Agent "${agentName}" already exists. Use "update ${agentName} task to ..." to modify it.`;
+	}
+
+	let cronSchedule = "";
+	let humanReadable: string | null = null;
+	if (scheduleInput) {
+		try {
+			const result = await parseSchedule(scheduleInput);
+			cronSchedule = result.cronExpression;
+			humanReadable = result.humanReadable;
+		} catch {
+			return `Could not parse schedule "${scheduleInput}". Try a different description, or create without a schedule.`;
+		}
+	}
+
+	const now = new Date().toISOString();
+	const enabled = cronSchedule ? 1 : 0;
+
+	try {
+		const created = db
+			.insert(agents)
+			.values({
+				name: agentName,
+				taskDescription,
+				cronSchedule,
+				enabled,
+				createdAt: now,
+				updatedAt: now,
+			})
+			.returning()
+			.get();
+
+		if (enabled === 1 && cronSchedule) {
+			scheduleAgent(created, db);
+		}
+
+		const lines = [`Created "${created.name}".`];
+		lines.push(`Task: ${taskDescription}`);
+		if (humanReadable) {
+			lines.push(`Schedule: ${humanReadable} (${cronSchedule})`);
+			lines.push("Status: enabled");
+		} else {
+			lines.push("Schedule: none (disabled)");
+			lines.push("Status: disabled -- set a schedule to enable");
+		}
+		return lines.join("\n");
+	} catch (err) {
+		if (err instanceof Error && err.message.includes("UNIQUE constraint failed")) {
+			return `Agent "${agentName}" already exists. Use "update ${agentName} task to ..." to modify it.`;
+		}
+		throw err;
+	}
+}
+
+/**
+ * Initiate a deletion confirmation flow for an agent.
+ */
+function handleDeleteRequest(agentName: string, chatId: string, db: Database): string {
+	const agent = findAgentByName(agentName, db);
+	if (!agent) return `Agent "${agentName}" not found. Try: list agents`;
+
+	setPendingDeletion(chatId, agent.id, agent.name);
+	return `Delete "${agent.name}"? This removes the agent and disconnects its execution history. Reply "yes" to confirm or "no" to cancel. (Expires in 60s)`;
+}
+
+/**
+ * Execute a confirmed deletion.
+ */
+function handleConfirmDelete(pending: PendingDeletion, db: Database): string {
+	const agent = db.select().from(agents).where(eq(agents.id, pending.agentId)).get();
+	if (!agent) {
+		return `Agent "${pending.agentName}" no longer exists.`;
+	}
+
+	removeAgent(agent.id);
+	db.delete(agents).where(eq(agents.id, agent.id)).run();
+
+	return `Deleted "${agent.name}" and removed its scheduled job.`;
+}
+
+/**
+ * Update an agent's task description.
+ */
+function handleUpdateTask(agentName: string, taskDescription: string, db: Database): string {
+	const agent = findAgentByName(agentName, db);
+	if (!agent) return `Agent "${agentName}" not found. Try: list agents`;
+
+	db.update(agents)
+		.set({ taskDescription, updatedAt: new Date().toISOString() })
+		.where(eq(agents.id, agent.id))
+		.run();
+
+	return `Updated ${agent.name} task.`;
+}
+
+/**
+ * Rename an agent.
+ */
+function handleRename(agentName: string, newName: string, db: Database): string {
+	const agent = findAgentByName(agentName, db);
+	if (!agent) return `Agent "${agentName}" not found. Try: list agents`;
+
+	const conflict = findAgentByName(newName, db);
+	if (conflict) return `Name "${newName}" is already taken. Choose a different name.`;
+
+	try {
+		db.update(agents)
+			.set({ name: newName, updatedAt: new Date().toISOString() })
+			.where(eq(agents.id, agent.id))
+			.run();
+		return `Renamed "${agent.name}" to "${newName}".`;
+	} catch (err) {
+		if (err instanceof Error && err.message.includes("UNIQUE constraint failed")) {
+			return `Name "${newName}" is already taken. Choose a different name.`;
+		}
+		throw err;
+	}
+}
+
+/**
  * Fallback for unrecognized intent.
  */
 function handleUnknown(): string {
@@ -198,6 +373,25 @@ export async function handleTelegramMessage(message: TelegramMessage, db: Databa
 	if (text.toLowerCase() === "/start" || text.toLowerCase() === "/help") {
 		await sendPlainText(botToken, chatId, handleHelp());
 		return;
+	}
+
+	// Check pending deletion BEFORE LLM parsing
+	const pending = pendingDeletions.get(chatId);
+	if (pending && pending.expiresAt > Date.now()) {
+		const lower = text.toLowerCase();
+		if (lower === "yes" || lower === "confirm") {
+			clearPendingDeletion(chatId);
+			const reply = handleConfirmDelete(pending, db);
+			await sendPlainText(botToken, chatId, reply);
+			return;
+		}
+		if (lower === "no" || lower === "cancel") {
+			clearPendingDeletion(chatId);
+			await sendPlainText(botToken, chatId, "Deletion cancelled.");
+			return;
+		}
+		// Any other message: clear pending and fall through to normal processing
+		clearPendingDeletion(chatId);
 	}
 
 	// Send typing indicator for LLM-processed messages
@@ -251,6 +445,28 @@ export async function handleTelegramMessage(message: TelegramMessage, db: Databa
 						"Please specify agent and schedule. Example: change Morning Briefing to every weekday at 9am";
 				} else {
 					reply = await handleReschedule(intent.agentName, intent.scheduleInput, db);
+				}
+				break;
+			case "create":
+				reply = await handleCreate(intent.agentName, intent.taskDescription, intent.scheduleInput, db);
+				break;
+			case "delete":
+				reply = intent.agentName
+					? handleDeleteRequest(intent.agentName, chatId, db)
+					: "Please specify which agent to delete. Try: list agents";
+				break;
+			case "update_task":
+				if (!intent.agentName || !intent.taskDescription) {
+					reply = 'Please specify agent and new task. Example: "update Morning Briefing task to check weather"';
+				} else {
+					reply = handleUpdateTask(intent.agentName, intent.taskDescription, db);
+				}
+				break;
+			case "rename":
+				if (!intent.agentName || !intent.newName) {
+					reply = 'Please specify current and new name. Example: "rename Morning Briefing to Daily Digest"';
+				} else {
+					reply = handleRename(intent.agentName, intent.newName, db);
 				}
 				break;
 			case "unknown":
