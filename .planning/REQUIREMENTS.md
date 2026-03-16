@@ -151,17 +151,17 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **TGSCHED-01**: Intent schema extended with 4 new actions (create, delete, update_task, rename) and 2 new fields (taskDescription, newName)
 - [x] **TGSCHED-02**: LLM intent parser prompt includes extraction rules and disambiguation for all new actions
-- [ ] **TGSCHED-03**: "Create [name] that [task] every [schedule]" creates a new agent via Telegram with name, task, and optional schedule
-- [ ] **TGSCHED-04**: Agent created without schedule is disabled (enabled=0) with empty cronSchedule
-- [ ] **TGSCHED-05**: Agent created with schedule is auto-enabled and immediately registered with scheduler
-- [ ] **TGSCHED-06**: Duplicate name on create rejected with guidance ("already exists, use update instead")
-- [ ] **TGSCHED-07**: "Delete [agent]" triggers confirmation prompt with 60-second time-limited pending state
-- [ ] **TGSCHED-08**: "yes"/"confirm" (case-insensitive) within 60s executes deletion; "no"/"cancel" cancels
-- [ ] **TGSCHED-09**: Any other message after delete request clears pending deletion and processes normally
-- [ ] **TGSCHED-10**: "Update [agent] task to [description]" modifies agent taskDescription
-- [ ] **TGSCHED-11**: "Rename [agent] to [new name]" changes agent name with duplicate check
-- [ ] **TGSCHED-12**: Help text (/help, /start) lists all new capabilities: create, delete, update task, rename
-- [ ] **TGSCHED-13**: Pending deletion timer uses unref() to prevent blocking graceful shutdown
+- [x] **TGSCHED-03**: "Create [name] that [task] every [schedule]" creates a new agent via Telegram with name, task, and optional schedule
+- [x] **TGSCHED-04**: Agent created without schedule is disabled (enabled=0) with empty cronSchedule
+- [x] **TGSCHED-05**: Agent created with schedule is auto-enabled and immediately registered with scheduler
+- [x] **TGSCHED-06**: Duplicate name on create rejected with guidance ("already exists, use update instead")
+- [x] **TGSCHED-07**: "Delete [agent]" triggers confirmation prompt with 60-second time-limited pending state
+- [x] **TGSCHED-08**: "yes"/"confirm" (case-insensitive) within 60s executes deletion; "no"/"cancel" cancels
+- [x] **TGSCHED-09**: Any other message after delete request clears pending deletion and processes normally
+- [x] **TGSCHED-10**: "Update [agent] task to [description]" modifies agent taskDescription
+- [x] **TGSCHED-11**: "Rename [agent] to [new name]" changes agent name with duplicate check
+- [x] **TGSCHED-12**: Help text (/help, /start) lists all new capabilities: create, delete, update task, rename
+- [x] **TGSCHED-13**: Pending deletion timer uses unref() to prevent blocking graceful shutdown
 
 ## v2 Requirements
 

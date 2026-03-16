@@ -113,7 +113,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 15. Telegram Notification Channel | 2/2 | Complete    | 2026-03-15 |
 | 16. Telegram NLP Control | 2/2 | Complete    | 2026-03-16 |
 | 17. Code Refactoring and Cleanup | 2/2 | Complete    | 2026-03-16 |
-| 18. Telegram Agent Lifecycle Management | 1/2 | In Progress|  |
+| 18. Telegram Agent Lifecycle Management | 2/2 | Complete   | 2026-03-16 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -361,7 +361,7 @@ Plans:
   9. "Rename [agent] to [new name]" changes agent name with duplicate check
   10. Help text lists all new capabilities
   11. Pending deletion timer uses unref() to prevent blocking graceful shutdown
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 18-01-PLAN.md — Extend intent schema with 4 new actions and 2 new fields, update intent parser LLM prompt with disambiguation rules, and tests
