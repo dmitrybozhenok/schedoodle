@@ -147,6 +147,22 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TGCTL-11**: Unrecognized input gets friendly fallback with help text listing available capabilities
 - [x] **TGCTL-12**: Error messages include brief guidance (e.g., "Agent 'foo' not found. Try: list agents")
 
+### Telegram Agent Lifecycle Management
+
+- [ ] **TGSCHED-01**: Intent schema extended with 4 new actions (create, delete, update_task, rename) and 2 new fields (taskDescription, newName)
+- [ ] **TGSCHED-02**: LLM intent parser prompt includes extraction rules and disambiguation for all new actions
+- [ ] **TGSCHED-03**: "Create [name] that [task] every [schedule]" creates a new agent via Telegram with name, task, and optional schedule
+- [ ] **TGSCHED-04**: Agent created without schedule is disabled (enabled=0) with empty cronSchedule
+- [ ] **TGSCHED-05**: Agent created with schedule is auto-enabled and immediately registered with scheduler
+- [ ] **TGSCHED-06**: Duplicate name on create rejected with guidance ("already exists, use update instead")
+- [ ] **TGSCHED-07**: "Delete [agent]" triggers confirmation prompt with 60-second time-limited pending state
+- [ ] **TGSCHED-08**: "yes"/"confirm" (case-insensitive) within 60s executes deletion; "no"/"cancel" cancels
+- [ ] **TGSCHED-09**: Any other message after delete request clears pending deletion and processes normally
+- [ ] **TGSCHED-10**: "Update [agent] task to [description]" modifies agent taskDescription
+- [ ] **TGSCHED-11**: "Rename [agent] to [new name]" changes agent name with duplicate check
+- [ ] **TGSCHED-12**: Help text (/help, /start) lists all new capabilities: create, delete, update task, rename
+- [ ] **TGSCHED-13**: Pending deletion timer uses unref() to prevent blocking graceful shutdown
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -200,6 +216,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | MCP scheduler integration | Avoid dual-process cron conflicts |
 | Per-agent notification channel selection | Both channels fire globally; per-agent config deferred |
 | Notification channel abstraction | No interface pattern until a third channel is added |
+| System prompt editing via Telegram | Too complex for chat interface, keep in API/MCP |
+| Step-by-step conversational agent creation | Single-message approach sufficient for now |
+| Agent cloning via Telegram | Nice-to-have, separate phase |
+| Batch operations via Telegram | Separate phase |
 
 ## Traceability
 
@@ -305,12 +325,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TGCTL-10 | Phase 16 | Planned |
 | TGCTL-11 | Phase 16 | Planned |
 | TGCTL-12 | Phase 16 | Planned |
+| TGSCHED-01 | Phase 18 | Planned |
+| TGSCHED-02 | Phase 18 | Planned |
+| TGSCHED-03 | Phase 18 | Planned |
+| TGSCHED-04 | Phase 18 | Planned |
+| TGSCHED-05 | Phase 18 | Planned |
+| TGSCHED-06 | Phase 18 | Planned |
+| TGSCHED-07 | Phase 18 | Planned |
+| TGSCHED-08 | Phase 18 | Planned |
+| TGSCHED-09 | Phase 18 | Planned |
+| TGSCHED-10 | Phase 18 | Planned |
+| TGSCHED-11 | Phase 18 | Planned |
+| TGSCHED-12 | Phase 18 | Planned |
+| TGSCHED-13 | Phase 18 | Planned |
 
 **Coverage:**
-- v1 requirements: 98 total
-- Mapped to phases: 98
+- v1 requirements: 111 total
+- Mapped to phases: 111
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-16 after Phase 16 planning*
+*Last updated: 2026-03-16 after Phase 18 planning*

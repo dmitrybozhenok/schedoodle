@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -113,6 +113,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 15. Telegram Notification Channel | 2/2 | Complete    | 2026-03-15 |
 | 16. Telegram NLP Control | 2/2 | Complete    | 2026-03-16 |
 | 17. Code Refactoring and Cleanup | 1/2 | In Progress|  |
+| 18. Telegram Agent Lifecycle Management | 0/2 | Planned | |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -337,18 +338,31 @@ Plans:
   5. Notification dispatch is consolidated into a single dispatchNotifications function in notifier.ts
   6. No circular dependencies exist between decomposed modules
   7. Full test suite passes with identical external behavior
-**Plans:** 1/2 plans executed
+**Plans:** 2 plans
 
 Plans:
 - [ ] 17-01-PLAN.md — Create constants.ts, logger.ts, validation.ts foundation files and migrate all non-executor files to use them
 - [ ] 17-02-PLAN.md — Decompose executor.ts into orchestrator/recorder/facade, consolidate notification dispatch, update tests
 
-### Phase 18: implement scheduling via telegram chat
+### Phase 18: Telegram Agent Lifecycle Management
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Users can create, delete (with two-step confirmation), edit task descriptions, and rename agents entirely via natural language Telegram messages, extending the Phase 16 intent parser with 4 new actions and the command handler with 4 new handlers
+**Requirements**: TGSCHED-01, TGSCHED-02, TGSCHED-03, TGSCHED-04, TGSCHED-05, TGSCHED-06, TGSCHED-07, TGSCHED-08, TGSCHED-09, TGSCHED-10, TGSCHED-11, TGSCHED-12, TGSCHED-13
 **Depends on:** Phase 17
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. Intent schema accepts 11 actions (7 existing + create, delete, update_task, rename) with taskDescription and newName fields
+  2. LLM intent parser prompt includes extraction rules and disambiguation for all new actions
+  3. "Create [name] that [task] every [schedule]" creates a new agent with optional schedule
+  4. Agent created without schedule is disabled; with schedule is auto-enabled and registered
+  5. Duplicate name on create rejected with guidance
+  6. "Delete [agent]" triggers confirmation prompt with 60-second time-limited pending state
+  7. "yes"/"confirm" within 60s executes deletion; "no"/"cancel" cancels; other messages clear pending and process normally
+  8. "Update [agent] task to [description]" modifies agent taskDescription
+  9. "Rename [agent] to [new name]" changes agent name with duplicate check
+  10. Help text lists all new capabilities
+  11. Pending deletion timer uses unref() to prevent blocking graceful shutdown
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 18 to break down)
+- [ ] 18-01-PLAN.md — Extend intent schema with 4 new actions and 2 new fields, update intent parser LLM prompt with disambiguation rules, and tests
+- [ ] 18-02-PLAN.md — Add create/delete/update_task/rename command handlers, pending deletion state machine, help text update, and tests
