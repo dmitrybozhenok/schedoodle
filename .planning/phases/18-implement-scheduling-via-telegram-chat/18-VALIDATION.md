@@ -38,10 +38,10 @@ created: 2026-03-16
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 18-01-01 | 01 | 1 | TGSCHED-01 | unit | `pnpm test -- tests/telegram-commands.test.ts` | ✅ | ⬜ pending |
-| 18-01-02 | 01 | 1 | TGSCHED-02 | unit | `pnpm test -- tests/telegram-commands.test.ts` | ✅ | ⬜ pending |
-| 18-02-01 | 02 | 1 | TGSCHED-03 | unit | `pnpm test -- tests/telegram-commands.test.ts` | ✅ | ⬜ pending |
-| 18-02-02 | 02 | 1 | TGSCHED-04 | unit | `pnpm test -- tests/intent-parser.test.ts` | ✅ | ⬜ pending |
+| 18-01-01 | 01 | 1 | TGSCHED-01 | unit | `pnpm test -- tests/intent-parser.test.ts` | ✅ | ⬜ pending |
+| 18-01-02 | 01 | 1 | TGSCHED-02 | unit | `pnpm test -- tests/intent-parser.test.ts` | ✅ | ⬜ pending |
+| 18-02-01 | 02 | 2 | TGSCHED-03 | unit | `pnpm test -- tests/telegram-commands.test.ts` | ✅ | ⬜ pending |
+| 18-02-02 | 02 | 2 | TGSCHED-04 | unit | `pnpm test -- tests/telegram-commands.test.ts` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
