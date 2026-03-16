@@ -149,8 +149,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Telegram Agent Lifecycle Management
 
-- [ ] **TGSCHED-01**: Intent schema extended with 4 new actions (create, delete, update_task, rename) and 2 new fields (taskDescription, newName)
-- [ ] **TGSCHED-02**: LLM intent parser prompt includes extraction rules and disambiguation for all new actions
+- [x] **TGSCHED-01**: Intent schema extended with 4 new actions (create, delete, update_task, rename) and 2 new fields (taskDescription, newName)
+- [x] **TGSCHED-02**: LLM intent parser prompt includes extraction rules and disambiguation for all new actions
 - [ ] **TGSCHED-03**: "Create [name] that [task] every [schedule]" creates a new agent via Telegram with name, task, and optional schedule
 - [ ] **TGSCHED-04**: Agent created without schedule is disabled (enabled=0) with empty cronSchedule
 - [ ] **TGSCHED-05**: Agent created with schedule is auto-enabled and immediately registered with scheduler
