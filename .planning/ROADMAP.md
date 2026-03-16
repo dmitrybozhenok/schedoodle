@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -111,6 +111,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 13. CI/CD Pipeline | 1/1 | Complete    | 2026-03-15 |
 | 14. MCP Server | 2/2 | Complete    | 2026-03-15 |
 | 15. Telegram Notification Channel | 2/2 | Complete    | 2026-03-15 |
+| 16. Telegram NLP Control | 0/0 | Planning    |  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -300,9 +301,22 @@ Plans:
 
 ### Phase 16: Telegram NLP Control
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Users can control agents via natural language Telegram messages — listing, running, enabling/disabling, checking status, and changing schedules — with LLM-based intent detection and chat ID security
+**Requirements**: TGCTL-01, TGCTL-02, TGCTL-03, TGCTL-04, TGCTL-05, TGCTL-06, TGCTL-07, TGCTL-08, TGCTL-09, TGCTL-10, TGCTL-11, TGCTL-12
 **Depends on:** Phase 15
+**Success Criteria** (what must be TRUE):
+  1. Telegram bot receives incoming messages via polling or webhook and routes them to a command handler
+  2. /start and /help commands are handled directly without an LLM call, returning bot capabilities
+  3. Free-text messages are parsed by the LLM to extract intent (list, run, enable, disable, status, reschedule) and agent name
+  4. LLM resolves fuzzy agent names from the full agent list (e.g., "briefing" matches "Morning Briefing Agent")
+  5. "Run X" triggers executeAgent and replies with a concise confirmation; result delivered via existing notification flow
+  6. "List agents" returns agent names with enabled/disabled and healthy/unhealthy status
+  7. "Enable/disable X" toggles the agent's enabled flag and updates the scheduler
+  8. "Change X to every weekday at 9am" updates the agent's schedule using the NL-to-cron parser from Phase 7
+  9. "Status" or "health" returns a concise system health summary
+  10. Only messages from the configured TELEGRAM_CHAT_ID are processed; all others are silently ignored
+  11. Unrecognized input gets a friendly fallback with help text listing available capabilities
+  12. Error messages include brief guidance (e.g., "Agent 'foo' not found. Try: list agents")
 **Plans:** 0 plans
 
 Plans:

@@ -132,6 +132,21 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TGRAM-11**: Health endpoint includes per-channel delivery stats (email and Telegram sent/failed counts)
 - [x] **TGRAM-12**: Telegram silently skipped when either env var is missing (matches email skip pattern)
 
+### Telegram NLP Control
+
+- [ ] **TGCTL-01**: Telegram bot receives incoming messages via polling (getUpdates) and routes to command handler
+- [ ] **TGCTL-02**: /start and /help commands handled directly without LLM call, returning bot capabilities
+- [ ] **TGCTL-03**: Free-text messages parsed by LLM to extract intent (list, run, enable, disable, status, reschedule) and target agent name
+- [ ] **TGCTL-04**: LLM resolves fuzzy agent names from full agent list (e.g., "briefing" matches "Morning Briefing Agent")
+- [ ] **TGCTL-05**: "Run X" triggers executeAgent and replies with concise confirmation; result via existing notification flow
+- [ ] **TGCTL-06**: "List agents" returns agent names with enabled/disabled and healthy/unhealthy status indicators
+- [ ] **TGCTL-07**: "Enable/disable X" toggles agent enabled flag and updates scheduler
+- [ ] **TGCTL-08**: "Change X to [NL schedule]" updates agent schedule using Phase 7 NL-to-cron parser
+- [ ] **TGCTL-09**: "Status" or "health" returns concise system health summary
+- [ ] **TGCTL-10**: Only messages from configured TELEGRAM_CHAT_ID processed; unauthorized messages silently ignored
+- [ ] **TGCTL-11**: Unrecognized input gets friendly fallback with help text listing available capabilities
+- [ ] **TGCTL-12**: Error messages include brief guidance (e.g., "Agent 'foo' not found. Try: list agents")
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -278,12 +293,24 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TGRAM-10 | Phase 15 | Planned |
 | TGRAM-11 | Phase 15 | Planned |
 | TGRAM-12 | Phase 15 | Planned |
+| TGCTL-01 | Phase 16 | Planned |
+| TGCTL-02 | Phase 16 | Planned |
+| TGCTL-03 | Phase 16 | Planned |
+| TGCTL-04 | Phase 16 | Planned |
+| TGCTL-05 | Phase 16 | Planned |
+| TGCTL-06 | Phase 16 | Planned |
+| TGCTL-07 | Phase 16 | Planned |
+| TGCTL-08 | Phase 16 | Planned |
+| TGCTL-09 | Phase 16 | Planned |
+| TGCTL-10 | Phase 16 | Planned |
+| TGCTL-11 | Phase 16 | Planned |
+| TGCTL-12 | Phase 16 | Planned |
 
 **Coverage:**
-- v1 requirements: 86 total
-- Mapped to phases: 86
+- v1 requirements: 98 total
+- Mapped to phases: 98
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-15 after Phase 15 planning*
+*Last updated: 2026-03-16 after Phase 16 planning*
