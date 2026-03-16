@@ -5,6 +5,7 @@ import type { Database } from "../db/index.js";
 import { agents, agentTools, executionHistory, tools } from "../db/schema.js";
 import { isCronExpression } from "../helpers/cron-detect.js";
 import { enrichAgent } from "../helpers/enrich-agent.js";
+import { parseId, zodErrorHook } from "../helpers/validation.js";
 import { createAgentSchema, updateAgentSchema } from "../schemas/agent-input.js";
 import { executeAgent } from "../services/executor.js";
 import { parseSchedule } from "../services/schedule-parser.js";
@@ -23,34 +24,6 @@ async function resolveSchedule(
 	}
 	const result = await parseSchedule(input);
 	return { cronSchedule: result.cronExpression, humanReadable: result.humanReadable };
-}
-
-/**
- * Zod validation error hook: maps issues to { field, message } details array.
- */
-function zodErrorHook(
-	result: {
-		success: boolean;
-		error?: { issues: Array<{ path: (string | number)[]; message: string }> };
-	},
-	c: { json: (data: unknown, status: number) => Response },
-) {
-	if (!result.success) {
-		const details = result.error?.issues.map((issue) => ({
-			field: issue.path.join("."),
-			message: issue.message,
-		}));
-		return c.json({ error: "Validation failed", details }, 400);
-	}
-}
-
-/**
- * Parse and validate an agent ID from the URL parameter.
- * Returns the numeric ID or null if invalid.
- */
-function parseId(raw: string): number | null {
-	const id = Number(raw);
-	return Number.isNaN(id) || !Number.isInteger(id) ? null : id;
 }
 
 /**

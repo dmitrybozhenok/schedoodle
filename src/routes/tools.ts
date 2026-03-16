@@ -3,35 +3,8 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Database } from "../db/index.js";
 import { tools } from "../db/schema.js";
+import { parseId, zodErrorHook } from "../helpers/validation.js";
 import { createToolSchema, updateToolSchema } from "../schemas/tool-input.js";
-
-/**
- * Zod validation error hook: maps issues to { field, message } details array.
- */
-function zodErrorHook(
-	result: {
-		success: boolean;
-		error?: { issues: Array<{ path: (string | number)[]; message: string }> };
-	},
-	c: { json: (data: unknown, status: number) => Response },
-) {
-	if (!result.success) {
-		const details = result.error?.issues.map((issue) => ({
-			field: issue.path.join("."),
-			message: issue.message,
-		}));
-		return c.json({ error: "Validation failed", details }, 400);
-	}
-}
-
-/**
- * Parse and validate a tool ID from the URL parameter.
- * Returns the numeric ID or null if invalid.
- */
-function parseId(raw: string): number | null {
-	const id = Number(raw);
-	return Number.isNaN(id) || !Number.isInteger(id) ? null : id;
-}
 
 /**
  * Factory function to create tool routes with injected database dependency.

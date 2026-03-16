@@ -1,3 +1,5 @@
+import { log } from "../helpers/logger.js";
+
 /**
  * Telegram Bot API polling loop for receiving incoming messages.
  * Uses getUpdates with long-polling and offset tracking.
@@ -60,7 +62,7 @@ export function startPolling(
 					}
 				}
 			} catch (err) {
-				console.error(`[telegram-bot] Polling error: ${err instanceof Error ? err.message : err}`);
+				log.telegram.error(`Polling error: ${err instanceof Error ? err.message : err}`);
 				if (running) {
 					await new Promise((r) => setTimeout(r, 5000));
 				}

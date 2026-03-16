@@ -2,6 +2,7 @@ import { Cron } from "croner";
 import { eq } from "drizzle-orm";
 import type { Database } from "../db/index.js";
 import { agents } from "../db/schema.js";
+import { log } from "../helpers/logger.js";
 import { executeAgent } from "../services/executor.js";
 import type { Agent } from "../types/index.js";
 
@@ -27,21 +28,21 @@ export function scheduleAgent(agent: Agent, db: Database): void {
 		const freshAgent = db.select().from(agents).where(eq(agents.id, agentId)).get();
 
 		if (!freshAgent) {
-			console.warn(`[cron] Agent ${agentName} (id=${agentId}) not found in DB, skipping execution`);
+			log.cron.warn(`Agent ${agentName} (id=${agentId}) not found in DB, skipping execution`);
 			return;
 		}
 
-		console.log(`[cron] Executing: ${freshAgent.name}`);
+		log.cron.info(`Executing: ${freshAgent.name}`);
 		const start = Date.now();
 
 		try {
 			const result = await executeAgent(freshAgent, db);
 			const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-			console.log(`[cron] ${freshAgent.name}: ${result.status} in ${elapsed}s`);
+			log.cron.info(`${freshAgent.name}: ${result.status} in ${elapsed}s`);
 		} catch (error) {
 			const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 			const msg = error instanceof Error ? error.message : String(error);
-			console.error(`[cron] ${freshAgent.name}: error in ${elapsed}s - ${msg}`);
+			log.cron.error(`${freshAgent.name}: error in ${elapsed}s - ${msg}`);
 		}
 	});
 
@@ -72,9 +73,9 @@ export function startAll(agentList: Agent[], db: Database): void {
 	}
 
 	if (disabledCount > 0) {
-		console.log(`[cron] Scheduled ${enabledAgents.length} agent(s), ${disabledCount} disabled`);
+		log.cron.info(`Scheduled ${enabledAgents.length} agent(s), ${disabledCount} disabled`);
 	} else {
-		console.log(`[cron] Scheduled ${enabledAgents.length} agent(s)`);
+		log.cron.info(`Scheduled ${enabledAgents.length} agent(s)`);
 	}
 }
 

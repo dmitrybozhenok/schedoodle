@@ -1,10 +1,8 @@
 import { isIP } from "node:net";
 import { convert } from "html-to-text";
+import { PREFETCH_MAX_RESPONSE_BYTES, PREFETCH_TIMEOUT_MS } from "../config/constants.js";
 
 const URL_REGEX = /https?:\/\/[^\s)>\]]+/g;
-
-/** Maximum response body size in bytes (1 MB). */
-const MAX_RESPONSE_BYTES = 1_048_576;
 
 /**
  * Check whether a URL points to a private/internal network address.
@@ -62,14 +60,14 @@ export function isPrivateUrl(urlString: string): boolean {
  */
 async function fetchWithSizeLimit(url: string): Promise<{ content: string; contentType: string }> {
 	const response = await fetch(url, {
-		signal: AbortSignal.timeout(10_000),
+		signal: AbortSignal.timeout(PREFETCH_TIMEOUT_MS),
 	});
 
 	const contentType = response.headers.get("content-type") ?? "";
 
 	// Fast path: check Content-Length header
 	const contentLength = response.headers.get("content-length");
-	if (contentLength && Number.parseInt(contentLength, 10) > MAX_RESPONSE_BYTES) {
+	if (contentLength && Number.parseInt(contentLength, 10) > PREFETCH_MAX_RESPONSE_BYTES) {
 		return { content: `[Content truncated at 1MB -- ${url}]`, contentType };
 	}
 
@@ -89,7 +87,7 @@ async function fetchWithSizeLimit(url: string): Promise<{ content: string; conte
 		if (done) break;
 
 		totalBytes += value.byteLength;
-		if (totalBytes > MAX_RESPONSE_BYTES) {
+		if (totalBytes > PREFETCH_MAX_RESPONSE_BYTES) {
 			await reader.cancel();
 			return { content: `[Content truncated at 1MB -- ${url}]`, contentType };
 		}

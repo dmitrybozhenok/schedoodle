@@ -1,10 +1,11 @@
 import type { Context, MiddlewareHandler } from "hono";
-
-const WINDOW_MS = 60 * 1000; // 1 minute
-const LLM_MAX_REQUESTS = 10;
-const GENERAL_MAX_REQUESTS = 60;
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-const STALE_THRESHOLD_MS = 2 * 60 * 1000; // 2 minutes
+import {
+	RATE_LIMIT_CLEANUP_INTERVAL_MS,
+	RATE_LIMIT_GENERAL_MAX,
+	RATE_LIMIT_LLM_MAX,
+	RATE_LIMIT_STALE_THRESHOLD_MS,
+	RATE_LIMIT_WINDOW_MS,
+} from "../config/constants.js";
 
 const requestLog = new Map<string, number[]>();
 
@@ -40,9 +41,9 @@ export function rateLimiterMiddleware(): MiddlewareHandler {
 	return async (c, next) => {
 		const ip = getClientIp(c);
 		const path = c.req.path;
-		const maxRequests = isLlmEndpoint(path) ? LLM_MAX_REQUESTS : GENERAL_MAX_REQUESTS;
+		const maxRequests = isLlmEndpoint(path) ? RATE_LIMIT_LLM_MAX : RATE_LIMIT_GENERAL_MAX;
 
-		if (isRateLimited(ip, WINDOW_MS, maxRequests)) {
+		if (isRateLimited(ip, RATE_LIMIT_WINDOW_MS, maxRequests)) {
 			return c.json({ error: "Rate limit exceeded" }, 429);
 		}
 
@@ -52,14 +53,14 @@ export function rateLimiterMiddleware(): MiddlewareHandler {
 
 // Cleanup stale entries every 5 minutes
 const cleanupTimer = setInterval(() => {
-	const cutoff = Date.now() - STALE_THRESHOLD_MS;
+	const cutoff = Date.now() - RATE_LIMIT_STALE_THRESHOLD_MS;
 	for (const [ip, timestamps] of requestLog) {
 		const latest = timestamps[timestamps.length - 1];
 		if (!latest || latest < cutoff) {
 			requestLog.delete(ip);
 		}
 	}
-}, CLEANUP_INTERVAL_MS);
+}, RATE_LIMIT_CLEANUP_INTERVAL_MS);
 
 // Prevent timer from keeping the process alive
 if (cleanupTimer.unref) {

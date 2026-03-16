@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { env } from "./config/env.js";
 import { db } from "./db/index.js";
 import { agents } from "./db/schema.js";
+import { log } from "./helpers/logger.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { rateLimiterMiddleware, stopRateLimiterCleanup } from "./middleware/rate-limiter.js";
 import { corsMiddleware, securityHeaders } from "./middleware/security.js";
@@ -53,7 +54,7 @@ app.onError((err, c) => {
 	if (err instanceof HTTPException) {
 		return c.json({ error: err.message }, err.status);
 	}
-	console.error("Unhandled error:", err);
+	log.error(`Unhandled error: ${err}`);
 	return c.json({ error: "Internal server error" }, 500);
 });
 
@@ -83,14 +84,12 @@ app.route("/tools", createToolRoutes(db));
 // Boot sequence: stale cleanup -> pruning -> scheduler
 const staleCount = cleanupStaleExecutions(db);
 if (staleCount > 0) {
-	console.log(`[startup] Cleaned up ${staleCount} stale running executions`);
+	log.startup.info(`Cleaned up ${staleCount} stale running executions`);
 }
 
 const prunedCount = pruneOldExecutions(db, env.RETENTION_DAYS);
 if (prunedCount > 0) {
-	console.log(
-		`[startup] Pruned ${prunedCount} execution records older than ${env.RETENTION_DAYS} days`,
-	);
+	log.startup.info(`Pruned ${prunedCount} execution records older than ${env.RETENTION_DAYS} days`);
 }
 
 const allAgents = db.select().from(agents).all();
@@ -101,18 +100,18 @@ if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
 	startPolling(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID, (msg) =>
 		handleTelegramMessage(msg, db),
 	);
-	console.log("[telegram-bot] Polling started");
+	log.telegram.info("Polling started");
 }
 
 const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
-	console.log(`Schedoodle listening on port ${info.port}`);
+	log.info(`Schedoodle listening on port ${info.port}`);
 });
 
 // Graceful shutdown
 async function shutdown() {
 	if (shuttingDown) return;
 	shuttingDown = true;
-	console.log("Schedoodle shutting down...");
+	log.info("Schedoodle shutting down...");
 	stopRateLimiterCleanup();
 	stopAll();
 	stopPolling();
@@ -120,13 +119,13 @@ async function shutdown() {
 
 	const dropped = drainLlmSemaphore();
 	if (dropped > 0) {
-		console.log(`[shutdown] Dropped ${dropped} queued execution(s)`);
+		log.shutdown.info(`Dropped ${dropped} queued execution(s)`);
 	}
 
 	const status = getLlmSemaphoreStatus();
 	if (status.active > 0) {
-		console.log(
-			`[shutdown] Waiting for ${status.active} in-flight executions to complete (30s timeout)...`,
+		log.shutdown.info(
+			`Waiting for ${status.active} in-flight executions to complete (30s timeout)...`,
 		);
 		const deadline = Date.now() + 30_000;
 		while (getLlmSemaphoreStatus().active > 0 && Date.now() < deadline) {
@@ -134,9 +133,9 @@ async function shutdown() {
 		}
 		if (getLlmSemaphoreStatus().active > 0) {
 			const staleCount = markRunningAsShutdownTimeout(db);
-			console.log(`[shutdown] Timeout exceeded, marked ${staleCount} execution(s) as failed`);
+			log.shutdown.info(`Timeout exceeded, marked ${staleCount} execution(s) as failed`);
 		} else {
-			console.log("[shutdown] All executions complete, exiting");
+			log.shutdown.info("All executions complete, exiting");
 		}
 	}
 	process.exit(0);

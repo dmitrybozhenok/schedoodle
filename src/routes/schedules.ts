@@ -1,27 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { zodErrorHook } from "../helpers/validation.js";
 import { parseScheduleBody } from "../schemas/schedule-input.js";
 import { CircuitBreakerOpenError } from "../services/circuit-breaker.js";
 import { parseSchedule } from "../services/schedule-parser.js";
-
-/**
- * Zod validation error hook: maps issues to { field, message } details array.
- */
-function zodErrorHook(
-	result: {
-		success: boolean;
-		error?: { issues: Array<{ path: (string | number)[]; message: string }> };
-	},
-	c: { json: (data: unknown, status: number) => Response },
-) {
-	if (!result.success) {
-		const details = result.error?.issues.map((issue) => ({
-			field: issue.path.join("."),
-			message: issue.message,
-		}));
-		return c.json({ error: "Validation failed", details }, 400);
-	}
-}
 
 /**
  * Factory function to create schedule routes.

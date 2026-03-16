@@ -3,6 +3,7 @@ import { env } from "../config/env.js";
 import type { Database } from "../db/index.js";
 import { agents } from "../db/schema.js";
 import { enrichAgent, getConsecutiveFailures } from "../helpers/enrich-agent.js";
+import { log } from "../helpers/logger.js";
 import type { Agent } from "../types/index.js";
 import { executeAgent, getLlmCircuitStatus } from "./executor.js";
 import { parseIntent } from "./intent-parser.js";
@@ -64,9 +65,7 @@ function handleRun(agentName: string, db: Database): string {
 	if (!agent) return `Agent "${agentName}" not found. Try: list agents`;
 
 	void executeAgent(agent, db).catch((err) =>
-		console.error(
-			`[telegram-bot] Run "${agent.name}" failed: ${err instanceof Error ? err.message : err}`,
-		),
+		log.telegram.error(`Run "${agent.name}" failed: ${err instanceof Error ? err.message : err}`),
 	);
 
 	return `Running ${agent.name}...`;

@@ -1,5 +1,3 @@
-type LogLevel = "info" | "warn" | "error";
-
 function formatMessage(prefix: string, message: string): string {
 	return `[${prefix}] ${message}`;
 }
