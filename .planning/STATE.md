@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 17-02-PLAN.md
-last_updated: "2026-03-16T02:36:18.496Z"
-last_activity: "2026-03-16 -- Plan 17-02 complete (Executor decomposition: orchestrator, recorder, facade, consolidated notifications)"
+status: executing
+stopped_at: Completed 18-01-PLAN.md
+last_updated: "2026-03-16T02:43:25.671Z"
+last_activity: 2026-03-16 -- Plan 18-01 complete (Extended intent schema to 11 actions with disambiguation rules)
 progress:
   total_phases: 18
   completed_phases: 17
   total_plans: 35
-  completed_plans: 33
-  percent: 100
+  completed_plans: 34
+  percent: 97
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Agents run reliably on schedule, process tasks through an LLM, and deliver structured results -- without manual intervention.
-**Current focus:** Phase 17 -- Code Refactoring and Cleanup
+**Current focus:** Phase 18 -- Implement Scheduling via Telegram Chat
 
 ## Current Position
 
-Phase: 17 of 18 (Code Refactoring and Cleanup)
-Plan: 2 of 2 in current phase (2 complete)
-Status: Phase Complete
-Last activity: 2026-03-16 -- Plan 17-02 complete (Executor decomposition: orchestrator, recorder, facade, consolidated notifications)
+Phase: 18 of 18 (Implement Scheduling via Telegram Chat)
+Plan: 1 of 2 in current phase (1 complete)
+Status: In Progress
+Last activity: 2026-03-16 -- Plan 18-01 complete (Extended intent schema to 11 actions with disambiguation rules)
 
-Progress: [██████████] 100%
+Progress: [██████████] 97%
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Progress: [██████████] 100%
 | Phase 16 P02 | 4min | 2 tasks | 3 files |
 | Phase 17 P01 | 8min | 2 tasks | 14 files |
 | Phase 17 P02 | 10min | 2 tasks | 8 files |
+| Phase 18 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -208,6 +209,9 @@ Recent decisions affecting current work:
 - [Phase 17]: [17-02]: Facade pattern: executor.ts re-exports ExecuteResult type and delegates to executeAgentCore
 - [Phase 17]: [17-02]: Circuit breaker passed as parameter to executeAgentCore for testability (no module-level singletons in orchestrator)
 - [Phase 17]: [17-02]: Consolidated dispatchNotifications function in notifier.ts replacing ~60 lines of duplicated notification dispatch
+- [Phase 18]: [18-01]: Reused scheduleInput for create action's optional schedule (same semantics as reschedule)
+- [Phase 18]: [18-01]: taskDescription and newName as top-level nullable fields (flat schema rather than nested)
+- [Phase 18]: [18-01]: Explicit disambiguation rules in LLM prompt to separate reschedule vs update_task vs rename
 
 ### Roadmap Evolution
 
@@ -223,6 +227,7 @@ Recent decisions affecting current work:
 - Phase 16 added: Telegram NLP Control
 - Phase 17 added: code refactoring, cleanup
 - Phase 18 added: implement scheduling via telegram chat
+- Phase 19 added: Expand eval suite with tool-usage, temporal-reasoning, output-format, safety, multilingual, code-generation, and reasoning-transparency fixtures
 
 ### Pending Todos
 
@@ -236,6 +241,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T02:28:29Z
-Stopped at: Completed 17-02-PLAN.md
+Last session: 2026-03-16T02:43:25.668Z
+Stopped at: Completed 18-01-PLAN.md
 Resume file: None
