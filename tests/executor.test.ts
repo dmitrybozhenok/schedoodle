@@ -43,12 +43,75 @@ const mockSendNotification = vi.fn();
 const mockSendFailureNotification = vi.fn();
 const mockSendTelegramNotification = vi.fn();
 const mockSendTelegramFailureNotification = vi.fn();
+
+/**
+ * Mock dispatchNotifications that mirrors the real implementation:
+ * sets pending -> dispatches via individual send mocks -> derives status -> updates DB.
+ */
+async function mockDispatchNotifications(
+	payload: {
+		type: string;
+		agentName: string;
+		executedAt: string;
+		output?: unknown;
+		errorMsg?: string;
+	},
+	executionId: number,
+	db: ReturnType<typeof import("drizzle-orm/better-sqlite3").drizzle>,
+) {
+	const { eq: eqFn } = await import("drizzle-orm");
+	const { executionHistory } = await import("../src/db/schema.js");
+
+	try {
+		db.update(executionHistory)
+			.set({ emailDeliveryStatus: "pending", telegramDeliveryStatus: "pending" })
+			.where(eqFn(executionHistory.id, executionId))
+			.run();
+
+		const [emailResult, telegramResult] = await Promise.allSettled(
+			payload.type === "success"
+				? [
+						mockSendNotification(payload.agentName, payload.executedAt, payload.output),
+						mockSendTelegramNotification(payload.agentName, payload.executedAt, payload.output),
+					]
+				: [
+						mockSendFailureNotification(payload.agentName, payload.executedAt, payload.errorMsg),
+						mockSendTelegramFailureNotification(
+							payload.agentName,
+							payload.executedAt,
+							payload.errorMsg,
+						),
+					],
+		);
+
+		const deriveStatus = (result: PromiseSettledResult<{ status: string }>): string | null => {
+			const st = result.status === "fulfilled" ? result.value : { status: "failed" };
+			return st.status === "skipped" ? null : st.status === "sent" ? "sent" : "failed";
+		};
+
+		db.update(executionHistory)
+			.set({
+				emailDeliveryStatus: deriveStatus(emailResult),
+				telegramDeliveryStatus: deriveStatus(telegramResult),
+			})
+			.where(eqFn(executionHistory.id, executionId))
+			.run();
+	} catch (_err) {
+		db.update(executionHistory)
+			.set({ emailDeliveryStatus: "failed", telegramDeliveryStatus: "failed" })
+			.where(eqFn(executionHistory.id, executionId))
+			.run();
+	}
+}
+
 vi.mock("../src/services/notifier.js", () => ({
 	sendNotification: (...args: unknown[]) => mockSendNotification(...args),
 	sendFailureNotification: (...args: unknown[]) => mockSendFailureNotification(...args),
 	sendTelegramNotification: (...args: unknown[]) => mockSendTelegramNotification(...args),
 	sendTelegramFailureNotification: (...args: unknown[]) =>
 		mockSendTelegramFailureNotification(...args),
+	dispatchNotifications: (...args: unknown[]) =>
+		mockDispatchNotifications(...(args as Parameters<typeof mockDispatchNotifications>)),
 }));
 
 import {

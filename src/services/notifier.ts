@@ -1,6 +1,11 @@
+import { eq } from "drizzle-orm";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
+import { TELEGRAM_MAX_MESSAGE_LENGTH } from "../config/constants.js";
 import { env } from "../config/env.js";
+import type { Database } from "../db/index.js";
+import { executionHistory } from "../db/schema.js";
+import { log } from "../helpers/logger.js";
 import type { AgentOutput } from "../schemas/agent-output.js";
 import { escapeMdV2, escapeMdV2CodeBlock, sendTelegramMessage } from "./telegram.js";
 
@@ -85,7 +90,7 @@ async function sendViaSmtp(
 		return { status: "sent" };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error(`[notify] SMTP error: ${message}`);
+		log.notify.error(`SMTP error: ${message}`);
 		return { status: "failed", error: message };
 	}
 }
@@ -100,7 +105,7 @@ async function sendViaResend(
 	const { error } = await resend.emails.send({ from, to, subject, html });
 
 	if (error) {
-		console.error(`[notify] Resend error: ${error.message}`);
+		log.notify.error(`Resend error: ${error.message}`);
 		return { status: "failed", error: error.message };
 	}
 	return { status: "sent" };
@@ -131,7 +136,7 @@ export async function sendNotification(
 		return await sendViaResend(env.NOTIFICATION_EMAIL, env.NOTIFICATION_FROM, subject, html);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error(`[notify] Unexpected error for ${agentName}: ${message}`);
+		log.notify.error(`Unexpected error for ${agentName}: ${message}`);
 		return { status: "failed", error: message };
 	}
 }
@@ -161,14 +166,12 @@ export async function sendFailureNotification(
 		return await sendViaResend(env.NOTIFICATION_EMAIL, env.NOTIFICATION_FROM, subject, html);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error(`[notify] Unexpected error for ${agentName} failure: ${message}`);
+		log.notify.error(`Unexpected error for ${agentName} failure: ${message}`);
 		return { status: "failed", error: message };
 	}
 }
 
 // --- Telegram transport ---
-
-const TELEGRAM_MAX_LENGTH = 3800;
 
 /**
  * Convert markdown **bold** in text to MarkdownV2 *bold*, escaping the rest.
@@ -207,8 +210,8 @@ export function buildTelegramMarkdown(
 	}
 
 	let message = parts.join("\n");
-	if (message.length > TELEGRAM_MAX_LENGTH) {
-		message = `${message.slice(0, TELEGRAM_MAX_LENGTH)}\n\\.\\.\\. \\[truncated, see email for full output\\]`;
+	if (message.length > TELEGRAM_MAX_MESSAGE_LENGTH) {
+		message = `${message.slice(0, TELEGRAM_MAX_MESSAGE_LENGTH)}\n\\.\\.\\. \\[truncated, see email for full output\\]`;
 	}
 	return message;
 }
@@ -230,8 +233,8 @@ export function buildTelegramFailureMarkdown(
 	];
 
 	let message = parts.join("\n");
-	if (message.length > TELEGRAM_MAX_LENGTH) {
-		message = `${message.slice(0, TELEGRAM_MAX_LENGTH)}\n\\.\\.\\. \\[truncated, see email for full output\\]`;
+	if (message.length > TELEGRAM_MAX_MESSAGE_LENGTH) {
+		message = `${message.slice(0, TELEGRAM_MAX_MESSAGE_LENGTH)}\n\\.\\.\\. \\[truncated, see email for full output\\]`;
 	}
 	return message;
 }
@@ -244,13 +247,13 @@ async function sendViaTelegram(
 	try {
 		const result = await sendTelegramMessage(botToken, chatId, text);
 		if (!result.ok) {
-			console.error(`[notify] Telegram error: ${result.description}`);
+			log.notify.error(`Telegram error: ${result.description}`);
 			return { status: "failed", error: result.description };
 		}
 		return { status: "sent" };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error(`[notify] Telegram error: ${message}`);
+		log.notify.error(`Telegram error: ${message}`);
 		return { status: "failed", error: message };
 	}
 }
@@ -269,7 +272,7 @@ export async function sendTelegramNotification(
 		return await sendViaTelegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID, text);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error(`[notify] Unexpected Telegram error for ${agentName}: ${message}`);
+		log.notify.error(`Unexpected Telegram error for ${agentName}: ${message}`);
 		return { status: "failed", error: message };
 	}
 }
@@ -288,7 +291,69 @@ export async function sendTelegramFailureNotification(
 		return await sendViaTelegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID, text);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error(`[notify] Unexpected Telegram error for ${agentName} failure: ${message}`);
+		log.notify.error(`Unexpected Telegram error for ${agentName} failure: ${message}`);
 		return { status: "failed", error: message };
+	}
+}
+
+// --- Consolidated notification dispatch ---
+
+type NotificationPayload =
+	| { type: "success"; agentName: string; executedAt: string; output: AgentOutput }
+	| { type: "failure"; agentName: string; executedAt: string; errorMsg: string };
+
+/**
+ * Dispatch notifications to all channels (email + Telegram) in parallel.
+ * Handles the complete lifecycle: set pending -> dispatch -> derive status -> update DB.
+ * Fire-and-forget: notification errors NEVER affect execution status.
+ */
+export async function dispatchNotifications(
+	payload: NotificationPayload,
+	executionId: number,
+	db: Database,
+): Promise<void> {
+	try {
+		// Set both channels to pending before dispatch
+		db.update(executionHistory)
+			.set({ emailDeliveryStatus: "pending", telegramDeliveryStatus: "pending" })
+			.where(eq(executionHistory.id, executionId))
+			.run();
+
+		// Dispatch both channels in parallel
+		const [emailResult, telegramResult] = await Promise.allSettled(
+			payload.type === "success"
+				? [
+						sendNotification(payload.agentName, payload.executedAt, payload.output),
+						sendTelegramNotification(payload.agentName, payload.executedAt, payload.output),
+					]
+				: [
+						sendFailureNotification(payload.agentName, payload.executedAt, payload.errorMsg),
+						sendTelegramFailureNotification(
+							payload.agentName,
+							payload.executedAt,
+							payload.errorMsg,
+						),
+					],
+		);
+
+		// Derive per-channel status
+		const deriveStatus = (result: PromiseSettledResult<NotifyResult>): string | null => {
+			const st = result.status === "fulfilled" ? result.value : { status: "failed" as const };
+			return st.status === "skipped" ? null : st.status === "sent" ? "sent" : "failed";
+		};
+
+		db.update(executionHistory)
+			.set({
+				emailDeliveryStatus: deriveStatus(emailResult),
+				telegramDeliveryStatus: deriveStatus(telegramResult),
+			})
+			.where(eq(executionHistory.id, executionId))
+			.run();
+	} catch (err) {
+		log.notify.error(`Unexpected error: ${err}`);
+		db.update(executionHistory)
+			.set({ emailDeliveryStatus: "failed", telegramDeliveryStatus: "failed" })
+			.where(eq(executionHistory.id, executionId))
+			.run();
 	}
 }
