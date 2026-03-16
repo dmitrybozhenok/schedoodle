@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import Database from "better-sqlite3";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as schema from "../src/db/schema.js";
 import type { AgentOutput } from "../src/schemas/agent-output.js";
 
 const mockResendSend = vi.fn();
@@ -486,5 +490,186 @@ describe("Telegram content", () => {
 		expect(text).toContain("FAILED");
 		expect(text).toContain("Broken Agent");
 		expect(text).toContain("model not found");
+	});
+});
+
+// --- dispatchNotifications tests ---
+
+const CREATE_AGENTS_SQL = `
+CREATE TABLE agents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL COLLATE NOCASE,
+  task_description TEXT NOT NULL,
+  cron_schedule TEXT NOT NULL,
+  system_prompt TEXT,
+  model TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  max_execution_ms INTEGER,
+  created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+CREATE UNIQUE INDEX agents_name_nocase ON agents(name COLLATE NOCASE);
+`;
+
+const CREATE_EXECUTION_HISTORY_SQL = `
+CREATE TABLE execution_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  agent_id INTEGER NOT NULL REFERENCES agents(id),
+  status TEXT NOT NULL CHECK(status IN ('success', 'failure', 'running')),
+  input_tokens INTEGER,
+  output_tokens INTEGER,
+  duration_ms INTEGER,
+  result TEXT,
+  error TEXT,
+  delivery_status TEXT,
+  telegram_delivery_status TEXT,
+  estimated_cost REAL,
+  retry_count INTEGER DEFAULT 0,
+  tool_calls TEXT,
+  started_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  completed_at TEXT
+);
+`;
+
+describe("dispatchNotifications", () => {
+	let sqlite: Database.Database;
+	let db: ReturnType<typeof drizzle>;
+	let executionId: number;
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		setEnv();
+
+		sqlite = new Database(":memory:");
+		sqlite.exec(CREATE_AGENTS_SQL);
+		sqlite.exec(CREATE_EXECUTION_HISTORY_SQL);
+		db = drizzle(sqlite, { schema });
+
+		// Create agent and execution record
+		const agent = db
+			.insert(schema.agents)
+			.values({
+				name: "TestAgent",
+				taskDescription: "Do stuff",
+				cronSchedule: "0 * * * *",
+			})
+			.returning()
+			.get();
+
+		const row = db
+			.insert(schema.executionHistory)
+			.values({ agentId: agent.id, status: "running" })
+			.returning()
+			.get();
+		executionId = row.id;
+	});
+
+	afterEach(() => {
+		sqlite.close();
+	});
+
+	it("success payload: dispatches email + telegram, updates DB with sent statuses", async () => {
+		setEnv({ ...smtpEnv, ...telegramEnv });
+		mockSmtpSend.mockResolvedValue({ messageId: "ok" });
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+
+		const { dispatchNotifications } = await import("../src/services/notifier.js");
+		await dispatchNotifications(
+			{
+				type: "success",
+				agentName: "TestAgent",
+				executedAt: "2026-03-16T00:00:00Z",
+				output: baseOutput,
+			},
+			executionId,
+			db,
+		);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.id, executionId))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
+		expect(rows[0].telegramDeliveryStatus).toBe("sent");
+	});
+
+	it("failure payload: dispatches failure notifications, updates DB", async () => {
+		setEnv({ ...smtpEnv, ...telegramEnv });
+		mockSmtpSend.mockResolvedValue({ messageId: "ok" });
+		mockSendTelegramMessage.mockResolvedValue({ ok: true });
+
+		const { dispatchNotifications } = await import("../src/services/notifier.js");
+		await dispatchNotifications(
+			{
+				type: "failure",
+				agentName: "TestAgent",
+				executedAt: "2026-03-16T00:00:00Z",
+				errorMsg: "LLM crashed",
+			},
+			executionId,
+			db,
+		);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.id, executionId))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBe("sent");
+		expect(rows[0].telegramDeliveryStatus).toBe("sent");
+	});
+
+	it("both channels skipped: DB columns set to null", async () => {
+		// No email or telegram env vars set -> both skip
+		const { dispatchNotifications } = await import("../src/services/notifier.js");
+		await dispatchNotifications(
+			{
+				type: "success",
+				agentName: "TestAgent",
+				executedAt: "2026-03-16T00:00:00Z",
+				output: baseOutput,
+			},
+			executionId,
+			db,
+		);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.id, executionId))
+			.all();
+
+		expect(rows[0].emailDeliveryStatus).toBeNull();
+		expect(rows[0].telegramDeliveryStatus).toBeNull();
+	});
+
+	it("dispatch error: sets both channels to failed", async () => {
+		setEnv(smtpEnv);
+		mockSmtpSend.mockRejectedValue(new Error("SMTP crash"));
+
+		const { dispatchNotifications } = await import("../src/services/notifier.js");
+		await dispatchNotifications(
+			{
+				type: "success",
+				agentName: "TestAgent",
+				executedAt: "2026-03-16T00:00:00Z",
+				output: baseOutput,
+			},
+			executionId,
+			db,
+		);
+
+		const rows = db
+			.select()
+			.from(schema.executionHistory)
+			.where(eq(schema.executionHistory.id, executionId))
+			.all();
+
+		// Email failed (threw), telegram skipped (no env)
+		expect(rows[0].emailDeliveryStatus).toBe("failed");
+		expect(rows[0].telegramDeliveryStatus).toBeNull();
 	});
 });
