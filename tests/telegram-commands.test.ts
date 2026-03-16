@@ -480,7 +480,10 @@ describe("telegram-commands", () => {
 		// insert().values().returning().get() returns the created agent
 		db._mockGet.mockReturnValueOnce(createdAgent);
 
-		await handleTelegramMessage(makeMessage("create Morning Briefing that summarizes my emails every day at 7am"), db as never);
+		await handleTelegramMessage(
+			makeMessage("create Morning Briefing that summarizes my emails every day at 7am"),
+			db as never,
+		);
 
 		expect(db.insert).toHaveBeenCalled();
 		expect(mockScheduleAgent).toHaveBeenCalledTimes(1);
@@ -537,7 +540,10 @@ describe("telegram-commands", () => {
 		const db = createMockDb([existingAgent]);
 		db._mockGet.mockReturnValue(existingAgent); // findAgentByName finds duplicate
 
-		await handleTelegramMessage(makeMessage("create Morning Briefing that does something"), db as never);
+		await handleTelegramMessage(
+			makeMessage("create Morning Briefing that does something"),
+			db as never,
+		);
 
 		const sentText = mockSendPlainText.mock.calls[0][2] as string;
 		expect(sentText).toContain("already exists");
@@ -695,7 +701,10 @@ describe("telegram-commands", () => {
 		const db = createMockDb([testAgent]);
 		db._mockGet.mockReturnValue(testAgent);
 
-		await handleTelegramMessage(makeMessage("update PR Reminder task to check open PRs"), db as never);
+		await handleTelegramMessage(
+			makeMessage("update PR Reminder task to check open PRs"),
+			db as never,
+		);
 
 		expect(db.update).toHaveBeenCalled();
 		const sentText = mockSendPlainText.mock.calls[0][2] as string;
@@ -740,7 +749,10 @@ describe("telegram-commands", () => {
 		// Second get: findAgentByName for conflict check returns undefined
 		db._mockGet.mockReturnValueOnce(undefined);
 
-		await handleTelegramMessage(makeMessage("rename Morning Briefing to Daily Digest"), db as never);
+		await handleTelegramMessage(
+			makeMessage("rename Morning Briefing to Daily Digest"),
+			db as never,
+		);
 
 		expect(db.update).toHaveBeenCalled();
 		const sentText = mockSendPlainText.mock.calls[0][2] as string;
@@ -768,7 +780,10 @@ describe("telegram-commands", () => {
 		// Second get: findAgentByName finds agentB (conflict)
 		db._mockGet.mockReturnValueOnce(agentB);
 
-		await handleTelegramMessage(makeMessage("rename Morning Briefing to Daily Digest"), db as never);
+		await handleTelegramMessage(
+			makeMessage("rename Morning Briefing to Daily Digest"),
+			db as never,
+		);
 
 		const sentText = mockSendPlainText.mock.calls[0][2] as string;
 		expect(sentText).toContain("already taken");

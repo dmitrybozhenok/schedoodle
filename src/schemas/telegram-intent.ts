@@ -31,13 +31,8 @@ export const telegramIntentSchema = z.object({
 	taskDescription: z
 		.string()
 		.nullable()
-		.describe(
-			"Task description for create or update_task actions, or null for other actions",
-		),
-	newName: z
-		.string()
-		.nullable()
-		.describe("New name for rename action, or null for other actions"),
+		.describe("Task description for create or update_task actions, or null for other actions"),
+	newName: z.string().nullable().describe("New name for rename action, or null for other actions"),
 });
 
 export type TelegramIntent = z.infer<typeof telegramIntentSchema>;

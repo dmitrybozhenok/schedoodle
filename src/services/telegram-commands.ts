@@ -448,7 +448,12 @@ export async function handleTelegramMessage(message: TelegramMessage, db: Databa
 				}
 				break;
 			case "create":
-				reply = await handleCreate(intent.agentName, intent.taskDescription, intent.scheduleInput, db);
+				reply = await handleCreate(
+					intent.agentName,
+					intent.taskDescription,
+					intent.scheduleInput,
+					db,
+				);
 				break;
 			case "delete":
 				reply = intent.agentName
@@ -457,14 +462,16 @@ export async function handleTelegramMessage(message: TelegramMessage, db: Databa
 				break;
 			case "update_task":
 				if (!intent.agentName || !intent.taskDescription) {
-					reply = 'Please specify agent and new task. Example: "update Morning Briefing task to check weather"';
+					reply =
+						'Please specify agent and new task. Example: "update Morning Briefing task to check weather"';
 				} else {
 					reply = handleUpdateTask(intent.agentName, intent.taskDescription, db);
 				}
 				break;
 			case "rename":
 				if (!intent.agentName || !intent.newName) {
-					reply = 'Please specify current and new name. Example: "rename Morning Briefing to Daily Digest"';
+					reply =
+						'Please specify current and new name. Example: "rename Morning Briefing to Daily Digest"';
 				} else {
 					reply = handleRename(intent.agentName, intent.newName, db);
 				}

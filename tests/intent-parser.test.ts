@@ -22,7 +22,13 @@ describe("intent-parser", () => {
 
 	it("returns 'list' action for 'show me all agents'", async () => {
 		mockGenerateText.mockResolvedValueOnce({
-			output: { action: "list", agentName: null, scheduleInput: null, taskDescription: null, newName: null },
+			output: {
+				action: "list",
+				agentName: null,
+				scheduleInput: null,
+				taskDescription: null,
+				newName: null,
+			},
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
@@ -39,7 +45,13 @@ describe("intent-parser", () => {
 
 	it("returns 'run' action with agent name", async () => {
 		mockGenerateText.mockResolvedValueOnce({
-			output: { action: "run", agentName: "Morning Briefing", scheduleInput: null, taskDescription: null, newName: null },
+			output: {
+				action: "run",
+				agentName: "Morning Briefing",
+				scheduleInput: null,
+				taskDescription: null,
+				newName: null,
+			},
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
@@ -83,7 +95,13 @@ describe("intent-parser", () => {
 
 		mockGenerateText.mockRejectedValueOnce(fakeError);
 		mockGenerateText.mockResolvedValueOnce({
-			output: { action: "list", agentName: null, scheduleInput: null, taskDescription: null, newName: null },
+			output: {
+				action: "list",
+				agentName: null,
+				scheduleInput: null,
+				taskDescription: null,
+				newName: null,
+			},
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
@@ -116,7 +134,13 @@ describe("intent-parser", () => {
 
 	it("passes agent names in system prompt", async () => {
 		mockGenerateText.mockResolvedValueOnce({
-			output: { action: "list", agentName: null, scheduleInput: null, taskDescription: null, newName: null },
+			output: {
+				action: "list",
+				agentName: null,
+				scheduleInput: null,
+				taskDescription: null,
+				newName: null,
+			},
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
@@ -131,7 +155,13 @@ describe("intent-parser", () => {
 
 	it("handles empty agent list gracefully", async () => {
 		mockGenerateText.mockResolvedValueOnce({
-			output: { action: "unknown", agentName: null, scheduleInput: null, taskDescription: null, newName: null },
+			output: {
+				action: "unknown",
+				agentName: null,
+				scheduleInput: null,
+				taskDescription: null,
+				newName: null,
+			},
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
@@ -177,10 +207,7 @@ describe("intent-parser", () => {
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
-		const result = await parseIntent(
-			"create Test Agent that does something useful",
-			[],
-		);
+		const result = await parseIntent("create Test Agent that does something useful", []);
 
 		expect(result.action).toBe("create");
 		expect(result.agentName).toBe("Test Agent");
@@ -218,10 +245,9 @@ describe("intent-parser", () => {
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
-		const result = await parseIntent(
-			"update PR Reminder task to check open PRs and send summary",
-			["PR Reminder"],
-		);
+		const result = await parseIntent("update PR Reminder task to check open PRs and send summary", [
+			"PR Reminder",
+		]);
 
 		expect(result.action).toBe("update_task");
 		expect(result.agentName).toBe("PR Reminder");
@@ -240,10 +266,9 @@ describe("intent-parser", () => {
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
-		const result = await parseIntent(
-			"rename Morning Briefing to Daily Digest",
-			["Morning Briefing"],
-		);
+		const result = await parseIntent("rename Morning Briefing to Daily Digest", [
+			"Morning Briefing",
+		]);
 
 		expect(result.action).toBe("rename");
 		expect(result.agentName).toBe("Morning Briefing");
