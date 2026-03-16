@@ -25,6 +25,8 @@ import {
 	markRunningAsShutdownTimeout,
 	pruneOldExecutions,
 } from "./services/startup.js";
+import { handleTelegramMessage } from "./services/telegram-commands.js";
+import { startPolling, stopPolling } from "./services/telegram-poller.js";
 
 const startedAt = Date.now();
 
@@ -94,6 +96,14 @@ if (prunedCount > 0) {
 const allAgents = db.select().from(agents).all();
 startAll(allAgents, db);
 
+// Start Telegram bot polling (if configured)
+if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+	startPolling(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID, (msg) =>
+		handleTelegramMessage(msg, db),
+	);
+	console.log("[telegram-bot] Polling started");
+}
+
 const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
 	console.log(`Schedoodle listening on port ${info.port}`);
 });
@@ -105,6 +115,7 @@ async function shutdown() {
 	console.log("Schedoodle shutting down...");
 	stopRateLimiterCleanup();
 	stopAll();
+	stopPolling();
 	server.close();
 
 	const dropped = drainLlmSemaphore();
