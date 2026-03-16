@@ -103,7 +103,7 @@ describe("enrichAgent helper", () => {
 			expect(enriched.nextRunAt).toBeTruthy();
 			expect(typeof enriched.nextRunAt).toBe("string");
 			// Verify it's a valid ISO date
-			expect(new Date(enriched.nextRunAt!).toISOString()).toBe(enriched.nextRunAt);
+			expect(new Date(enriched.nextRunAt as string).toISOString()).toBe(enriched.nextRunAt);
 		});
 
 		it("returns nextRunAt as null for disabled agent", () => {

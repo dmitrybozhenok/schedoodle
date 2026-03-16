@@ -117,9 +117,7 @@ describe("telegram-commands", () => {
 	});
 
 	it("/start returns help text without LLM call", async () => {
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 		const db = createMockDb();
 		await handleTelegramMessage(makeMessage("/start"), db as never);
 
@@ -134,9 +132,7 @@ describe("telegram-commands", () => {
 	});
 
 	it("/help returns help text without LLM call", async () => {
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 		const db = createMockDb();
 		await handleTelegramMessage(makeMessage("/help"), db as never);
 
@@ -147,9 +143,7 @@ describe("telegram-commands", () => {
 	});
 
 	it("/help bypasses LLM call (parseIntent not called)", async () => {
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 		const db = createMockDb();
 		await handleTelegramMessage(makeMessage("/help"), db as never);
 
@@ -179,9 +173,7 @@ describe("telegram-commands", () => {
 			consecutiveFailures: 0,
 		}));
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		// Build a mock DB that returns the test agents
 		const db = createMockDb(testAgents);
@@ -206,9 +198,7 @@ describe("telegram-commands", () => {
 
 		const testAgent = { id: 1, name: "Morning Briefing", enabled: 1, cronSchedule: "0 9 * * *" };
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([testAgent]);
 		// Make the where().get() return the agent for findAgentByName
@@ -228,9 +218,7 @@ describe("telegram-commands", () => {
 			scheduleInput: null,
 		});
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([]);
 		db._mockGet.mockReturnValue(undefined);
@@ -252,9 +240,7 @@ describe("telegram-commands", () => {
 			scheduleInput: null,
 		});
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([testAgent]);
 		// First get returns the disabled agent, second returns the updated one
@@ -277,9 +263,7 @@ describe("telegram-commands", () => {
 			scheduleInput: null,
 		});
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([testAgent]);
 		db._mockGet.mockReturnValue(testAgent);
@@ -304,9 +288,7 @@ describe("telegram-commands", () => {
 			{ id: 2, name: "Agent B", enabled: 0, cronSchedule: "0 10 * * *" },
 		];
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb(testAgents);
 
@@ -337,14 +319,17 @@ describe("telegram-commands", () => {
 			interpretation: "Every weekday at 9am",
 		});
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([testAgent]);
-		db._mockGet.mockReturnValueOnce(testAgent).mockReturnValueOnce({ ...testAgent, cronSchedule: "0 9 * * 1-5" });
+		db._mockGet
+			.mockReturnValueOnce(testAgent)
+			.mockReturnValueOnce({ ...testAgent, cronSchedule: "0 9 * * 1-5" });
 
-		await handleTelegramMessage(makeMessage("change morning briefing to every weekday at 9am"), db as never);
+		await handleTelegramMessage(
+			makeMessage("change morning briefing to every weekday at 9am"),
+			db as never,
+		);
 
 		expect(mockParseSchedule).toHaveBeenCalledWith("every weekday at 9am");
 		expect(db.update).toHaveBeenCalled();
@@ -361,9 +346,7 @@ describe("telegram-commands", () => {
 			scheduleInput: null,
 		});
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([]);
 
@@ -377,9 +360,7 @@ describe("telegram-commands", () => {
 	it("error in intent parsing returns error guidance", async () => {
 		mockParseIntent.mockRejectedValueOnce(new Error("LLM API failure"));
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([]);
 
@@ -397,9 +378,7 @@ describe("telegram-commands", () => {
 			scheduleInput: null,
 		});
 
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb([]);
 
@@ -410,9 +389,7 @@ describe("telegram-commands", () => {
 	});
 
 	it("typing indicator NOT sent for /help", async () => {
-		const { handleTelegramMessage } = await import(
-			"../src/services/telegram-commands.js"
-		);
+		const { handleTelegramMessage } = await import("../src/services/telegram-commands.js");
 
 		const db = createMockDb();
 

@@ -1,4 +1,4 @@
-import { NoObjectGeneratedError, Output, generateText } from "ai";
+import { generateText, NoObjectGeneratedError, Output } from "ai";
 import { DEFAULT_MODEL, resolveModel } from "../config/llm-provider.js";
 import { type TelegramIntent, telegramIntentSchema } from "../schemas/telegram-intent.js";
 

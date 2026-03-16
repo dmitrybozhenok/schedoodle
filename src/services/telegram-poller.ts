@@ -60,9 +60,7 @@ export function startPolling(
 					}
 				}
 			} catch (err) {
-				console.error(
-					`[telegram-bot] Polling error: ${err instanceof Error ? err.message : err}`,
-				);
+				console.error(`[telegram-bot] Polling error: ${err instanceof Error ? err.message : err}`);
 				if (running) {
 					await new Promise((r) => setTimeout(r, 5000));
 				}
@@ -107,10 +105,7 @@ export async function sendPlainText(
 /**
  * Send a typing indicator to show the bot is processing.
  */
-export async function sendTypingAction(
-	botToken: string,
-	chatId: string | number,
-): Promise<void> {
+export async function sendTypingAction(botToken: string, chatId: string | number): Promise<void> {
 	const url = `https://api.telegram.org/bot${botToken}/sendChatAction`;
 	await fetch(url, {
 		method: "POST",

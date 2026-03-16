@@ -60,9 +60,7 @@ describe("intent-parser", () => {
 		});
 
 		const { parseIntent } = await import("../src/services/intent-parser.js");
-		const result = await parseIntent("change PR reminder to every weekday at 9am", [
-			"PR Reminder",
-		]);
+		const result = await parseIntent("change PR reminder to every weekday at 9am", ["PR Reminder"]);
 
 		expect(result).toEqual({
 			action: "reschedule",

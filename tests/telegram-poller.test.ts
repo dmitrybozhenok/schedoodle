@@ -36,9 +36,7 @@ describe("telegram-poller", () => {
 			return mockFetchResponse({ ok: true, result: [] });
 		});
 
-		const { startPolling, stopPolling } = await import(
-			"../src/services/telegram-poller.js"
-		);
+		const { startPolling, stopPolling } = await import("../src/services/telegram-poller.js");
 		const onMessage = vi.fn(async () => {});
 		startPolling("test-token", "123", onMessage);
 
@@ -67,11 +65,21 @@ describe("telegram-poller", () => {
 					result: [
 						{
 							update_id: 100,
-							message: { message_id: 1, chat: { id: 123, type: "private" }, text: "hello", date: 1 },
+							message: {
+								message_id: 1,
+								chat: { id: 123, type: "private" },
+								text: "hello",
+								date: 1,
+							},
 						},
 						{
 							update_id: 101,
-							message: { message_id: 2, chat: { id: 123, type: "private" }, text: "world", date: 2 },
+							message: {
+								message_id: 2,
+								chat: { id: 123, type: "private" },
+								text: "world",
+								date: 2,
+							},
 						},
 					],
 				});
@@ -244,7 +252,11 @@ describe("telegram-poller", () => {
 			"../src/services/telegram-poller.js"
 		);
 
-		startPolling("test-token", "123", vi.fn(async () => {}));
+		startPolling(
+			"test-token",
+			"123",
+			vi.fn(async () => {}),
+		);
 		expect(isPollingActive()).toBe(true);
 
 		stopPolling();
@@ -252,9 +264,7 @@ describe("telegram-poller", () => {
 	});
 
 	it("sendPlainText sends message without parse_mode", async () => {
-		mockFetch.mockImplementation(() =>
-			mockFetchResponse({ ok: true, result: { message_id: 1 } }),
-		);
+		mockFetch.mockImplementation(() => mockFetchResponse({ ok: true, result: { message_id: 1 } }));
 
 		const { sendPlainText } = await import("../src/services/telegram-poller.js");
 		await sendPlainText("test-token", "123", "Hello plain text");

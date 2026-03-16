@@ -412,7 +412,7 @@ async function main() {
 		}
 
 		for (const tc of TEST_CASES) {
-			const agentId = agentIds.get(tc.name)!;
+			const agentId = agentIds.get(tc.name) as string;
 			process.stdout.write(`  ${tc.name}... `);
 
 			const result = await runTestCase(tc, agentId, model);

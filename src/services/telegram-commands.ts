@@ -4,16 +4,11 @@ import type { Database } from "../db/index.js";
 import { agents } from "../db/schema.js";
 import { enrichAgent, getConsecutiveFailures } from "../helpers/enrich-agent.js";
 import type { Agent } from "../types/index.js";
-import { executeAgent } from "./executor.js";
-import { getLlmCircuitStatus } from "./executor.js";
+import { executeAgent, getLlmCircuitStatus } from "./executor.js";
 import { parseIntent } from "./intent-parser.js";
 import { parseSchedule } from "./schedule-parser.js";
 import { getScheduledJobs, removeAgent, scheduleAgent } from "./scheduler.js";
-import {
-	type TelegramMessage,
-	sendPlainText,
-	sendTypingAction,
-} from "./telegram-poller.js";
+import { sendPlainText, sendTypingAction, type TelegramMessage } from "./telegram-poller.js";
 
 const HELP_TEXT = `I can help you manage your agents. Try:
 
@@ -90,12 +85,8 @@ function handleEnable(agentName: string, db: Database): string {
 		.where(eq(agents.id, agent.id))
 		.run();
 
-	const updated = db
-		.select()
-		.from(agents)
-		.where(eq(agents.id, agent.id))
-		.get()!;
-	scheduleAgent(updated, db);
+	const updated = db.select().from(agents).where(eq(agents.id, agent.id)).get();
+	if (updated) scheduleAgent(updated, db);
 
 	return `Enabled ${agent.name}.`;
 }
@@ -178,12 +169,8 @@ async function handleReschedule(
 			.run();
 
 		if (agent.enabled === 1) {
-			const updated = db
-				.select()
-				.from(agents)
-				.where(eq(agents.id, agent.id))
-				.get()!;
-			scheduleAgent(updated, db);
+			const updated = db.select().from(agents).where(eq(agents.id, agent.id)).get();
+			if (updated) scheduleAgent(updated, db);
 		}
 
 		return `Updated ${agent.name} schedule to "${result.humanReadable}" (${result.cronExpression}).`;
@@ -203,13 +190,10 @@ function handleUnknown(): string {
  * Main message handler: dispatches Telegram messages to the appropriate command handler.
  * /start and /help bypass the LLM intent parser.
  */
-export async function handleTelegramMessage(
-	message: TelegramMessage,
-	db: Database,
-): Promise<void> {
+export async function handleTelegramMessage(message: TelegramMessage, db: Database): Promise<void> {
 	const text = message.text?.trim() ?? "";
 	const chatId = String(message.chat.id);
-	const botToken = env.TELEGRAM_BOT_TOKEN!;
+	const botToken = env.TELEGRAM_BOT_TOKEN as string;
 
 	// Slash commands bypass LLM
 	if (text.toLowerCase() === "/start" || text.toLowerCase() === "/help") {
@@ -267,11 +251,7 @@ export async function handleTelegramMessage(
 					reply =
 						"Please specify agent and schedule. Example: change Morning Briefing to every weekday at 9am";
 				} else {
-					reply = await handleReschedule(
-						intent.agentName,
-						intent.scheduleInput,
-						db,
-					);
+					reply = await handleReschedule(intent.agentName, intent.scheduleInput, db);
 				}
 				break;
 			case "unknown":

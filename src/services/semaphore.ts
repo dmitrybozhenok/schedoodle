@@ -20,8 +20,8 @@ export function createSemaphore(limit: number) {
 
 	function release(): void {
 		if (waiters.length > 0) {
-			const next = waiters.shift()!;
-			next();
+			const next = waiters.shift();
+			if (next) next();
 		} else {
 			available++;
 		}

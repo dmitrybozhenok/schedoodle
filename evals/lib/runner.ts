@@ -245,7 +245,7 @@ export async function runEvalSuite(
 	// Run all cases
 	const results: EvalResult[] = [];
 	for (const evalCase of cases) {
-		const agentId = agentIds.get(evalCase.id)!;
+		const agentId = agentIds.get(evalCase.id) as string;
 		const result = await evaluateCase(evalCase, agentId, {
 			enableJudge: options.enableJudge,
 			judgeModel: options.judgeModel,
