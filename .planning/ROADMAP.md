@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -112,6 +112,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 14. MCP Server | 2/2 | Complete    | 2026-03-15 |
 | 15. Telegram Notification Channel | 2/2 | Complete    | 2026-03-15 |
 | 16. Telegram NLP Control | 2/2 | Complete    | 2026-03-16 |
+| 17. Code Refactoring and Cleanup | 0/2 | Planned | |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -323,15 +324,24 @@ Plans:
 - [ ] 16-01-PLAN.md — Intent schema, LLM intent parser, Telegram polling loop with offset tracking and chat ID security, and tests
 - [ ] 16-02-PLAN.md — Command handlers (list, run, enable, disable, status, reschedule, help, unknown), index.ts polling integration, and tests
 
-### Phase 17: code refactoring, cleanup
+### Phase 17: Code Refactoring and Cleanup
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Decompose oversized modules (executor.ts), eliminate code duplication (zodErrorHook, parseId, notification dispatch), centralize hardcoded constants, and standardize logging across the codebase -- all without changing any external API behavior
+**Requirements**: N/A (internal quality improvement)
 **Depends on:** Phase 16
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. executor.ts is a thin facade under 100 lines, delegating to focused modules (orchestrator, recorder)
+  2. All hardcoded operational constants are defined once in src/config/constants.ts
+  3. zodErrorHook and parseId are defined once in src/helpers/validation.ts, imported by 3 route files
+  4. All console.log/error/warn calls in src/ (except env.ts and mcp.ts) use the standardized logger
+  5. Notification dispatch is consolidated into a single dispatchNotifications function in notifier.ts
+  6. No circular dependencies exist between decomposed modules
+  7. Full test suite passes with identical external behavior
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 17 to break down)
+- [ ] 17-01-PLAN.md — Create constants.ts, logger.ts, validation.ts foundation files and migrate all non-executor files to use them
+- [ ] 17-02-PLAN.md — Decompose executor.ts into orchestrator/recorder/facade, consolidate notification dispatch, update tests
 
 ### Phase 18: implement scheduling via telegram chat
 
