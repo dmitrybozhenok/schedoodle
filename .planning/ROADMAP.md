@@ -112,7 +112,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 14. MCP Server | 2/2 | Complete    | 2026-03-15 |
 | 15. Telegram Notification Channel | 2/2 | Complete    | 2026-03-15 |
 | 16. Telegram NLP Control | 2/2 | Complete    | 2026-03-16 |
-| 17. Code Refactoring and Cleanup | 0/2 | Planned | |
+| 17. Code Refactoring and Cleanup | 1/2 | In Progress|  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -337,7 +337,7 @@ Plans:
   5. Notification dispatch is consolidated into a single dispatchNotifications function in notifier.ts
   6. No circular dependencies exist between decomposed modules
   7. Full test suite passes with identical external behavior
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 17-01-PLAN.md — Create constants.ts, logger.ts, validation.ts foundation files and migrate all non-executor files to use them
