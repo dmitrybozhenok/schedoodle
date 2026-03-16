@@ -297,3 +297,13 @@ Plans:
 Plans:
 - [ ] 15-01-PLAN.md — Telegram utility module (API call, MarkdownV2 escaping), env config, schema telegramDeliveryStatus column, notifier Telegram functions, and tests
 - [ ] 15-02-PLAN.md — Executor multi-channel parallel dispatch, test_telegram MCP tool, health per-channel delivery stats, and tests
+
+### Phase 16: Telegram NLP Control
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 15
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 16 to break down)

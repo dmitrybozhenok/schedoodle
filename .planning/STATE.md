@@ -203,6 +203,7 @@ Recent decisions affecting current work:
 - Phase 13 added: CI CD Pipeline
 - Phase 14 added: MCP Server for Claude Code Integration
 - Phase 15 added: Telegram Notification Channel
+- Phase 16 added: Telegram NLP Control
 
 ### Pending Todos
 
