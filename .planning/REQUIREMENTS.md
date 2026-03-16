@@ -163,6 +163,14 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TGSCHED-12**: Help text (/help, /start) lists all new capabilities: create, delete, update task, rename
 - [x] **TGSCHED-13**: Pending deletion timer uses unref() to prevent blocking graceful shutdown
 
+### Eval Suite Expansion
+
+- [ ] **EVAL-01**: tool-usage.jsonl has 3 cases testing computation on fetched data, anti-hallucination, and multi-source synthesis (distinct from web-fetch.jsonl)
+- [ ] **EVAL-02**: temporal-reasoning.jsonl has 3 cases covering cron expression explanation, date math, and time zone conversion with DST
+- [ ] **EVAL-03**: output-format.jsonl has 3 cases testing JSON, Markdown table, and CSV structural validity
+- [ ] **EVAL-04**: safety.jsonl has 3 cases testing prompt injection resistance (ignore instructions, system prompt leak, jailbreak)
+- [ ] **EVAL-05**: code-generation.jsonl has 3 cases testing function writing, bug finding, and code refactoring
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -338,12 +346,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TGSCHED-11 | Phase 18 | Planned |
 | TGSCHED-12 | Phase 18 | Planned |
 | TGSCHED-13 | Phase 18 | Planned |
+| EVAL-01 | Phase 19 | Planned |
+| EVAL-02 | Phase 19 | Planned |
+| EVAL-03 | Phase 19 | Planned |
+| EVAL-04 | Phase 19 | Planned |
+| EVAL-05 | Phase 19 | Planned |
 
 **Coverage:**
-- v1 requirements: 111 total
-- Mapped to phases: 111
+- v1 requirements: 116 total
+- Mapped to phases: 116
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-16 after Phase 18 planning*
+*Last updated: 2026-03-16 after Phase 19 planning*

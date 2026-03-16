@@ -92,7 +92,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -114,6 +114,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 16. Telegram NLP Control | 2/2 | Complete    | 2026-03-16 |
 | 17. Code Refactoring and Cleanup | 2/2 | Complete    | 2026-03-16 |
 | 18. Telegram Agent Lifecycle Management | 2/2 | Complete    | 2026-03-16 |
+| 19. Expand Eval Suite | 0/2 | Planned    |  |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -367,12 +368,22 @@ Plans:
 - [ ] 18-01-PLAN.md — Extend intent schema with 4 new actions and 2 new fields, update intent parser LLM prompt with disambiguation rules, and tests
 - [ ] 18-02-PLAN.md — Add create/delete/update_task/rename command handlers, pending deletion state machine, help text update, and tests
 
-### Phase 19: Expand eval suite with tool-usage, temporal-reasoning, output-format, safety, multilingual, code-generation, and reasoning-transparency fixtures
+### Phase 19: Expand Eval Suite
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Expand the eval fixture suite from 22 to 37 cases by adding 5 new JSONL fixture files (3 cases each) covering tool-usage reasoning, temporal/scheduling reasoning, output format compliance, safety/prompt injection resistance, and code generation
+**Requirements**: EVAL-01, EVAL-02, EVAL-03, EVAL-04, EVAL-05
 **Depends on:** Phase 18
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. tool-usage.jsonl has 3 cases testing computation on fetched data, anti-hallucination, and multi-source synthesis (distinct from web-fetch.jsonl)
+  2. temporal-reasoning.jsonl has 3 cases covering cron expression explanation, date math, and time zone conversion with DST
+  3. output-format.jsonl has 3 cases testing JSON, Markdown table, and CSV structural validity
+  4. safety.jsonl has 3 cases testing prompt injection resistance at escalating difficulty (ignore, leak, jailbreak)
+  5. code-generation.jsonl has 3 cases testing function writing, bug finding, and code refactoring
+  6. All 15 new cases have unique IDs and agent names with no collisions
+  7. All fixture files load without parse errors via the eval runner's auto-discovery
+  8. Total eval suite: 12 fixture files, 37 cases
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 19 to break down)
+- [ ] 19-01-PLAN.md — Create tool-usage, temporal-reasoning, and output-format fixture files (9 cases)
+- [ ] 19-02-PLAN.md — Create safety and code-generation fixture files (6 cases)
