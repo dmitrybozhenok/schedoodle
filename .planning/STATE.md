@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-03-16T01:22:47Z"
-last_activity: 2026-03-16 -- Plan 16-01 complete (Intent schema, LLM parser, Telegram polling loop)
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-03-16T01:29:45Z"
+last_activity: 2026-03-16 -- Plan 16-02 complete (Command handlers, polling integration)
 progress:
   total_phases: 16
-  completed_phases: 15
+  completed_phases: 16
   total_plans: 31
-  completed_plans: 30
-  percent: 97
+  completed_plans: 31
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Agents run reliably on schedule, process tasks through an LLM, and deliver structured results -- without manual intervention.
-**Current focus:** Phase 16 -- Telegram NLP Control (two-way bot interface)
+**Current focus:** Phase 16 -- Telegram NLP Control (two-way bot interface) -- COMPLETE
 
 ## Current Position
 
 Phase: 16 of 16 (Telegram NLP Control)
-Plan: 1 of 2 in current phase (1 complete)
-Status: In Progress
-Last activity: 2026-03-16 -- Plan 16-01 complete (Intent schema, LLM parser, Telegram polling loop)
+Plan: 2 of 2 in current phase (2 complete)
+Status: Complete
+Last activity: 2026-03-16 -- Plan 16-02 complete (Command handlers, polling integration)
 
-Progress: [█████████░] 97%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Progress: [█████████░] 97%
 | Phase 15 P01 | 7min | 2 tasks | 17 files |
 | Phase 15 P02 | 6min | 2 tasks | 8 files |
 | Phase 16 P01 | 3min | 2 tasks | 5 files |
+| Phase 16 P02 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -196,6 +197,10 @@ Recent decisions affecting current work:
 - [Phase 16]: [16-01]: Chat ID security guard placed inside polling loop before onMessage callback
 - [Phase 16]: [16-01]: Plain text for bot control responses (no parse_mode) to avoid MarkdownV2 escaping
 - [Phase 16]: [16-01]: Fire-and-forget poll() invocation via void poll() to start async loop
+- [Phase 16]: [16-02]: Run command does NOT check agent.enabled (disabled agents can be manually executed, per Phase 6)
+- [Phase 16]: [16-02]: Slash commands /start and /help bypass LLM entirely (checked before parseIntent)
+- [Phase 16]: [16-02]: stopPolling() unconditional in shutdown (no-op if not started)
+- [Phase 16]: [16-02]: COLLATE NOCASE for case-insensitive agent name lookup in findAgentByName
 
 ### Roadmap Evolution
 
@@ -209,6 +214,7 @@ Recent decisions affecting current work:
 - Phase 14 added: MCP Server for Claude Code Integration
 - Phase 15 added: Telegram Notification Channel
 - Phase 16 added: Telegram NLP Control
+- Phase 17 added: code refactoring, cleanup
 
 ### Pending Todos
 
@@ -222,6 +228,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T01:22:47Z
-Stopped at: Completed 16-01-PLAN.md
-Resume file: .planning/phases/16-telegram-nlp-control/16-01-SUMMARY.md
+Last session: 2026-03-16T01:29:45Z
+Stopped at: Completed 16-02-PLAN.md
+Resume file: .planning/phases/16-telegram-nlp-control/16-02-SUMMARY.md

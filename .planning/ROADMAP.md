@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 13. CI/CD Pipeline | 1/1 | Complete    | 2026-03-15 |
 | 14. MCP Server | 2/2 | Complete    | 2026-03-15 |
 | 15. Telegram Notification Channel | 2/2 | Complete    | 2026-03-15 |
-| 16. Telegram NLP Control | 1/2 | In Progress|  |
+| 16. Telegram NLP Control | 2/2 | Complete   | 2026-03-16 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -317,8 +317,18 @@ Plans:
   10. Only messages from the configured TELEGRAM_CHAT_ID are processed; all others are silently ignored
   11. Unrecognized input gets a friendly fallback with help text listing available capabilities
   12. Error messages include brief guidance (e.g., "Agent 'foo' not found. Try: list agents")
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 16-01-PLAN.md — Intent schema, LLM intent parser, Telegram polling loop with offset tracking and chat ID security, and tests
 - [ ] 16-02-PLAN.md — Command handlers (list, run, enable, disable, status, reschedule, help, unknown), index.ts polling integration, and tests
+
+### Phase 17: code refactoring, cleanup
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 16
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 17 to break down)
