@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 16. Telegram NLP Control | 2/2 | Complete    | 2026-03-16 |
 | 17. Code Refactoring and Cleanup | 2/2 | Complete    | 2026-03-16 |
 | 18. Telegram Agent Lifecycle Management | 2/2 | Complete    | 2026-03-16 |
-| 19. Expand Eval Suite | 0/2 | Planned    |  |
+| 19. Expand Eval Suite | 2/2 | Complete   | 2026-03-16 |
 
 ### Phase 6: Agent Enabled Flag and Schedule Controls
 
@@ -382,7 +382,7 @@ Plans:
   6. All 15 new cases have unique IDs and agent names with no collisions
   7. All fixture files load without parse errors via the eval runner's auto-discovery
   8. Total eval suite: 12 fixture files, 37 cases
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 19-01-PLAN.md — Create tool-usage, temporal-reasoning, and output-format fixture files (9 cases)

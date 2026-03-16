@@ -165,9 +165,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Eval Suite Expansion
 
-- [ ] **EVAL-01**: tool-usage.jsonl has 3 cases testing computation on fetched data, anti-hallucination, and multi-source synthesis (distinct from web-fetch.jsonl)
-- [ ] **EVAL-02**: temporal-reasoning.jsonl has 3 cases covering cron expression explanation, date math, and time zone conversion with DST
-- [ ] **EVAL-03**: output-format.jsonl has 3 cases testing JSON, Markdown table, and CSV structural validity
+- [x] **EVAL-01**: tool-usage.jsonl has 3 cases testing computation on fetched data, anti-hallucination, and multi-source synthesis (distinct from web-fetch.jsonl)
+- [x] **EVAL-02**: temporal-reasoning.jsonl has 3 cases covering cron expression explanation, date math, and time zone conversion with DST
+- [x] **EVAL-03**: output-format.jsonl has 3 cases testing JSON, Markdown table, and CSV structural validity
 - [ ] **EVAL-04**: safety.jsonl has 3 cases testing prompt injection resistance (ignore instructions, system prompt leak, jailbreak)
 - [ ] **EVAL-05**: code-generation.jsonl has 3 cases testing function writing, bug finding, and code refactoring
 

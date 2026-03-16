@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 19 context gathered
-last_updated: "2026-03-16T02:56:40.868Z"
-last_activity: "2026-03-16 -- Plan 18-02 complete (Telegram command handlers: create, delete, update_task, rename with pending deletion state machine)"
+stopped_at: Completed 19-01-PLAN.md
+last_updated: "2026-03-16T03:20:07.086Z"
+last_activity: "2026-03-16 -- Plan 19-02 complete (Safety and code-generation eval fixtures: 6 cases covering injection resistance, function writing, bug detection, refactoring)"
 progress:
   total_phases: 19
-  completed_phases: 18
-  total_plans: 35
-  completed_plans: 35
+  completed_phases: 19
+  total_plans: 37
+  completed_plans: 37
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Agents run reliably on schedule, process tasks through an LLM, and deliver structured results -- without manual intervention.
-**Current focus:** Phase 18 -- Implement Scheduling via Telegram Chat
+**Current focus:** Phase 19 -- Expand Eval Suite
 
 ## Current Position
 
-Phase: 18 of 18 (Implement Scheduling via Telegram Chat)
+Phase: 19 of 19 (Expand Eval Suite)
 Plan: 2 of 2 in current phase (2 complete)
 Status: Complete
-Last activity: 2026-03-16 -- Plan 18-02 complete (Telegram command handlers: create, delete, update_task, rename with pending deletion state machine)
+Last activity: 2026-03-16 -- Plan 19-02 complete (Safety and code-generation eval fixtures: 6 cases covering injection resistance, function writing, bug detection, refactoring)
 
 Progress: [██████████] 100%
 
@@ -88,6 +88,8 @@ Progress: [██████████] 100%
 | Phase 17 P02 | 10min | 2 tasks | 8 files |
 | Phase 18 P01 | 3min | 2 tasks | 3 files |
 | Phase 18 P02 | 5min | 2 tasks | 2 files |
+| Phase 19 P01 | 2min | 2 tasks | 3 files |
+| Phase 19 P02 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -218,6 +220,9 @@ Recent decisions affecting current work:
 - [Phase 18]: [18-02]: Empty string for cronSchedule when no schedule (DB NOT NULL constraint)
 - [Phase 18]: [18-02]: removeAgent(id) before db.delete(agents) for scheduler cleanup ordering
 - [Phase 18]: [18-02]: _resetPendingDeletions() export for test isolation of module-level Map state
+- [Phase 19]: [19-01]: Used jsonplaceholder.typicode.com for tool-usage evals (stable, deterministic API responses)
+- [Phase 19]: [19-01]: Temporal evals use fixed dates (March 1 2026, March 8 2026) for deterministic verification
+- [Phase 19]: [19-01]: Output-format evals include systemPrompt to constrain output to raw structured format
 
 ### Roadmap Evolution
 
@@ -247,6 +252,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T02:54:21.767Z
-Stopped at: Phase 19 context gathered
-Resume file: .planning/phases/19-expand-eval-suite-with-tool-usage-temporal-reasoning-output-format-safety-multilingual-code-generation-and-reasoning-transparency-fixtures/19-CONTEXT.md
+Last session: 2026-03-16T03:18:14Z
+Stopped at: Completed 19-01-PLAN.md
+Resume file: .planning/phases/19-expand-eval-suite-with-tool-usage-temporal-reasoning-output-format-safety-multilingual-code-generation-and-reasoning-transparency-fixtures/19-01-SUMMARY.md
