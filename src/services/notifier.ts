@@ -170,6 +170,17 @@ export async function sendFailureNotification(
 
 const TELEGRAM_MAX_LENGTH = 3800;
 
+/**
+ * Convert markdown **bold** in text to MarkdownV2 *bold*, escaping the rest.
+ * Splits on **...** boundaries so bold content gets wrapped in * instead of escaped.
+ */
+function escapeWithBold(text: string): string {
+	const parts = text.split(/\*\*(.+?)\*\*/g);
+	return parts
+		.map((part, i) => (i % 2 === 1 ? `*${escapeMdV2(part)}*` : escapeMdV2(part)))
+		.join("");
+}
+
 export function buildTelegramMarkdown(
 	agentName: string,
 	executedAt: string,
@@ -186,7 +197,7 @@ export function buildTelegramMarkdown(
 		esc(output.summary),
 		"",
 		"*Details*",
-		esc(output.details),
+		escapeWithBold(output.details),
 	];
 
 	if (output.data) {
