@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 16 context gathered
-last_updated: "2026-03-16T00:44:55.056Z"
-last_activity: 2026-03-15 -- Plan 15-02 complete (Multi-channel dispatch, test_telegram MCP tool, delivery stats)
+status: in-progress
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-03-16T01:22:47Z"
+last_activity: 2026-03-16 -- Plan 16-01 complete (Intent schema, LLM parser, Telegram polling loop)
 progress:
   total_phases: 16
   completed_phases: 15
-  total_plans: 29
-  completed_plans: 29
-  percent: 100
+  total_plans: 31
+  completed_plans: 30
+  percent: 97
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Agents run reliably on schedule, process tasks through an LLM, and deliver structured results -- without manual intervention.
-**Current focus:** All phases complete -- v1.0 milestone finished
+**Current focus:** Phase 16 -- Telegram NLP Control (two-way bot interface)
 
 ## Current Position
 
-Phase: 15 of 15 (Telegram Notification Channel)
-Plan: 2 of 2 in current phase (2 complete)
-Status: Complete
-Last activity: 2026-03-15 -- Plan 15-02 complete (Multi-channel dispatch, test_telegram MCP tool, delivery stats)
+Phase: 16 of 16 (Telegram NLP Control)
+Plan: 1 of 2 in current phase (1 complete)
+Status: In Progress
+Last activity: 2026-03-16 -- Plan 16-01 complete (Intent schema, LLM parser, Telegram polling loop)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 97%
 
 ## Performance Metrics
 
@@ -82,6 +82,7 @@ Progress: [██████████] 100%
 | Phase 14 P02 | 5min | 2 tasks | 6 files |
 | Phase 15 P01 | 7min | 2 tasks | 17 files |
 | Phase 15 P02 | 6min | 2 tasks | 8 files |
+| Phase 16 P01 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -191,6 +192,10 @@ Recent decisions affecting current work:
 - [Phase 15]: [15-02]: Promise.allSettled for parallel multi-channel notification dispatch (email + Telegram)
 - [Phase 15]: [15-02]: Per-channel status derivation: fulfilled+sent=sent, fulfilled+skipped=null, rejected=failed
 - [Phase 15]: [15-02]: Both pending statuses set before dispatch, then overwritten with final results in single DB update
+- [Phase 16]: [16-01]: Intent schema uses nullable agentName and scheduleInput fields (null when not applicable to action)
+- [Phase 16]: [16-01]: Chat ID security guard placed inside polling loop before onMessage callback
+- [Phase 16]: [16-01]: Plain text for bot control responses (no parse_mode) to avoid MarkdownV2 escaping
+- [Phase 16]: [16-01]: Fire-and-forget poll() invocation via void poll() to start async loop
 
 ### Roadmap Evolution
 
@@ -217,6 +222,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T00:44:55.053Z
-Stopped at: Phase 16 context gathered
-Resume file: .planning/phases/16-telegram-nlp-control/16-CONTEXT.md
+Last session: 2026-03-16T01:22:47Z
+Stopped at: Completed 16-01-PLAN.md
+Resume file: .planning/phases/16-telegram-nlp-control/16-01-SUMMARY.md

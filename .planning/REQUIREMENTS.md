@@ -134,16 +134,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Telegram NLP Control
 
-- [ ] **TGCTL-01**: Telegram bot receives incoming messages via polling (getUpdates) and routes to command handler
+- [x] **TGCTL-01**: Telegram bot receives incoming messages via polling (getUpdates) and routes to command handler
 - [ ] **TGCTL-02**: /start and /help commands handled directly without LLM call, returning bot capabilities
-- [ ] **TGCTL-03**: Free-text messages parsed by LLM to extract intent (list, run, enable, disable, status, reschedule) and target agent name
-- [ ] **TGCTL-04**: LLM resolves fuzzy agent names from full agent list (e.g., "briefing" matches "Morning Briefing Agent")
+- [x] **TGCTL-03**: Free-text messages parsed by LLM to extract intent (list, run, enable, disable, status, reschedule) and target agent name
+- [x] **TGCTL-04**: LLM resolves fuzzy agent names from full agent list (e.g., "briefing" matches "Morning Briefing Agent")
 - [ ] **TGCTL-05**: "Run X" triggers executeAgent and replies with concise confirmation; result via existing notification flow
 - [ ] **TGCTL-06**: "List agents" returns agent names with enabled/disabled and healthy/unhealthy status indicators
 - [ ] **TGCTL-07**: "Enable/disable X" toggles agent enabled flag and updates scheduler
 - [ ] **TGCTL-08**: "Change X to [NL schedule]" updates agent schedule using Phase 7 NL-to-cron parser
 - [ ] **TGCTL-09**: "Status" or "health" returns concise system health summary
-- [ ] **TGCTL-10**: Only messages from configured TELEGRAM_CHAT_ID processed; unauthorized messages silently ignored
+- [x] **TGCTL-10**: Only messages from configured TELEGRAM_CHAT_ID processed; unauthorized messages silently ignored
 - [ ] **TGCTL-11**: Unrecognized input gets friendly fallback with help text listing available capabilities
 - [ ] **TGCTL-12**: Error messages include brief guidance (e.g., "Agent 'foo' not found. Try: list agents")
 
