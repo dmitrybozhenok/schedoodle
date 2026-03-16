@@ -215,6 +215,7 @@ Recent decisions affecting current work:
 - Phase 15 added: Telegram Notification Channel
 - Phase 16 added: Telegram NLP Control
 - Phase 17 added: code refactoring, cleanup
+- Phase 18 added: implement scheduling via telegram chat
 
 ### Pending Todos
 
