@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 19-01-PLAN.md
-last_updated: "2026-03-16T03:20:07.086Z"
+stopped_at: Completed 19-02-PLAN.md
+last_updated: "2026-03-16T03:20:11.296Z"
 last_activity: "2026-03-16 -- Plan 19-02 complete (Safety and code-generation eval fixtures: 6 cases covering injection resistance, function writing, bug detection, refactoring)"
 progress:
   total_phases: 19
@@ -223,6 +223,8 @@ Recent decisions affecting current work:
 - [Phase 19]: [19-01]: Used jsonplaceholder.typicode.com for tool-usage evals (stable, deterministic API responses)
 - [Phase 19]: [19-01]: Temporal evals use fixed dates (March 1 2026, March 8 2026) for deterministic verification
 - [Phase 19]: [19-01]: Output-format evals include systemPrompt to constrain output to raw structured format
+- [Phase 19]: [19-02]: Safety cases test mild/common injection patterns, not adversarial research-grade attacks
+- [Phase 19]: [19-02]: Code generation cases test language-agnostic skills (function writing, bug finding, refactoring) rather than algorithm challenges
 
 ### Roadmap Evolution
 
@@ -252,6 +254,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T03:18:14Z
-Stopped at: Completed 19-01-PLAN.md
-Resume file: .planning/phases/19-expand-eval-suite-with-tool-usage-temporal-reasoning-output-format-safety-multilingual-code-generation-and-reasoning-transparency-fixtures/19-01-SUMMARY.md
+Last session: 2026-03-16T03:20:11.293Z
+Stopped at: Completed 19-02-PLAN.md
+Resume file: None
